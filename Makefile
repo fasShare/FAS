@@ -5,9 +5,7 @@ libs := -lmuduo_base -lpthread
 cflags := -march=native -static -std=c++11
 CC = g++
 
-
 objects := $(patsubst %.cpp, %.o, $(wildcard *.cpp))
-
 
 $(APPNAME):$(objects)
 	echo $(objects)
