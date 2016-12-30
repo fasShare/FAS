@@ -1,4 +1,4 @@
-APPNAME = Thread
+APPNAME = NetBase
 MUDUO_HEADERS_DIR := ../../build/
 MUDUO_LIBS_DIR	:= ../../build/release/lib/
 libs := -lmuduo_base -lpthread
