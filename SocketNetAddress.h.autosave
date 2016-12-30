@@ -1,0 +1,13 @@
+#ifndef SOCKETNETADDRESS_H
+#define SOCKETNETADDRESS_H
+#include <
+
+class SocketNetAddress
+{
+private:
+ 
+public:
+    SocketNetAddress();
+};
+
+#endif // SOCKETNETADDRESS_H
