@@ -1,6 +1,6 @@
 APPNAME = TcpSer
 NETBASE_HEADERS := ./include
-NETBASE_SRCS	:= ./src
+NETBASE_SRCS	   := ./src
 NETBASE_LIBS    := ./lib
 libs :=  -lNetBase -lpthread
 cflags := -std=c++11 -static

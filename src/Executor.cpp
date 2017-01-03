@@ -16,6 +16,8 @@ Executor::Executor() {
 Executor::~Executor() {
 
 }
+
+
 Events Executor::Executor_get_event() {
   assert(set_event_flag);
   return event;
@@ -27,24 +29,41 @@ void Executor::Executor_set_event(Events& event) {
   set_event_flag = true;
 }
 
+
 Events* Executor::Executor_get_eventpointer() {
   assert(set_event_flag);
   return &event;
 }
 
+
 void Executor::Executor_handle_event(Events* event) {
   cout << "event fd:" << event->Events_get_fd() << endl;
 }
+
+
+
 unsigned char Executor::Executor_get_event_state() {
   assert(set_event_flag);
   return state;
 }
-
 void Executor::Executor_set_event_state(unsigned char state) {
   assert(set_event_flag);
   this->state = state;
 }
+
+
+
 void Executor::Executor_set_dispatcher(Dispatcher *dispatcher) {
   assert(set_event_flag);
   this->dispatch = dispatcher;
+}
+
+
+void Executor::Executor_set_state(unsigned char state) {
+  //FIXME:
+  assert(true);
+  this->state = state;
+}
+unsigned char Executor::Executor_get_state() {
+  return this->state;
 }
