@@ -6,11 +6,13 @@
 
 class TcpServer : public Executor
 {
+private:
+  Socket serfd;
 public:
     TcpServer(NetAddress addr);
     TcpServer();
     ~TcpServer() = default;
-    virtual void Executor_handle_event(Events* event) override;
+    void Executor_handle_event(Events* event);
 };
 
 #endif // TCPSERVER_H

@@ -12,7 +12,7 @@ all:$(objects)
 	echo $(objects)
 	$(SHARED_LIB_CMD) $^ -o $(NETBASE_SHARED_LIB)
 	$(STATIC_LIB_CMD) $(NETBASE_STATIC_LIB) $^ 
-	mv $(NETBASE_SHARED_LIB) $(NETBASE_STATIC_LIB) $(NETBASE_LIBS)	
+	cp $(NETBASE_SHARED_LIB) $(NETBASE_STATIC_LIB) $(NETBASE_LIBS)	
 
 %.o:%.cpp
 	$(CC) -c $^ -I${NETBASE_HEADERS} $(cflags) -o $@

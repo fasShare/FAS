@@ -62,6 +62,7 @@ void Dispatcher::Dispatcher_loop() {
         poll->Poller_event_add(index->second->Executor_get_eventpointer());
         //insert
         execs[index->first] = index->second;
+				index->second->Executor_set_dispatcher(this);
       } else if (op_exec->Executor_get_state() == EXECUTOR_STATE_MOD) {
 
         poll->Poller_event_mod(index->second->Executor_get_eventpointer());
@@ -80,12 +81,19 @@ void Dispatcher::Dispatcher_loop() {
 
     update_execs.clear();
 
+		cout << "execs : " << execs.size() << endl;
+
     int ret = poll->Poller_loop(revents, execs.size(), -1);
+
+		cout << "ret = " << ret << endl;
 
     for(int i = 0; i < ret; i++) {
 
       int fd = revents.data()[i].Events_get_fd();
-      //exec will decreament reference after for end!
+			
+			cout << "fd" << i << "=" << fd << endl;
+     
+			//exec will decreament reference after for end!
       shared_ptr<Executor> exec = execs.find(fd)->second;
 
       assert(exec->Executor_get_eventpointer()->Events_get_fd() == fd);

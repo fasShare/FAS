@@ -29,12 +29,10 @@ public:
 
   Events* Executor_get_eventpointer();
 
-  virtual void Executor_handle_event(Events* event);
-
-  unsigned char Executor_get_event_state();
-  void Executor_set_event_state(unsigned char set_event);
+  virtual void Executor_handle_event(Events* event) = 0;
 
   void Executor_set_dispatcher(Dispatcher *dispatch);
+  Dispatcher* Executor_get_dispatcher();
 
   void Executor_set_state(unsigned char state);
   unsigned char Executor_get_state();

@@ -10,7 +10,6 @@ objects := $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 
 all:
 	make -C src
-	make clean -C src
 	make $(APPNAME)
 
 $(APPNAME):$(objects)
@@ -23,5 +22,5 @@ $(APPNAME):$(objects)
 
 .PHONY : clean
 clean:
-	rm *.o $(APPNAME) -rf 
+	rm *.o $(APPNAME) ./lib/*  -rf 
 
