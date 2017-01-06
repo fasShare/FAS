@@ -1,5 +1,8 @@
 #include "Dispatcher.h"
 #include <assert.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
 
 Dispatcher::Dispatcher():
                         poll(NULL){
@@ -31,7 +34,8 @@ bool Dispatcher::Dispatcher_mod_events(shared_ptr<Executor> exec) {
   return Dispatcher_update_events(exec);
 }
 bool Dispatcher::Dispatcher_mod_events(Executor* exec) {
-  shared_ptr<Executor> exec_ptr(exec);
+  //shared_ptr<Executor> exec_ptr = execs.find(exec->Executor_get_event().Events_get_fd())->second;
+  shared_ptr<Executor> exec_ptr = Dispatcher_get_exec_shared_ptr(exec);
   return Dispatcher_mod_events(exec_ptr);
 }
 
@@ -41,8 +45,20 @@ bool Dispatcher::Dispatcher_del_events(shared_ptr<Executor> exec) {
   return Dispatcher_update_events(exec);
 }
 bool Dispatcher::Dispatcher_del_events(Executor* exec) {
-  shared_ptr<Executor> exec_ptr(exec);
+  //shared_ptr<Executor> exec_ptr = execs.find(exec->Executor_get_event().Events_get_fd())->second;
+  shared_ptr<Executor> exec_ptr = Dispatcher_get_exec_shared_ptr(exec);
   return Dispatcher_del_events(exec_ptr);
+}
+
+
+shared_ptr<Executor>  Dispatcher::Dispatcher_get_exec_shared_ptr(int fd) {
+  map<int, shared_ptr<Executor>>::iterator index =  execs.find(fd);
+  return index->second;
+}
+
+shared_ptr<Executor>  Dispatcher::Dispatcher_get_exec_shared_ptr(Executor *exec) {
+  map<int, shared_ptr<Executor>>::iterator index =  execs.find(exec->Executor_get_event().Events_get_fd());
+  return index->second;
 }
 
 
@@ -69,31 +85,23 @@ void Dispatcher::Dispatcher_loop() {
         //mod
         execs[index->first] = index->second;
       } else if (op_exec->Executor_get_state() == EXECUTOR_STATE_DEL) {
-
-        poll->Poller_event_del(index->second->Executor_get_eventpointer());
+        poll->Poller_event_del(op_exec->Executor_get_eventpointer());
         //del
-        execs.erase(index->first);
+        execs.erase(op_exec->Executor_get_event().Events_get_fd());
       } else {
         //error
         assert(false);
       }
     }
-
     update_execs.clear();
+    revents.clear();
 
-		cout << "execs : " << execs.size() << endl;
+    int ret = poll->Poller_loop(revents, 20, -1);
 
-    int ret = poll->Poller_loop(revents, execs.size(), -1);
-
-		cout << "ret = " << ret << endl;
-
-    for(int i = 0; i < ret; i++) {
-
+    for(int i = 0; i < ret; i++) { 
       int fd = revents.data()[i].Events_get_fd();
-			
-			cout << "fd" << i << "=" << fd << endl;
      
-			//exec will decreament reference after for end!
+      //exec will decreament reference after for end!
       shared_ptr<Executor> exec = execs.find(fd)->second;
 
       assert(exec->Executor_get_eventpointer()->Events_get_fd() == fd);

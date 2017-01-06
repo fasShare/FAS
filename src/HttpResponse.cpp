@@ -9,7 +9,7 @@ HttpResponse::HttpResponse(int sd) {
 void HttpResponse::Executor_handle_event(Events *events) {
 
 
-	cout << "new httpresponse" << endl;
+    cout << " new httpresponse " << endl;
 		
 	char buf[200] = {0};
 	int maxLen = 200-1;
@@ -19,7 +19,9 @@ void HttpResponse::Executor_handle_event(Events *events) {
 		rsd.Socket_close();
 
 		//FIXME : remove from Dispatcher
+        this->Executor_get_dispatcher()->Dispatcher_del_events(this);
 
+        cout << "delete from Dispathcer" << endl;
 		return ;
 	}
 

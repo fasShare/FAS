@@ -67,12 +67,15 @@ bool Epoll::Poller_event_del(Events* events) {
 }
 
 int Epoll::Poller_loop(vector<Events> &events, int max_events, int timeout) {
-  if(revents.size() <= max_events) {
-    //FIXME
-    revents.resize(max_events + 20);
-  }
+
+  revents.resize(max_events);
+
   int ret = this->Epoll_wait(revents.data(), max_events, timeout);
-  for(int i = 0; i < ret; i++){
+
+  cout << "ret = " << ret << endl;
+  cout << strerror(errno) << endl;
+
+  for(int i = 0; i < ret; i++) {
     events.push_back(revents.at(i));
   }
   revents.clear();

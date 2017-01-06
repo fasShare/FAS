@@ -19,6 +19,7 @@ private:
   unsigned char state;
   bool set_event_flag;
   Dispatcher *dispatch;
+  shared_ptr<Executor> shared_this;
 public:
   Executor(Events event);
   Executor();
