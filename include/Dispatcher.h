@@ -23,8 +23,10 @@ private:
   EventsPoller *poll;
   vector<Events> revents;
   map<int, shared_ptr<Executor>> execs;
-  map<int, shared_ptr<Executor>> add_execs;
-  map<int, shared_ptr<Executor>> del_execs;
+  map<int, shared_ptr<Executor>> update_execs;
+
+
+
 public:
   Dispatcher();
   bool Dispatcher_add_events(shared_ptr<Executor> exec);
@@ -34,7 +36,13 @@ public:
   bool Dispatcher_del_events(shared_ptr<Executor> exec);
   bool Dispatcher_del_events(Executor* exec);
 
+  shared_ptr<Executor>  Dispatcher_get_exec_shared_ptr(int fd);
+  shared_ptr<Executor>  Dispatcher_get_exec_shared_ptr(Executor *exec);
+
   void Dispatcher_loop();
+
+private:
+  bool Dispatcher_update_events(shared_ptr<Executor> exec);
 };
 
 #endif // DISPATCHER_H

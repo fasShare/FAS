@@ -1,6 +1,6 @@
 APPNAME = TcpSer
 NETBASE_HEADERS := ./include
-NETBASE_SRCS	:= ./src
+NETBASE_SRCS	   := ./src
 NETBASE_LIBS    := ./lib
 libs :=  -lNetBase -lpthread
 cflags := -std=c++11 -static
@@ -10,7 +10,6 @@ objects := $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 
 all:
 	make -C src
-	make clean -C src
 	make $(APPNAME)
 
 $(APPNAME):$(objects)
@@ -23,5 +22,5 @@ $(APPNAME):$(objects)
 
 .PHONY : clean
 clean:
-	rm *.o $(APPNAME) -rf 
+	rm *.o $(APPNAME)  -rf 
 

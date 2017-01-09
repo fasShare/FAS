@@ -19,17 +19,24 @@ private:
   unsigned char state;
   bool set_event_flag;
   Dispatcher *dispatch;
+  shared_ptr<Executor> shared_this;
 public:
   Executor(Events event);
   Executor();
   virtual ~Executor();
+
   Events Executor_get_event();
   void Executor_set_event(Events& event);
+
   Events* Executor_get_eventpointer();
-  virtual void Executor_handle_event(Events* event);
-  unsigned char Executor_get_event_state();
-  void Executor_set_event_state(unsigned char state);
+
+  virtual void Executor_handle_event(Events* event) = 0;
+
   void Executor_set_dispatcher(Dispatcher *dispatch);
+  Dispatcher* Executor_get_dispatcher();
+
+  void Executor_set_state(unsigned char state);
+  unsigned char Executor_get_state();
 };
 
 #endif // EXECUTOR_H
