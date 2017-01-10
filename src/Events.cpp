@@ -10,23 +10,23 @@ Events::Events(const Epoll_Event& events) {
 
 Events::~Events() {
 }
-int Events::Events_get_fd() {
+int Events::get_fd() {
   return fd;
 }
 
-int Events::Events_set_fd(int fd) {
+void Events::set_fd(int fd) {
   this->fd = fd;
 }
 
-int Events::Events_get_events() {
+int Events::get_events() {
   return events;
 }
 
-int Events::Events_set_events(int events) {
+void Events::set_events(int events) {
   this->events = events;
 }
 
-Epoll_Event Events::Events_get_epollevents() {
+Epoll_Event Events::get_epollevents() {
   Epoll_Event events;
   events.data.fd = this->fd;
   events.events = this->events;

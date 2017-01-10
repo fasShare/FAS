@@ -22,5 +22,5 @@ $(APPNAME):$(objects)
 
 .PHONY : clean
 clean:
-	rm *.o $(APPNAME)  -rf 
-
+	rm *.o $(APPNAME) ./lib/*  -rf 
+	make clean -C src

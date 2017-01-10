@@ -23,24 +23,24 @@ public:
 
   Socket& operator= (const int sd);
 
-  bool Socket_set_noblock();
+  bool set_noblock();
 
-  bool Socket_bind(NetAddress &addr);
-  bool Socket_bind(const struct sockaddr *addr,
+  bool bind(NetAddress &addr);
+  bool bind(const struct sockaddr *addr,
                 socklen_t addrlen);
 
-  bool Socket_listen(int backlog);
+  bool listen(int backlog);
 
-  Socket Socket_accept();
+  Socket accept();
 
-  void Socket_set_available(bool boolean);
-  bool Socket_get_available();
+  void set_available(bool boolean);
+  bool get_available();
 
-	int Socket_accept(struct sockaddr* addr, socklen_t* addrlen);
+    int accept(struct sockaddr* addr, socklen_t* addrlen);
 
-  int Socket_get_sd();
+  int get_sd();
 
-  void Socket_close();
+  void close();
 };
 
 #endif // SOCKET_H

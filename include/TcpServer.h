@@ -1,18 +1,25 @@
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
-#include "Executor.h"
+#include "Handle.h"
+#include "Socket.h"
 #include "NetAddress.h"
 #include "NetBaseTypes.h"
 
-class TcpServer : public Executor
-{
+class TcpServer {
 private:
   Socket serfd;
+  Dispatcher *dispatch;
+  Handle *handle;
 public:
     TcpServer(NetAddress addr);
     TcpServer();
     ~TcpServer() = default;
-    void Executor_handle_event(Events* event);
+
+    bool init(Dispatcher *dispatcher);
+
+    Dispatcher* get_dispatcher();
+
+    void handle_event(Events* event);
 };
 
 #endif // TCPSERVER_H

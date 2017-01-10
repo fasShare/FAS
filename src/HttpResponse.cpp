@@ -6,20 +6,20 @@ HttpResponse::HttpResponse(int sd) {
 }
 
 
-void HttpResponse::Executor_handle_event(Events *events) {
-
+void HttpResponse::handle_event(Events *events) {
+    (void)events;
 
     cout << " new httpresponse " << endl;
 		
 	char buf[200] = {0};
 	int maxLen = 200-1;
-	int ret = read(rsd.Socket_get_sd(), buf, maxLen);
+    int ret = read(rsd.get_sd(), buf, maxLen);
 	if (ret == 0) {
-		cout << "Connection closed rsd : " << rsd.Socket_get_sd()  << endl;
-		rsd.Socket_close();
+        cout << "Connection closed rsd : " << rsd.get_sd()  << endl;
+        rsd.close();
 
 		//FIXME : remove from Dispatcher
-        this->Executor_get_dispatcher()->Dispatcher_del_events(this);
+        //this->get_dispatcher()->del_events(this);
 
         cout << "delete from Dispathcer" << endl;
 		return ;
@@ -30,13 +30,13 @@ void HttpResponse::Executor_handle_event(Events *events) {
 	}
 
 	if (ret < maxLen) {
-		cout << "recv from sd : " << rsd.Socket_get_sd() << " : "  <<  buf << endl;
-		write(rsd.Socket_get_sd(), buf, ret);
+        cout << "recv from sd : " << rsd.get_sd() << " : "  <<  buf << endl;
+        write(rsd.get_sd(), buf, ret);
 	}
 }
 
 
 HttpResponse::~HttpResponse() {
-	rsd.Socket_close();
+    rsd.close();
 }
 

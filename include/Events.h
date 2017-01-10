@@ -15,11 +15,11 @@ public:
   Events(const Epoll_Event& events);
   Events() = default;
    ~Events();
-  int Events_get_fd();
-  int Events_set_fd(int fd);
-  int Events_get_events();
-  int Events_set_events(int events);
-  Epoll_Event Events_get_epollevents();
+  int get_fd();
+  void set_fd(int fd);
+  int get_events();
+  void set_events(int events);
+  Epoll_Event get_epollevents();
   friend ostream& operator<<(ostream& os, Events& events);
 };
 

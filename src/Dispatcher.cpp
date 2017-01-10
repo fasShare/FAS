@@ -7,107 +7,106 @@
 Dispatcher::Dispatcher():
                         poll(NULL){
   revents.reserve(init_max_events);
-  poll = EventsPoller::Poller_create();
+  poll = Poller::Poller_create();
   assert(poll);
 }
 
 
-bool Dispatcher::Dispatcher_update_events(shared_ptr<Executor> exec) {
+bool Dispatcher::update_events(shared_ptr<Handle> handle) {
   MutexLocker lock(mutex);(void)lock;
-  update_execs.insert({exec->Executor_get_event().Events_get_fd(), exec});
+  update_handles.insert({handle->get_event().get_fd(), handle});
   return true;
 }
 
 
-bool Dispatcher::Dispatcher_add_events(shared_ptr<Executor> exec) {
-  exec->Executor_set_state(EXECUTOR_STATE_ADD);
-  return Dispatcher_update_events(exec);
+bool Dispatcher::add_events(shared_ptr<Handle> handle) {
+  handle->set_state(EXECUTOR_STATE_ADD);
+  return update_events(handle);
 }
-bool Dispatcher::Dispatcher_add_events(Executor* exec) {
-  shared_ptr<Executor> exec_ptr(exec);
-  return Dispatcher_add_events(exec_ptr);
+bool Dispatcher::add_events(Handle* handle) {
+  shared_ptr<Handle> handle_ptr(handle);
+  return add_events(handle_ptr);
 }
 
 //FIXME:mod by fd
-bool Dispatcher::Dispatcher_mod_events(shared_ptr<Executor> exec) {
-  exec->Executor_set_state(EXECUTOR_STATE_MOD);
-  return Dispatcher_update_events(exec);
+bool Dispatcher::mod_events(shared_ptr<Handle> handle) {
+  handle->set_state(EXECUTOR_STATE_MOD);
+  return update_events(handle);
 }
-bool Dispatcher::Dispatcher_mod_events(Executor* exec) {
-  //shared_ptr<Executor> exec_ptr = execs.find(exec->Executor_get_event().Events_get_fd())->second;
-  shared_ptr<Executor> exec_ptr = Dispatcher_get_exec_shared_ptr(exec);
-  return Dispatcher_mod_events(exec_ptr);
+bool Dispatcher::mod_events(Handle* handle) {
+  //shared_ptr<Handle> handle_ptr = handles.find(handle->get_event().get_fd())->second;
+  shared_ptr<Handle> handle_ptr = get_handle_shared_ptr(handle);
+  return mod_events(handle_ptr);
 }
 
 //FIXME:del by fd
-bool Dispatcher::Dispatcher_del_events(shared_ptr<Executor> exec) {
-  exec->Executor_set_state(EXECUTOR_STATE_DEL);
-  return Dispatcher_update_events(exec);
+bool Dispatcher::del_events(shared_ptr<Handle> handle) {
+  handle->set_state(EXECUTOR_STATE_DEL);
+  return update_events(handle);
 }
-bool Dispatcher::Dispatcher_del_events(Executor* exec) {
-  //shared_ptr<Executor> exec_ptr = execs.find(exec->Executor_get_event().Events_get_fd())->second;
-  shared_ptr<Executor> exec_ptr = Dispatcher_get_exec_shared_ptr(exec);
-  return Dispatcher_del_events(exec_ptr);
+bool Dispatcher::del_events(Handle* handle) {
+  //shared_ptr<Handle> handle_ptr = handles.find(handle->get_event().get_fd())->second;
+  shared_ptr<Handle> handle_ptr = get_handle_shared_ptr(handle);
+  return del_events(handle_ptr);
 }
 
 
-shared_ptr<Executor>  Dispatcher::Dispatcher_get_exec_shared_ptr(int fd) {
-  map<int, shared_ptr<Executor>>::iterator index =  execs.find(fd);
+shared_ptr<Handle>  Dispatcher::get_handle_shared_ptr(int fd) {
+  map<int, shared_ptr<Handle>>::iterator index =  handles.find(fd);
   return index->second;
 }
 
-shared_ptr<Executor>  Dispatcher::Dispatcher_get_exec_shared_ptr(Executor *exec) {
-  map<int, shared_ptr<Executor>>::iterator index =  execs.find(exec->Executor_get_event().Events_get_fd());
+shared_ptr<Handle>  Dispatcher::get_handle_shared_ptr(Handle *handle) {
+  map<int, shared_ptr<Handle>>::iterator index =  handles.find(handle->get_event().get_fd());
   return index->second;
 }
 
 
-void Dispatcher::Dispatcher_loop() {
+void Dispatcher::loop() {
   while (true) {
 
-    for(map<int, shared_ptr<Executor>>::iterator index = update_execs.begin(); \
-                index != update_execs.end(); index++) {
+    for(map<int, shared_ptr<Handle>>::iterator index = update_handles.begin(); \
+                index != update_handles.end(); index++) {
 
       assert(index->first == \
-             index->second->Executor_get_eventpointer()->Events_get_fd());
+             index->second->get_eventpointer()->get_fd());
 
-      shared_ptr<Executor> op_exec = index->second;
+      shared_ptr<Handle> op_handle = index->second;
 
-      if (op_exec->Executor_get_state() == EXECUTOR_STATE_ADD) {
+      if (op_handle->get_state() == EXECUTOR_STATE_ADD) {
 
-        poll->Poller_event_add(index->second->Executor_get_eventpointer());
+        poll->Poller_event_add(index->second->get_eventpointer());
         //insert
-        execs[index->first] = index->second;
-				index->second->Executor_set_dispatcher(this);
-      } else if (op_exec->Executor_get_state() == EXECUTOR_STATE_MOD) {
+        handles[index->first] = index->second;
+      } else if (op_handle->get_state() == EXECUTOR_STATE_MOD) {
 
-        poll->Poller_event_mod(index->second->Executor_get_eventpointer());
+        poll->Poller_event_mod(index->second->get_eventpointer());
         //mod
-        execs[index->first] = index->second;
-      } else if (op_exec->Executor_get_state() == EXECUTOR_STATE_DEL) {
-        poll->Poller_event_del(op_exec->Executor_get_eventpointer());
+        handles[index->first] = index->second;
+      } else if (op_handle->get_state() == EXECUTOR_STATE_DEL) {
+        poll->Poller_event_del(op_handle->get_eventpointer());
         //del
-        execs.erase(op_exec->Executor_get_event().Events_get_fd());
+        handles.erase(op_handle->get_event().get_fd());
       } else {
         //error
         assert(false);
       }
     }
-    update_execs.clear();
+    update_handles.clear();
     revents.clear();
 
     int ret = poll->Poller_loop(revents, 20, -1);
 
     for(int i = 0; i < ret; i++) { 
-      int fd = revents.data()[i].Events_get_fd();
+      int fd = revents.data()[i].get_fd();
      
-      //exec will decreament reference after for end!
-      shared_ptr<Executor> exec = execs.find(fd)->second;
+      //handle will decreament reference after for end!
+      shared_ptr<Handle> handle = handles.find(fd)->second;
 
-      assert(exec->Executor_get_eventpointer()->Events_get_fd() == fd);
-      assert(exec->Executor_get_state() != EXECUTOR_STATE_DEL);
+      assert(handle->get_eventpointer()->get_fd() == fd);
+      assert(handle->get_state() != EXECUTOR_STATE_DEL);
       //handle revents
-      exec->Executor_handle_event(&(revents.data()[i]));
+      handle->handle_event(&(revents.data()[i]));
     }
   }
 }

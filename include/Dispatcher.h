@@ -8,10 +8,10 @@
 #include "Events.h"
 #include "Mutex.h"
 #include "MutexLocker.h"
-#include "Executor.h"
+#include "Handle.h"
 #include "NetBaseTypes.h"
 
-class Executor;
+class Handle;
 class Epoll;
 
 using namespace std;
@@ -20,29 +20,29 @@ class Dispatcher
 private:
   static const int init_max_events = 10;
   Mutex mutex;
-  EventsPoller *poll;
+  Poller *poll;
   vector<Events> revents;
-  map<int, shared_ptr<Executor>> execs;
-  map<int, shared_ptr<Executor>> update_execs;
+  map<int, shared_ptr<Handle>> handles;
+  map<int, shared_ptr<Handle>> update_handles;
 
 
 
 public:
   Dispatcher();
-  bool Dispatcher_add_events(shared_ptr<Executor> exec);
-  bool Dispatcher_add_events(Executor* exec);
-  bool Dispatcher_mod_events(shared_ptr<Executor> exec);
-  bool Dispatcher_mod_events(Executor* exec);
-  bool Dispatcher_del_events(shared_ptr<Executor> exec);
-  bool Dispatcher_del_events(Executor* exec);
+  bool add_events(shared_ptr<Handle> handle);
+  bool add_events(Handle* handle);
+  bool mod_events(shared_ptr<Handle> handle);
+  bool mod_events(Handle* handle);
+  bool del_events(shared_ptr<Handle> handle);
+  bool del_events(Handle* handle);
 
-  shared_ptr<Executor>  Dispatcher_get_exec_shared_ptr(int fd);
-  shared_ptr<Executor>  Dispatcher_get_exec_shared_ptr(Executor *exec);
+  shared_ptr<Handle>  get_handle_shared_ptr(int fd);
+  shared_ptr<Handle>  get_handle_shared_ptr(Handle *handle);
 
-  void Dispatcher_loop();
+  void loop();
 
 private:
-  bool Dispatcher_update_events(shared_ptr<Executor> exec);
+  bool update_events(shared_ptr<Handle> handle);
 };
 
 #endif // DISPATCHER_H

@@ -1,16 +1,16 @@
 #ifndef HTTPRESPONSE_H_
 #define HTTPRESPONSE_H_
-#include "Executor.h"
+#include "Handle.h"
 #include "Socket.h"
 
-class HttpResponse : public Executor {
+class HttpResponse {
 
 private:
 	Socket rsd;
 public:
 	HttpResponse(int sd);
 	HttpResponse() = default;
-	void Executor_handle_event(Events *events);
+    void handle_event(Events *events);
 	~HttpResponse();	
 };
 

@@ -7,7 +7,7 @@ using namespace std;
 
 Socket::Socket(int socket):
     sd(socket) {
-	bool ret = Socket_set_noblock();
+    bool ret = set_noblock();
 	if (ret) {
 		available = true;
 	} else {
@@ -18,7 +18,7 @@ Socket::Socket(int socket):
 Socket::Socket(int domain, int type, int protocol) {
   //FIXME : IF ANY ERROR
   sd = socket(domain, type, protocol);
-	bool ret = Socket_set_noblock();
+    bool ret = set_noblock();
 	if (ret) {
 		available = true;
 	} else {
@@ -36,45 +36,45 @@ Socket& Socket::operator= (const int sd) {
 		available = false;
 	} else {
         this->sd = sd;
-		Socket_set_noblock();
+        set_noblock();
 	}
 
 	return *this;
 }
 
 
-bool Socket::Socket_set_noblock() {
-    cout << "Socket_set_noblock sd = " << sd << endl;
+bool Socket::set_noblock() {
+    cout << "set_noblock sd = " << sd << endl;
   int flag = fcntl(sd, F_GETFL);
   int nflag = flag | O_NONBLOCK;
   if (-1 == fcntl(sd, F_SETFL, nflag) ){
-    cout << "Socket_set_noblock error : "<< strerror(errno) << endl;
+    cout << "set_noblock error : "<< strerror(errno) << endl;
     return false;
   }
   return true;
 }
 
 
-bool Socket::Socket_bind(NetAddress &addr) {
-  int ret = bind(sd, (const struct sockaddr *)&addr.NetAddress_get_addr(), \
-                 addr.NetAddress_get_addr_len());
+bool Socket::bind(NetAddress &addr) {
+  int ret = ::bind(sd, (const struct sockaddr *)&addr.get_addr(), \
+                 addr.get_addr_len());
   return ret == -1 ? false : true;
 }
 
-bool Socket::Socket_listen(int backlog) {
-  int ret = listen(sd, backlog);
+bool Socket::listen(int backlog) {
+  int ret = ::listen(sd, backlog);
   return ret == -1 ? false : true;
 }
 
-bool Socket::Socket_bind(const struct sockaddr *addr,
+bool Socket::bind(const struct sockaddr *addr,
                         socklen_t addrlen) {
-  int ret = bind(sd, addr, addrlen);
+  int ret = ::bind(sd, addr, addrlen);
   return ret == -1 ? false : true;
 }
 
 
-int Socket::Socket_accept(struct sockaddr* addr, socklen_t* addrlen) {
-	int ret = accept(sd, addr, addrlen);
+int Socket::accept(struct sockaddr* addr, socklen_t* addrlen) {
+    int ret = ::accept(sd, addr, addrlen);
 	if (ret == -1) {
 		//FIXME:check error
 		return ret;
@@ -83,11 +83,11 @@ int Socket::Socket_accept(struct sockaddr* addr, socklen_t* addrlen) {
 }
 
 
-int Socket::Socket_get_sd() {
+int Socket::get_sd() {
   return sd;
 }
 
-void Socket::Socket_close() {
-  close(sd);
+void Socket::close() {
+  ::close(sd);
 }
 
