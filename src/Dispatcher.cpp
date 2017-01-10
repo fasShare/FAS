@@ -94,7 +94,6 @@ void Dispatcher::loop() {
     }
     update_handles.clear();
     revents.clear();
-
     int ret = poll->Poller_loop(revents, 20, -1);
 
     for(int i = 0; i < ret; i++) { 
