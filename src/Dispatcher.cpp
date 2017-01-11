@@ -6,48 +6,48 @@
 
 Dispatcher::Dispatcher():
                         poll(NULL){
-  revents.reserve(init_max_events);
+  revents.reserve(init_max_handle);
   poll = Poller::Poller_create();
   assert(poll);
 }
 
 
-bool Dispatcher::update_events(shared_ptr<Handle> handle) {
+bool Dispatcher::update_handle(shared_ptr<Handle> handle) {
   MutexLocker lock(mutex);(void)lock;
   update_handles.insert({handle->get_event().get_fd(), handle});
   return true;
 }
 
 
-bool Dispatcher::add_events(shared_ptr<Handle> handle) {
+bool Dispatcher::add_handle(shared_ptr<Handle> handle) {
   handle->set_state(EXECUTOR_STATE_ADD);
-  return update_events(handle);
+  return update_handle(handle);
 }
-bool Dispatcher::add_events(Handle* handle) {
+bool Dispatcher::add_handle(Handle* handle) {
   shared_ptr<Handle> handle_ptr(handle);
-  return add_events(handle_ptr);
+  return add_handle(handle_ptr);
 }
 
 //FIXME:mod by fd
-bool Dispatcher::mod_events(shared_ptr<Handle> handle) {
+bool Dispatcher::mod_handle(shared_ptr<Handle> handle) {
   handle->set_state(EXECUTOR_STATE_MOD);
-  return update_events(handle);
+  return update_handle(handle);
 }
-bool Dispatcher::mod_events(Handle* handle) {
+bool Dispatcher::mod_handle(Handle* handle) {
   //shared_ptr<Handle> handle_ptr = handles.find(handle->get_event().get_fd())->second;
   shared_ptr<Handle> handle_ptr = get_handle_shared_ptr(handle);
-  return mod_events(handle_ptr);
+  return mod_handle(handle_ptr);
 }
 
 //FIXME:del by fd
-bool Dispatcher::del_events(shared_ptr<Handle> handle) {
+bool Dispatcher::del_handle(shared_ptr<Handle> handle) {
   handle->set_state(EXECUTOR_STATE_DEL);
-  return update_events(handle);
+  return update_handle(handle);
 }
-bool Dispatcher::del_events(Handle* handle) {
+bool Dispatcher::del_handle(Handle* handle) {
   //shared_ptr<Handle> handle_ptr = handles.find(handle->get_event().get_fd())->second;
   shared_ptr<Handle> handle_ptr = get_handle_shared_ptr(handle);
-  return del_events(handle_ptr);
+  return del_handle(handle_ptr);
 }
 
 
@@ -94,6 +94,7 @@ void Dispatcher::loop() {
     }
     update_handles.clear();
     revents.clear();
+
     int ret = poll->Poller_loop(revents, 20, -1);
 
     for(int i = 0; i < ret; i++) { 

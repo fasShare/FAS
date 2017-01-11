@@ -73,11 +73,7 @@ int Epoll::Poller_loop(vector<Events> &events, int max_events, int timeout) {
   int ret = this->loop_wait(revents.data(), max_events, timeout);
 
   cout << "ret = " << ret << endl;
-
-	if (ret < 0){
-		cout << strerror(errno) << endl;
-	}
-
+  cout << strerror(errno) << endl;
 
   for(int i = 0; i < ret; i++) {
     events.push_back(revents.at(i));

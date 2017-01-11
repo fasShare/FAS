@@ -18,7 +18,7 @@ using namespace std;
 class Dispatcher
 {
 private:
-  static const int init_max_events = 10;
+  static const int init_max_handle = 10;
   Mutex mutex;
   Poller *poll;
   vector<Events> revents;
@@ -29,12 +29,12 @@ private:
 
 public:
   Dispatcher();
-  bool add_events(shared_ptr<Handle> handle);
-  bool add_events(Handle* handle);
-  bool mod_events(shared_ptr<Handle> handle);
-  bool mod_events(Handle* handle);
-  bool del_events(shared_ptr<Handle> handle);
-  bool del_events(Handle* handle);
+  bool add_handle(shared_ptr<Handle> handle);
+  bool add_handle(Handle* handle);
+  bool mod_handle(shared_ptr<Handle> handle);
+  bool mod_handle(Handle* handle);
+  bool del_handle(shared_ptr<Handle> handle);
+  bool del_handle(Handle* handle);
 
   shared_ptr<Handle>  get_handle_shared_ptr(int fd);
   shared_ptr<Handle>  get_handle_shared_ptr(Handle *handle);
@@ -42,7 +42,7 @@ public:
   void loop();
 
 private:
-  bool update_events(shared_ptr<Handle> handle);
+  bool update_handle(shared_ptr<Handle> handle);
 };
 
 #endif // DISPATCHER_H

@@ -33,7 +33,6 @@ TcpServer::TcpServer(NetAddress addr) {
 TcpServer::TcpServer() {
   handle = new Handle;
 
-
   serfd = socket(AF_INET, SOCK_STREAM, 0);
   NetAddress addr(8899, "127.0.0.1");
 
@@ -58,7 +57,7 @@ TcpServer::TcpServer() {
 bool TcpServer::init(Dispatcher *dispatcher) {
   this->dispatch = dispatcher;
   handle->set_handle_event(boost::bind(&TcpServer::handle_event, this, _1));
-  dispatch->add_events(handle);
+  dispatch->add_handle(handle);
 
   return true;
 }
