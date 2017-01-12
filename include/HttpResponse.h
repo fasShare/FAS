@@ -6,7 +6,7 @@
 class HttpResponse {
 
 private:
-	Socket rsd;
+    Socket_t rsd;
 public:
 	HttpResponse(int sd);
 	HttpResponse() = default;

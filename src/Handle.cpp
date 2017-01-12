@@ -1,51 +1,51 @@
 #include "Handle.h"
 #include <assert.h>
 
-Handle::Handle(Events event):
-                    event(event) {
-  state = EXECUTOR_STATE_ADD;
-  set_event_flag = true;
+Handle::Handle(Events event) :
+    event_(event),
+    state_(EXECUTOR_STATE_ADD),
+    set_event_flag_(true) {
 }
-Handle::Handle() {
-  state = EXECUTOR_STATE_ADD;
-  set_event_flag = false;
+Handle::Handle() :
+    state_(EXECUTOR_STATE_ADD),
+    set_event_flag_(false) {
 }
 
 
 Events Handle::get_event() {
-  assert(set_event_flag);
-  return event;
+  assert(set_event_flag_);
+  return event_;
 }
 void Handle::set_event(Events& event) {
-  if (set_event_flag == false) {
-    this->event = event;
+  if (set_event_flag_ == false) {
+    event_ = event;
   }
-  set_event_flag = true;
+  set_event_flag_ = true;
 }
 
 
 Events* Handle::get_eventpointer() {
-  assert(set_event_flag);
-  return &event;
+  assert(set_event_flag_);
+  return &event_;
 }
 
 
-void Handle::set_handle_event(const function<void (Events*)>& handle_event) {
-  this->handle_event = handle_event;
+void Handle::set_handle_event(const function<void (Events*, Timestamp)>& handle_event) {
+  handle_event_ = handle_event;
 }
 
 
 void Handle::set_state(unsigned char state) {
   //FIXME:
   assert(true);
-  this->state = state;
+  state_ = state;
 }
 unsigned char Handle::get_state() {
-  return this->state;
+  return state_;
 }
 
 
 Handle::~Handle() {
-  state = EXECUTOR_STATE_DEL;
-  set_event_flag = false;
+  state_ = EXECUTOR_STATE_DEL;
+  set_event_flag_ = false;
 }

@@ -6,7 +6,7 @@
 class NetAddress
 {
 private:
-  struct sockaddr_in addr;
+  struct sockaddr_in addr_;
 public:
   NetAddress(unsigned short sa_family, int sa_port, const char *sa_ip);
   NetAddress(unsigned short sa_family, int sa_port, unsigned int sa_ip);

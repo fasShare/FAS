@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include "HttpResponse.h"
 
-HttpResponse::HttpResponse(int sd) {
+HttpResponse::HttpResponse(Socket_t sd) {
   rsd = sd;
 }
 
@@ -13,10 +13,10 @@ void HttpResponse::handle_event(Events *events) {
 		
 	char buf[200] = {0};
 	int maxLen = 200-1;
-    int ret = read(rsd.get_sd(), buf, maxLen);
+    int ret = read(rsd, buf, maxLen);
 	if (ret == 0) {
-        cout << "Connection closed rsd : " << rsd.get_sd()  << endl;
-        rsd.close();
+        cout << "Connection closed rsd : " << rsd  << endl;
+        close(rsd);
 
 		//FIXME : remove from Dispatcher
         //this->get_dispatcher()->del_events(this);
@@ -30,13 +30,13 @@ void HttpResponse::handle_event(Events *events) {
 	}
 
 	if (ret < maxLen) {
-        cout << "recv from sd : " << rsd.get_sd() << " : "  <<  buf << endl;
-        write(rsd.get_sd(), buf, ret);
+        cout << "recv from sd : " << rsd << " : "  <<  buf << endl;
+        write(rsd, buf, ret);
 	}
 }
 
 
 HttpResponse::~HttpResponse() {
-    rsd.close();
+  close(rsd);
 }
 

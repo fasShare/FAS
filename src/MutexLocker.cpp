@@ -1,9 +1,9 @@
 #include "MutexLocker.h"
 
-MutexLocker::MutexLocker(Mutex& mutex):mMutex(mutex){
-    mMutex.lock();
+MutexLocker::MutexLocker(Mutex& mutex):mutex_(mutex){
+    mutex_.lock();
 }
 
 MutexLocker::~MutexLocker(){
-    mMutex.unlock();
+    mutex_.unlock();
 }

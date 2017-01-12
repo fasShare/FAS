@@ -7,9 +7,9 @@
 
 class TcpServer {
 private:
-  Socket serfd;
-  Dispatcher *dispatch;
-  Handle *handle;
+  Socket_t server_socket_;
+  Dispatcher *dispatch_;
+  Handle *handle_;
 public:
     TcpServer(NetAddress addr);
     TcpServer();
@@ -19,7 +19,7 @@ public:
 
     Dispatcher* get_dispatcher();
 
-    void handle_event(Events* event);
+    void handle_event(Events* event, Timestamp time);
 };
 
 #endif // TCPSERVER_H

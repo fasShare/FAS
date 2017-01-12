@@ -7,6 +7,8 @@
 #include "NetBaseTypes.h"
 #include "Events.h"
 
+#include <boost/noncopyable.hpp>
+
 class Poller;
 class Events;
 using namespace std;
@@ -15,27 +17,24 @@ using namespace std;
 *EPOLLIN, EPOLLOUT, EPOLLRDHUP, EPOLLPRI, EPOLLERR, EPOLLHUP, EPOLLET
 */
 
-class Epoll : public Poller
-{
-private:
-  int epfd;
-  vector<Epoll_Event> revents;
+class Epoll : boost::noncopyable {
 public:
   Epoll();
   ~Epoll();
   bool event_ctl(int op, int fd, Epoll_Event* event);
-  bool event_add(int fd, Epoll_Event* event);
-  bool event_del(int fd, Epoll_Event* event);
-  bool event_mod(int fd, Epoll_Event* event);
-  bool event_add(Socket fd, Epoll_Event* event);
-  bool event_del(Socket fd, Epoll_Event* event);
-  bool event_mod(Socket fd, Epoll_Event* event);
+  bool event_add(Socket_t fd, Epoll_Event* event);
+  bool event_del(Socket_t fd, Epoll_Event* event);
+  bool event_mod(Socket_t fd, Epoll_Event* event);
   int loop_wait(Epoll_Event* events, int maxevents, int timeout);
 
-  virtual bool Poller_event_add(Events* events);
-  virtual bool Poller_event_mod(Events* events);
-  virtual bool Poller_event_del(Events* events);
-  virtual int Poller_loop(vector<Events> &events, int max_events, int timeout);
+  bool poller_events_add(Events* events);
+  bool poller_events_mod(Events* events);
+  bool poller_events_del(Events* events);
+  int poller_loop(vector<Events> &events, int max_events, int timeout);
+
+private:
+  int epoll_fd_;
+  vector<Epoll_Event> revents_;
 };
 
 #endif // EPOLL_H

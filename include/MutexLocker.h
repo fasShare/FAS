@@ -5,7 +5,7 @@
 class MutexLocker
 {
 private:
-    Mutex& mMutex;
+    Mutex& mutex_;
 public:
     MutexLocker(Mutex& mutex);
     ~MutexLocker();

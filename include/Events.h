@@ -8,8 +8,8 @@ using namespace std;
 class Events
 {
 private:
- int fd;
- int events;
+ int fd_;
+ int events_;
 public:
   Events(int fd, int events);
   Events(const Epoll_Event& events);

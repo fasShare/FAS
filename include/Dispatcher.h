@@ -11,19 +11,20 @@
 #include "Handle.h"
 #include "NetBaseTypes.h"
 
+#include <boost/scoped_ptr.hpp>
+
 class Handle;
-class Epoll;
 
 using namespace std;
 class Dispatcher
 {
 private:
-  static const int init_max_handle = 10;
-  Mutex mutex;
-  Poller *poll;
-  vector<Events> revents;
-  map<int, shared_ptr<Handle>> handles;
-  map<int, shared_ptr<Handle>> update_handles;
+  static const int kInitMaxHandle_ = 10;
+  Mutex mutex_;
+  boost::scoped_ptr<Poller> poll_;
+  vector<Events> revents_;
+  map<int, shared_ptr<Handle>> handles_;
+  map<int, shared_ptr<Handle>> update_handles_;
 
 
 

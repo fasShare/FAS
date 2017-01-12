@@ -1,46 +1,19 @@
 #ifndef SOCKET_H
 #define SOCKET_H
-#include "NetAddress.h"
+#include <NetAddress.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <fcntl.h>
-
-class Socket
-{
-private:
-  int sd;
-  bool available;
-
-  Socket& operator= (const Socket& sd);
-public:
-  Socket(int socket);
-  Socket(int domain, int type, int protocol);
-  Socket(int domain, int type);
-  Socket() {
-
-  }
+#include <NetBaseTypes.h>
 
 
-  Socket& operator= (const int sd);
+Socket_t Socket(int domain, int type, int protocol);
+Socket_t SocketNoBlocking(int domain, int type, int protocol);
 
-  bool set_noblock();
+bool SocketBind(Socket_t socket, NetAddress& addr);
 
-  bool bind(NetAddress &addr);
-  bool bind(const struct sockaddr *addr,
-                socklen_t addrlen);
+bool SocketListen(Socket_t socket, int backlog);
 
-  bool listen(int backlog);
-
-  Socket accept();
-
-  void set_available(bool boolean);
-  bool get_available();
-
-    int accept(struct sockaddr* addr, socklen_t* addrlen);
-
-  int get_sd();
-
-  void close();
-};
+Socket_t SocketAccept(Socket_t socket, struct sockaddr* addr, socklen_t* addrlen);
 
 #endif // SOCKET_H

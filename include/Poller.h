@@ -1,24 +1,21 @@
 #ifndef EVENTSPOLLER_H
 #define EVENTSPOLLER_H
+#include <Epoll.h>
 #include <vector>
-#include "Events.h"
+#include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 
+
+using std::vector;
 class Events;
-using namespace std;
 
-class Poller
-{
-private:
-  Poller(const Poller &);
-  Poller& operator=(const Poller &);
+class Poller : boost::noncopyable {
 public:
   Poller();
-  virtual ~Poller();
-  virtual bool Poller_event_add(Events* events) = 0;
-  virtual bool Poller_event_mod(Events* events) = 0;
-  virtual bool Poller_event_del(Events* events) = 0;
-  virtual int Poller_loop(vector<Events> &events, int max_events, int timeout) = 0;
-  static Poller* Poller_create();
+  boost::function<bool (Events* events)> events_add_;
+  boost::function<bool (Events* events)> events_mod_;
+  boost::function<bool (Events* events)> events_del_;
+  boost::function<bool (vector<Events> &events, int max_events, int timeout)> loop_;
 };
 
 #endif // EVENTSPOLLER_H
