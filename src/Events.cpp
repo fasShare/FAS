@@ -1,4 +1,5 @@
 #include "Events.h"
+
 Events::Events(int fd, int events) :
     fd_(fd),
     events_(events){
@@ -26,7 +27,15 @@ void Events::set_events(int events) {
   this->events_ = events;
 }
 
-Epoll_Event Events::get_epollevents() {
+bool Events::containsEvents(int events) {
+  return ((events_ & events) == events);
+}
+
+bool Events::containsAtLeastOneEvents(int events) {
+  return ((events_ & events) != 0);
+}
+
+Epoll_Event Events::getEpollevents() {
   Epoll_Event events;
   events.data.fd = this->fd_;
   events.events = this->events_;
@@ -34,6 +43,6 @@ Epoll_Event Events::get_epollevents() {
 }
 
 ostream& operator<<(ostream& os, Events& events) {
-  os << "fd = " << events.fd_ << endl;
+  os << "fd = " << events.get_fd();
   return os;
 }

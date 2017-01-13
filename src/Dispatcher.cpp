@@ -14,42 +14,42 @@ Dispatcher::Dispatcher():
 }
 
 
-bool Dispatcher::update_handle(shared_ptr<Handle> handle) {
+bool Dispatcher::updateHandle(shared_ptr<Handle> handle) {
   MutexLocker lock(mutex_);(void)lock;
   update_handles_.insert({handle->get_event().get_fd(), handle});
   return true;
 }
 
 
-bool Dispatcher::add_handle(shared_ptr<Handle> handle) {
+bool Dispatcher::addHandle(shared_ptr<Handle> handle) {
   handle->set_state(EXECUTOR_STATE_ADD);
-  return update_handle(handle);
+  return updateHandle(handle);
 }
-bool Dispatcher::add_handle(Handle* handle) {
+bool Dispatcher::addHandle(Handle* handle) {
   shared_ptr<Handle> handle_ptr(handle);
-  return add_handle(handle_ptr);
+  return addHandle(handle_ptr);
 }
 
 //FIXME:mod by fd
-bool Dispatcher::mod_handle(shared_ptr<Handle> handle) {
+bool Dispatcher::modHandle(shared_ptr<Handle> handle) {
   handle->set_state(EXECUTOR_STATE_MOD);
-  return update_handle(handle);
+  return updateHandle(handle);
 }
-bool Dispatcher::mod_handle(Handle* handle) {
+bool Dispatcher::modHandle(Handle* handle) {
   //shared_ptr<Handle> handle_ptr = handles.find(handle->get_event().get_fd())->second;
   shared_ptr<Handle> handle_ptr = get_handle_shared_ptr(handle);
-  return mod_handle(handle_ptr);
+  return modHandle(handle_ptr);
 }
 
 //FIXME:del by fd
-bool Dispatcher::del_handle(shared_ptr<Handle> handle) {
+bool Dispatcher::delHandle(shared_ptr<Handle> handle) {
   handle->set_state(EXECUTOR_STATE_DEL);
-  return update_handle(handle);
+  return updateHandle(handle);
 }
-bool Dispatcher::del_handle(Handle* handle) {
+bool Dispatcher::delHandle(Handle* handle) {
   //shared_ptr<Handle> handle_ptr = handles.find(handle->get_event().get_fd())->second;
   shared_ptr<Handle> handle_ptr = get_handle_shared_ptr(handle);
-  return del_handle(handle_ptr);
+  return delHandle(handle_ptr);
 }
 
 
@@ -112,7 +112,7 @@ void Dispatcher::loop() {
       assert(handle->get_eventpointer()->get_fd() == fd);
       assert(handle->get_state() != EXECUTOR_STATE_DEL);
       //handle revents
-      handle->handle_event_(&(revents_.data()[i]), loop_ret_time);
+      handle->handleEvent(&(revents_.data()[i]), loop_ret_time);
     }
   }
 }

@@ -2,8 +2,7 @@
 #define MUTEX_H
 #include <pthread.h>
 
-class Mutex
-{
+class Mutex {
 private:
     pthread_mutex_t mutex_;
 public:

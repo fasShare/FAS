@@ -3,7 +3,7 @@
 #include <iostream>
 #include <boost/function.hpp>
 
-#include <NetBaseTypes.h>
+#include <Types.h>
 #include <Timestamp.h>
 #include <Events.h>
 
@@ -14,15 +14,15 @@
 class Dispatcher;
 using namespace std;
 
-class Handle
-{
+class Handle {
 private:
   Events event_;
   unsigned char state_;
   bool set_event_flag_;
-
-public:
-  function<void (Events*, Timestamp)> handle_event_;
+  function<void (Events*, Timestamp)> handle_read_event_;
+  function<void (Events*, Timestamp)> handle_write_event_;
+  function<void (Events*, Timestamp)> handle_error_event_;
+  function<void (Events*, Timestamp)> handle_close_event_;
 
 public:
   Handle(Events event);
@@ -34,7 +34,12 @@ public:
 
   Events* get_eventpointer();
 
-  void set_handle_event(const function<void (Events*, Timestamp)>& handle_event);
+  void set_handle_read_event(const function<void (Events*, Timestamp)>& handle_read_event);
+  void set_handle_write_event(const function<void (Events*, Timestamp)>& handle_write_event);
+  void set_handle_error_event(const function<void (Events*, Timestamp)>& handle_error_event);
+  void set_handle_close_event(const function<void (Events*, Timestamp)>& handle_close_event);
+
+  void handleEvent(Events*, Timestamp);
 
   void set_state(unsigned char state);
   unsigned char get_state();

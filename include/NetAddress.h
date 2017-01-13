@@ -3,8 +3,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-class NetAddress
-{
+class NetAddress {
 private:
   struct sockaddr_in addr_;
 public:

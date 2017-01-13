@@ -18,4 +18,6 @@ public:
   boost::function<bool (vector<Events> &events, int max_events, int timeout)> loop_;
 };
 
+#define DEFAULT_POLLER Epoll
+
 #endif // EVENTSPOLLER_H

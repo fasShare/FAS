@@ -4,20 +4,20 @@
 #include <map>
 #include <iostream>
 #include <memory>
-#include "Epoll.h"
-#include "Events.h"
-#include "Mutex.h"
-#include "MutexLocker.h"
-#include "Handle.h"
-#include "NetBaseTypes.h"
+#include <Events.h>
+#include <Mutex.h>
+#include <MutexLocker.h>
+#include <Handle.h>
+#include <Poller.h>
+#include <Types.h>
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/noncopyable.hpp>
 
 class Handle;
-
 using namespace std;
-class Dispatcher
-{
+
+class Dispatcher : boost::noncopyable {
 private:
   static const int kInitMaxHandle_ = 10;
   Mutex mutex_;
@@ -26,16 +26,14 @@ private:
   map<int, shared_ptr<Handle>> handles_;
   map<int, shared_ptr<Handle>> update_handles_;
 
-
-
 public:
   Dispatcher();
-  bool add_handle(shared_ptr<Handle> handle);
-  bool add_handle(Handle* handle);
-  bool mod_handle(shared_ptr<Handle> handle);
-  bool mod_handle(Handle* handle);
-  bool del_handle(shared_ptr<Handle> handle);
-  bool del_handle(Handle* handle);
+  bool addHandle(shared_ptr<Handle> handle);
+  bool addHandle(Handle* handle);
+  bool modHandle(shared_ptr<Handle> handle);
+  bool modHandle(Handle* handle);
+  bool delHandle(shared_ptr<Handle> handle);
+  bool delHandle(Handle* handle);
 
   shared_ptr<Handle>  get_handle_shared_ptr(int fd);
   shared_ptr<Handle>  get_handle_shared_ptr(Handle *handle);
@@ -43,7 +41,7 @@ public:
   void loop();
 
 private:
-  bool update_handle(shared_ptr<Handle> handle);
+  bool updateHandle(shared_ptr<Handle> handle);
 };
 
 #endif // DISPATCHER_H

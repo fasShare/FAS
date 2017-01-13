@@ -33,7 +33,7 @@ TcpServer::TcpServer() {
 
   SocketListen(server_socket_, 50);
 
-  Events serevn(server_socket_, EPOLLIN);
+  Events serevn(server_socket_, kReadEvent);
 
   handle_->set_event(serevn);
 }
@@ -41,19 +41,19 @@ TcpServer::TcpServer() {
 
 bool TcpServer::init(Dispatcher *dispatcher) {
   this->dispatch_ = dispatcher;
-  handle_->set_handle_event(boost::bind(&TcpServer::handle_event, this, _1, _2));
-  dispatch_->add_handle(handle_);
+  handle_->set_handle_read_event(boost::bind(&TcpServer::handle_read_event, this, _1, _2));
+  dispatch_->addHandle(handle_);
 
   return true;
 }
 
 
-Dispatcher* TcpServer::get_dispatcher() {
+inline Dispatcher* TcpServer::get_dispatcher() {
   return dispatch_;
 }
 
 
-void TcpServer::handle_event(Events* event, Timestamp time) {
+void TcpServer::handle_read_event(Events* event, Timestamp time) {
     cout << time.toFormattedString() << " sd = " << event->get_fd() << endl;
 
     int sd = accept(event->get_fd(), NULL, NULL);

@@ -3,7 +3,7 @@
 #include "Handle.h"
 #include "Socket.h"
 #include "NetAddress.h"
-#include "NetBaseTypes.h"
+#include "Types.h"
 
 class TcpServer {
 private:
@@ -19,7 +19,7 @@ public:
 
     Dispatcher* get_dispatcher();
 
-    void handle_event(Events* event, Timestamp time);
+    void handle_read_event(Events* event, Timestamp time);
 };
 
 #endif // TCPSERVER_H

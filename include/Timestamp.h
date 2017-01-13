@@ -4,8 +4,7 @@
 
 using std::string;
 
-class Timestamp
-{
+class Timestamp {
  public:
   ///
   /// Timestamp can not used
