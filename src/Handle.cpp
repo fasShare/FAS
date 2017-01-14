@@ -30,24 +30,20 @@ Events* Handle::get_eventpointer() {
 }
 
 
-void Handle::set_handle_read_event(const function<void \
-                                          (Events*, Timestamp)>& handle_read_event) {
-  handle_read_event_ = handle_read_event;
+void Handle::set_handle_read(const events_handle_t& handle_read) {
+  handle_read_event_ = handle_read;
 }
 
-void Handle::set_handle_write_event(const function<void \
-                                    (Events*, Timestamp)>& handle_write_event) {
-  handle_write_event_ = handle_write_event;
+void Handle::set_handle_write(const events_handle_t& handle_write) {
+  handle_write_event_ = handle_write;
 }
 
-void Handle::set_handle_error_event(const function<void \
-                                    (Events*, Timestamp)>& handle_error_event) {
-  handle_error_event_ = handle_error_event;
+void Handle::set_handle_error(const events_handle_t& handle_error) {
+  handle_error_event_ = handle_error;
 }
 
-void Handle::set_handle_close_event(const function<void \
-                                    (Events*, Timestamp)>& handle_close_event) {
-  handle_close_event_ = handle_close_event;
+void Handle::set_handle_close(const events_handle_t& handle_close) {
+  handle_close_event_ = handle_close;
 }
 
 

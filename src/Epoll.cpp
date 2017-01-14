@@ -55,7 +55,6 @@ bool Epoll::pollerEventsDel(Events* events) {
 }
 
 int Epoll::pollerLoop(vector<Events> &events, int max_events, int timeout) {
-
   revents_.resize(max_events);
 
   int ret = this->loopWait(revents_.data(), max_events, timeout);
@@ -64,7 +63,7 @@ int Epoll::pollerLoop(vector<Events> &events, int max_events, int timeout) {
   cout << strerror(errno) << endl;
 
   for(int i = 0; i < ret; i++) {
-    events.push_back(revents_.at(i));
+    events.push_back(revents_.data()[i]);
   }
 
   //no use!

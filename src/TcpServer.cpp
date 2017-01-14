@@ -41,7 +41,7 @@ TcpServer::TcpServer() {
 
 bool TcpServer::init(Dispatcher *dispatcher) {
   this->dispatch_ = dispatcher;
-  handle_->set_handle_read_event(boost::bind(&TcpServer::handle_read_event, this, _1, _2));
+  handle_->set_handle_read(boost::bind(&TcpServer::handle_read_event, this, _1, _2));
   dispatch_->addHandle(handle_);
 
   return true;

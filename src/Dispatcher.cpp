@@ -36,7 +36,6 @@ bool Dispatcher::modHandle(shared_ptr<Handle> handle) {
   return updateHandle(handle);
 }
 bool Dispatcher::modHandle(Handle* handle) {
-  //shared_ptr<Handle> handle_ptr = handles.find(handle->get_event().get_fd())->second;
   shared_ptr<Handle> handle_ptr = get_handle_shared_ptr(handle);
   return modHandle(handle_ptr);
 }
@@ -47,7 +46,6 @@ bool Dispatcher::delHandle(shared_ptr<Handle> handle) {
   return updateHandle(handle);
 }
 bool Dispatcher::delHandle(Handle* handle) {
-  //shared_ptr<Handle> handle_ptr = handles.find(handle->get_event().get_fd())->second;
   shared_ptr<Handle> handle_ptr = get_handle_shared_ptr(handle);
   return delHandle(handle_ptr);
 }
@@ -59,7 +57,8 @@ shared_ptr<Handle>  Dispatcher::get_handle_shared_ptr(int fd) {
 }
 
 shared_ptr<Handle>  Dispatcher::get_handle_shared_ptr(Handle *handle) {
-  map<int, shared_ptr<Handle>>::iterator index =  handles_.find(handle->get_event().get_fd());
+  map<int, shared_ptr<Handle>>::iterator index =  \
+          handles_.find(handle->get_event().get_fd());
   return index->second;
 }
 
@@ -97,6 +96,7 @@ void Dispatcher::loop() {
         assert(false);
       }
     }
+
     update_handles_.clear();
     revents_.clear();
 
