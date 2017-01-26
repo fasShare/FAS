@@ -1,5 +1,5 @@
-#ifndef ENDIAN_H
-#define ENDIAN_H
+#ifndef FAS_ENDIAN_H
+#define FAS_ENDIAN_H
 
 #include <stdint.h>
 #include <endian.h>
@@ -47,4 +47,4 @@ inline uint16_t networkToHost16(uint16_t net16) {
 }
 
 
-#endif  // ENDIAN_H
+#endif  // FAS_ENDIAN_H

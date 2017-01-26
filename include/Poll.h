@@ -1,5 +1,5 @@
-#ifndef POLL_H
-#define POLL_H
+#ifndef FAS_POLL_H
+#define FAS_POLL_H
 #include <Poll.h>
 #include <boost/noncopyable.hpp>
 
@@ -7,5 +7,5 @@ class Poll : boost::noncopyable {
 
 };
 
-#endif // POLL_H
+#endif // FAS_POLL_H
 

@@ -1,20 +1,27 @@
-APPNAME = TcpSer
-NETBASE_HEADERS := ./include
-NETBASE_SRCS	   := ./src
-NETBASE_LIBS    := ./lib
+APPNAME = APP
+CURDIR = $(shell pwd)
+export NETBASE_HEADERS  := $(CURDIR)/include
+export NETBASE_SRCS	    := $(CURDIR)/src
+export NETBASE_LIBS     := $(CURDIR)/lib
 libs :=  -lNetBase -lpthread
-cflags := -std=c++11 -static
+cflags := -std=c++11 -static -Wall
 CC = g++
 
 objects := $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 
 all:
+	echo $(CURDIR)
+	echo $(NETBASE_HEADERS)
+	echo $(NETBASE_SRCS)
+	echo $(NETBASE_LIBS)
+
 	make -C src
 	make $(APPNAME)
+	make -C test
 
 $(APPNAME):$(objects)
 	echo $(objects)
-	$(CC) $^ -I${NETBASE_HEADERS} -L${NETBASE_LIBS} $(cflags) -o $@ $(libs) 
+	$(CC) $^ -L${NETBASE_LIBS} $(cflags) -o $@ $(libs) 
 
 %.o:%.cpp
 	echo $(objects)

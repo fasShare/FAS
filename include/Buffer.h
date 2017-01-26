@@ -1,5 +1,5 @@
-#ifndef BUFFER_H
-#define BUFFER_H
+#ifndef FAS_BUFFER_H
+#define FAS_BUFFER_H
 
 #include <Endian.h>
 
@@ -112,4 +112,4 @@ private:
 
   static const char kCRLF[];
 };
-#endif  // BUFFER_H
+#endif  // FAS_BUFFER_H

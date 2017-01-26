@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <boost/bind.hpp>
 #include <Dispatcher.h>
-#include <HttpResponse.h>
 #include <Timestamp.h>
 
 using namespace std;
@@ -20,7 +19,7 @@ TcpServer::TcpServer(NetAddress addr) {
 
   Events serevn(server_socket_, EPOLLIN);
 
-  handle_->set_event(serevn);
+  handle_->setEvent(serevn);
 }
 
 TcpServer::TcpServer() {
@@ -35,13 +34,13 @@ TcpServer::TcpServer() {
 
   Events serevn(server_socket_, kReadEvent);
 
-  handle_->set_event(serevn);
+  handle_->setEvent(serevn);
 }
 
 
 bool TcpServer::init(Dispatcher *dispatcher) {
   this->dispatch_ = dispatcher;
-  handle_->set_handle_read(boost::bind(&TcpServer::handle_read_event, this, _1, _2));
+  handle_->setHandleRead(boost::bind(&TcpServer::handle_read_event, this, _1, _2));
   dispatch_->addHandle(handle_);
 
   return true;
@@ -54,11 +53,9 @@ inline Dispatcher* TcpServer::get_dispatcher() {
 
 
 void TcpServer::handle_read_event(Events* event, Timestamp time) {
-    cout << time.toFormattedString() << " sd = " << event->get_fd() << endl;
+    cout << time.toFormattedString() << " sd = " << event->getFd() << endl;
 
-    int sd = accept(event->get_fd(), NULL, NULL);
+    int sd = accept(event->getFd(), NULL, NULL);
 
-    if (sd == -1) {
-      return ;
-    }
+    close(sd);
 }

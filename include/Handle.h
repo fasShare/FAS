@@ -1,5 +1,5 @@
-#ifndef EXECUTOR_H
-#define EXECUTOR_H
+#ifndef FAS_EXECUTOR_H
+#define FAS_EXECUTOR_H
 #include <iostream>
 #include <boost/function.hpp>
 
@@ -7,23 +7,15 @@
 #include <Timestamp.h>
 #include <Events.h>
 
-#define EXECUTOR_STATE_ADD 1
-#define EXECUTOR_STATE_MOD 2
-#define EXECUTOR_STATE_DEL 3
+#define STATE_ADD 1
+#define STATE_MOD 2
+#define STATE_DEL 3
+#define STATE_LOOP 4
 
 class Dispatcher;
 using namespace std;
 
 class Handle {
-private:
-  Events event_;
-  unsigned char state_;
-  bool set_event_flag_;
-  function<void (Events*, Timestamp)> handle_read_event_;
-  function<void (Events*, Timestamp)> handle_write_event_;
-  function<void (Events*, Timestamp)> handle_error_event_;
-  function<void (Events*, Timestamp)> handle_close_event_;
-
 public:
   typedef function<void (Events*, Timestamp)> events_handle_t;
 
@@ -31,20 +23,33 @@ public:
   Handle();
   virtual ~Handle();
 
-  Events get_event();
-  void set_event(Events& event);
+	Dispatcher* loop();
+	void setLoop(Dispatcher* loop);
+  
+	Events getEvent();
+  void setEvent(Events& event);
 
-  Events* get_eventpointer();
+  Events* getEventPtr();
 
-  void set_handle_read(const events_handle_t& handle_read);
-  void set_handle_write(const events_handle_t& handle_write);
-  void set_handle_error(const events_handle_t& handle_error);
-  void set_handle_close(const events_handle_t& handle_close);
+  void setHandleRead(const events_handle_t& handle_read);
+  void setHandleWrite(const events_handle_t& handle_write);
+  void setHandleError(const events_handle_t& handle_error);
+  void setHandleClose(const events_handle_t& handle_close);
 
   void handleEvent(Events*, Timestamp);
 
-  void set_state(unsigned char state);
-  unsigned char get_state();
+  void setState(uchar state);
+  uchar getState();
+
+private:
+	Dispatcher *loop_;
+  Events event_;
+  uchar state_;
+  bool set_event_flag_;
+  function<void (Events*, Timestamp)> handle_read_event_;
+  function<void (Events*, Timestamp)> handle_write_event_;
+  function<void (Events*, Timestamp)> handle_error_event_;
+  function<void (Events*, Timestamp)> handle_close_event_;
 };
 
-#endif // EXECUTOR_H
+#endif // FAS_EXECUTOR_H

@@ -1,5 +1,5 @@
-#ifndef SOCKET_H
-#define SOCKET_H
+#ifndef FAS_SOCKET_H
+#define FAS_SOCKET_H
 #include <NetAddress.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -28,4 +28,4 @@ void CloseSocket(int sockfd);
 
 void ShutdownWrite(int sockfd);
 
-#endif // SOCKET_H
+#endif // FAS_SOCKET_H

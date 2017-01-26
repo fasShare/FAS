@@ -1,10 +1,11 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef FAS_LOG_H
+#define FAS_LOG_H
 #include <boost/function.hpp>
 #include <ostream>
 #include <string>
 #include <sys/types.h>
 #include <sstream>
+#include <Types.h>
 
 using std::string;
 using std::ostream;
@@ -33,7 +34,7 @@ public:
     output_ = defaultLogOutput;
   }
 
-  std::ostringstream& get_buffer();
+  std::ostringstream& getBuffer();
 
   bool fflush();
 
@@ -44,14 +45,22 @@ public:
   static void Logger(std::string file, int line, LogLevel level, std::string func);
   static void Logger(std::string file, int line, bool toAbort);
 
+  void logInt(int val);
+  void loguInt(uint val);
+  void logChar(char val);
+  void loguChar(uchar val);
+  void logChars(const char* chars, int len);
+  void logFloat(float val);
+  void logDouble(double val);
+  void logString(const string& str);
 
-  void set_output(default_output_t output);
+  void setOutput(default_output_t output);
 };
 
 
 template<typename T>
 Log& operator<<(Log& log, T val) {
-  log.get_buffer() << val;
+  log.getBuffer() << val;
   return log;
 }
 
@@ -98,5 +107,5 @@ void Logger(std::string file, int line, bool toAbort, T msg) {
 #define LOG_SYSFATAL(msg) Logger(__FILE__, __LINE__, true, #msg)
 
 
-#endif // LOG_H
+#endif // FAS_LOG_H
 

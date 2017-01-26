@@ -1,5 +1,5 @@
-#ifndef DISPATCHER_H
-#define DISPATCHER_H
+#ifndef FAS_DISPATCHER_H
+#define FAS_DISPATCHER_H
 #include <vector>
 #include <map>
 #include <iostream>
@@ -18,30 +18,56 @@ class Handle;
 using namespace std;
 
 class Dispatcher : boost::noncopyable {
+public:
+
+  typedef shared_ptr<Handle> SHandlePtr;
+  typedef Handle* HandlePtr;
+
+  Dispatcher();
+  ~Dispatcher();
+
+//Dispatcher list operator!
+	Dispatcher* next();
+	Dispatcher* pre();
+	static Dispatcher* head();
+  static int count();
+	int id();
+
+	Dispatcher* nextLoop();
+
+	bool addHandle(SHandlePtr handle);
+  bool addHandle(HandlePtr handle);
+  bool modHandle(SHandlePtr handle);
+  bool modHandle(HandlePtr handle);
+  bool delHandle(SHandlePtr handle);
+  bool delHandle(HandlePtr handle);
+
+  bool updateHandle(HandlePtr handle);
+
+  SHandlePtr handleSharedPtr(int fd);
+  SHandlePtr handleSharedPtr(HandlePtr handle);
+
+  void loop();
+
+private:
+  bool updateHandle(SHandlePtr handle);
+
 private:
   static const int kInitMaxHandle_ = 10;
   Mutex mutex_;
   boost::scoped_ptr<Poller> poll_;
   vector<Events> revents_;
-  map<int, shared_ptr<Handle>> handles_;
-  map<int, shared_ptr<Handle>> update_handles_;
+  map<int, SHandlePtr> handles_;
+  map<int, SHandlePtr> updates_;
 
-public:
-  Dispatcher();
-  bool addHandle(shared_ptr<Handle> handle);
-  bool addHandle(Handle* handle);
-  bool modHandle(shared_ptr<Handle> handle);
-  bool modHandle(Handle* handle);
-  bool delHandle(shared_ptr<Handle> handle);
-  bool delHandle(Handle* handle);
-
-  shared_ptr<Handle>  get_handle_shared_ptr(int fd);
-  shared_ptr<Handle>  get_handle_shared_ptr(Handle *handle);
-
-  void loop();
-
-private:
-  bool updateHandle(shared_ptr<Handle> handle);
+//create Dispatcher list auto!
+	static int count_;
+  int id_;
+	static Dispatcher *last_;
+  static Dispatcher *head_;
+	static Dispatcher *cur_;
+  Dispatcher *next_;
+	Dispatcher *pre_;
 };
 
-#endif // DISPATCHER_H
+#endif // FAS_DISPATCHER_H

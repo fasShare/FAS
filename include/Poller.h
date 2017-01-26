@@ -1,5 +1,5 @@
-#ifndef EVENTSPOLLER_H
-#define EVENTSPOLLER_H
+#ifndef FAS_EVENTSPOLLER_H
+#define FAS_EVENTSPOLLER_H
 #include <Epoll.h>
 #include <vector>
 #include <boost/function.hpp>
@@ -20,4 +20,4 @@ public:
 
 #define DEFAULT_POLLER Epoll
 
-#endif // EVENTSPOLLER_H
+#endif // FAS_EVENTSPOLLER_H

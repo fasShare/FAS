@@ -4,61 +4,119 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <Log.h>
 
+Dispatcher *Dispatcher::head_ = NULL;
+Dispatcher *Dispatcher::cur_ = NULL;
+Dispatcher *Dispatcher::last_ = NULL;
+int Dispatcher::count_ = 0;
 
-Dispatcher::Dispatcher():
-                        poll_(NULL){
+Dispatcher::Dispatcher() :
+    poll_(NULL) {
   revents_.reserve(kInitMaxHandle_);
   poll_.reset(new Poller);
   assert(poll_);
+
+//put this Dispatcher to Dispatcher list
+	if (last_ == NULL) {
+		last_ = this;
+	}
+//cur point to this first created Dispatcher!
+	if (cur_ == NULL) { 
+		cur_ = this;
+	}
+	if (head_ == NULL) {
+		pre_ = this;
+		next_ = this;
+		head_ = this;
+	} else {
+		head_->pre_ = this;
+		next_ = head_;
+		head_ = this;
+		last_->next_ = head_;
+	}
+  id_ = count_++;
 }
 
+Dispatcher::~Dispatcher() {
+  pre_->next_ = next_;
+}
 
-bool Dispatcher::updateHandle(shared_ptr<Handle> handle) {
+Dispatcher* Dispatcher::next() {
+	return next_;
+}
+
+Dispatcher* Dispatcher::pre() {
+	return pre_;
+}
+
+Dispatcher* Dispatcher::head() {
+  return head_;	
+}
+
+int Dispatcher::count() {
+	return count_;
+}
+
+int Dispatcher::id() {
+	return id_;
+}
+
+Dispatcher* Dispatcher::nextLoop() {
+	Dispatcher* curloop = cur_;
+	cur_ = cur_->next();
+	return curloop;
+}
+
+bool Dispatcher::updateHandle(SHandlePtr handle) {
   MutexLocker lock(mutex_);(void)lock;
-  update_handles_.insert({handle->get_event().get_fd(), handle});
+  updates_.insert({handle->getEvent().getFd(), handle});
   return true;
 }
 
 
-bool Dispatcher::addHandle(shared_ptr<Handle> handle) {
-  handle->set_state(EXECUTOR_STATE_ADD);
+bool Dispatcher::addHandle(SHandlePtr handle) {
+  handle->setState(STATE_ADD);
+	handle->setLoop(this);
   return updateHandle(handle);
 }
-bool Dispatcher::addHandle(Handle* handle) {
-  shared_ptr<Handle> handle_ptr(handle);
-  return addHandle(handle_ptr);
+bool Dispatcher::addHandle(HandlePtr handle) {
+  SHandlePtr handle_ptr(handle);
+  return nextLoop()->addHandle(handle_ptr);
 }
 
 //FIXME:mod by fd
-bool Dispatcher::modHandle(shared_ptr<Handle> handle) {
-  handle->set_state(EXECUTOR_STATE_MOD);
+bool Dispatcher::modHandle(SHandlePtr handle) {
+  handle->setState(STATE_MOD);
+	assert(handle->loop() == this);
   return updateHandle(handle);
 }
-bool Dispatcher::modHandle(Handle* handle) {
-  shared_ptr<Handle> handle_ptr = get_handle_shared_ptr(handle);
-  return modHandle(handle_ptr);
+bool Dispatcher::modHandle(HandlePtr handle) {
+  SHandlePtr handle_ptr = handleSharedPtr(handle);
+	return modHandle(handle_ptr);
 }
 
 //FIXME:del by fd
-bool Dispatcher::delHandle(shared_ptr<Handle> handle) {
-  handle->set_state(EXECUTOR_STATE_DEL);
+bool Dispatcher::delHandle(SHandlePtr handle) {
+  handle->setState(STATE_DEL);
+	assert(handle->loop() == this);
   return updateHandle(handle);
 }
-bool Dispatcher::delHandle(Handle* handle) {
-  shared_ptr<Handle> handle_ptr = get_handle_shared_ptr(handle);
+bool Dispatcher::delHandle(HandlePtr handle) {
+  SHandlePtr handle_ptr = handleSharedPtr(handle);
   return delHandle(handle_ptr);
 }
 
-
-shared_ptr<Handle>  Dispatcher::get_handle_shared_ptr(int fd) {
-  map<int, shared_ptr<Handle>>::iterator index =  handles_.find(fd);
+typename
+Dispatcher::SHandlePtr  Dispatcher::handleSharedPtr(int fd) {
+  map<int, SHandlePtr>::iterator index =  handles_.find(fd);
   return index->second;
 }
 
-shared_ptr<Handle>  Dispatcher::get_handle_shared_ptr(Handle *handle) {
-  map<int, shared_ptr<Handle>>::iterator index =  \
-          handles_.find(handle->get_event().get_fd());
+typename
+Dispatcher::SHandlePtr Dispatcher::handleSharedPtr(HandlePtr handle) {
+  map<int, SHandlePtr>::iterator index =  \
+          handles_.find(handle->getEvent().getFd());
   return index->second;
 }
 
@@ -66,53 +124,53 @@ shared_ptr<Handle>  Dispatcher::get_handle_shared_ptr(Handle *handle) {
 void Dispatcher::loop() {
 
   //only defined once
-  Timestamp loop_ret_time;
+  Timestamp looptime;
   while (true) {
 
-    for(map<int, shared_ptr<Handle>>::iterator index = update_handles_.begin(); \
-                index != update_handles_.end(); index++) {
+    for(auto cur = updates_.begin();
+             cur != updates_.end();
+             cur++) {
 
-      assert(index->first == \
-             index->second->get_eventpointer()->get_fd());
+      SHandlePtr handle = cur->second;
 
-      shared_ptr<Handle> op_handle = index->second;
-
-      if (op_handle->get_state() == EXECUTOR_STATE_ADD) {
-
-        poll_->events_add_(index->second->get_eventpointer());
+      if (handle->getState() == STATE_ADD) {
+        poll_->events_add_(handle->getEventPtr());
         //insert
-        handles_[index->first] = index->second;
-      } else if (op_handle->get_state() == EXECUTOR_STATE_MOD) {
-
-        poll_->events_mod_(index->second->get_eventpointer());
+        handles_[cur->first] = handle;
+        handle->setState(STATE_LOOP);
+      } else if (handle->getState() == STATE_MOD) {
+        poll_->events_mod_(handle->getEventPtr());
         //mod
-        handles_[index->first] = index->second;
-      } else if (op_handle->get_state() == EXECUTOR_STATE_DEL) {
-        poll_->events_del_(op_handle->get_eventpointer());
+        handles_[cur->first] = handle;
+        handle->setState(STATE_LOOP);
+      } else if (handle->getState() == STATE_DEL) {
+        poll_->events_del_(handle->getEventPtr());
         //del
-        handles_.erase(op_handle->get_event().get_fd());
+        handles_.erase(handle->getEvent().getFd());
       } else {
         //error
         assert(false);
       }
     }
 
-    update_handles_.clear();
+    updates_.clear();
     revents_.clear();
 
     int ret = poll_->loop_(revents_, 20, -1);
-    loop_ret_time = Timestamp::now();
+    looptime = Timestamp::now();
 
     for(int i = 0; i < ret; i++) { 
-      int fd = revents_.data()[i].get_fd();
+      int fd = revents_.data()[i].getFd();
      
       //handle will decreament reference after for end!
-      shared_ptr<Handle> handle = handles_.find(fd)->second;
-
-      assert(handle->get_eventpointer()->get_fd() == fd);
-      assert(handle->get_state() != EXECUTOR_STATE_DEL);
+      SHandlePtr handle = handles_.find(fd)->second;
+      if (handle->getState() != STATE_LOOP) {
+        LOG_DEBUG("After Loop have handle with state STATE_LOOP! it is unnormal!");
+        continue;
+      }
+      assert(handle->getEventPtr()->getFd() == fd);
       //handle revents
-      handle->handleEvent(&(revents_.data()[i]), loop_ret_time);
+      handle->handleEvent(&(revents_.data()[i]), looptime);
     }
   }
 }

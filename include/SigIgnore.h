@@ -1,10 +1,10 @@
-#ifndef SIGIGNORE
-#define SIGIGNORE
+#ifndef FAS_SIGIGNORE
+#define FAS_SIGIGNORE
 
 class SigIgnore {
 public:
   SigIgnore();
 };
 
-#endif // SIGIGNORE
+#endif // FAS_SIGIGNORE
 

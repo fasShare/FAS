@@ -1,8 +1,10 @@
 #include <Log.h>
+#include <string.h>
+#include <errno.h>
 
 const char *Log::log_endl = "\n\r";
 
-std::ostringstream& Log::get_buffer() {
+std::ostringstream& Log::getBuffer() {
   return buffer_;
 }
 
@@ -17,15 +19,14 @@ Log::LogLevel Log::logLevel() {
   return Log::LogLevel::DEBUG;
 }
 
-
-void Log::set_output(default_output_t output) {
+void Log::setOutput(default_output_t output) {
   output_ = output;
 }
 
 bool defaultLogOutput(const char* data, int len) {
   int ret = ::write(STDOUT_FILENO, data, len);
   if (ret == -1) {
-    // FIXME :
+    LOG_SYSERR(strerror(errno));
     return false;
   }
   return true;

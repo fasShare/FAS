@@ -1,5 +1,5 @@
-#ifndef EPOLL_H
-#define EPOLL_H
+#ifndef FAS_EPOLL_H
+#define FAS_EPOLL_H
 #include <sys/epoll.h>
 #include <vector>
 #include "Poller.h"
@@ -37,4 +37,4 @@ private:
   vector<Epoll_Event> revents_;
 };
 
-#endif // EPOLL_H
+#endif // FAS_EPOLL_H

@@ -30,11 +30,11 @@ NetAddress::NetAddress(int sa_port):
     NetAddress(AF_INET, sa_port, INADDR_ANY){
 }
 
-struct sockaddr_in& NetAddress::get_addr() {
+struct sockaddr_in& NetAddress::addr() {
   return addr_;
 }
 
-socklen_t NetAddress::get_addr_len() {
+socklen_t NetAddress::addrLen() {
   return sizeof(addr_);
 }
 

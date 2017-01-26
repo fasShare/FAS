@@ -11,19 +11,19 @@ Events::Events(const Epoll_Event& events) {
 
 Events::~Events() {
 }
-int Events::get_fd() {
+int Events::getFd() {
   return fd_;
 }
 
-void Events::set_fd(int fd) {
+void Events::setFd(int fd) {
   this->fd_ = fd;
 }
 
-int Events::get_events() {
+int Events::getEvents() {
   return events_;
 }
 
-void Events::set_events(int events) {
+void Events::setEvents(int events) {
   this->events_ = events;
 }
 
@@ -43,6 +43,6 @@ Epoll_Event Events::getEpollevents() {
 }
 
 ostream& operator<<(ostream& os, Events& events) {
-  os << "fd = " << events.get_fd();
+  os << "fd = " << events.getFd();
   return os;
 }

@@ -1,5 +1,5 @@
-#ifndef TIMESTAMP_H
-#define TIMESTAMP_H
+#ifndef FAS_TIMESTAMP_H
+#define FAS_TIMESTAMP_H
 #include <string>
 
 using std::string;
@@ -50,4 +50,4 @@ bool operator==(Timestamp lhs, Timestamp rhs);
 double timeDifference(Timestamp high, Timestamp low);
 Timestamp addTime(Timestamp timestamp, double seconds);
 
-#endif  // MUDUO_BASE_TIMESTAMP_H
+#endif  // FAS_TIMESTAMP_H

@@ -1,13 +1,13 @@
-#ifndef MUTEXLOCKER_H
-#define MUTEXLOCKER_H
+#ifndef FAS_MUTEXLOCKER_H
+#define FAS_MUTEXLOCKER_H
 #include <pthread.h>
 #include "Mutex.h"
 class MutexLocker {
-private:
-    Mutex& mutex_;
 public:
-    MutexLocker(Mutex& mutex);
-    ~MutexLocker();
+  MutexLocker(Mutex& mutex);
+  ~MutexLocker();
+private:
+  Mutex& mutex_;
 };
 
-#endif // MUTEXLOCKER_H
+#endif // FAS_MUTEXLOCKER_H

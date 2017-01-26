@@ -1,15 +1,11 @@
-#ifndef TCPSERVER_H
-#define TCPSERVER_H
+#ifndef FAS_TCPSERVER_H
+#define FAS_TCPSERVER_H
 #include "Handle.h"
 #include "Socket.h"
 #include "NetAddress.h"
 #include "Types.h"
 
 class TcpServer {
-private:
-  Socket_t server_socket_;
-  Dispatcher *dispatch_;
-  Handle *handle_;
 public:
     TcpServer(NetAddress addr);
     TcpServer();
@@ -20,6 +16,11 @@ public:
     Dispatcher* get_dispatcher();
 
     void handle_read_event(Events* event, Timestamp time);
+
+private:
+  Socket_t server_socket_;
+  Dispatcher *dispatch_;
+  Handle *handle_;
 };
 
-#endif // TCPSERVER_H
+#endif // FAS_TCPSERVER_H

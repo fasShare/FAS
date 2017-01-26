@@ -1,5 +1,5 @@
-#ifndef EVENTS_H
-#define EVENTS_H
+#ifndef FAS_EVENTS_H
+#define FAS_EVENTS_H
 #include <iostream>
 #include <Types.h>
 #include <boost/static_assert.hpp>
@@ -17,25 +17,26 @@ const events_t kReadEvent = POLLIN | POLLPRI;
 const events_t kWriteEvent = POLLOUT;
 
 class Events {
-private:
- int fd_;
- int events_;
 public:
   Events(int fd, int events);
   Events(const Epoll_Event& events);
   Events() = default;
    ~Events();
-  int get_fd();
-  void set_fd(int fd);
-  int get_events();
-  void set_events(int events);
+  int getFd();
+  void setFd(int fd);
+  int getEvents();
+  void setEvents(int events);
 
   bool containsEvents(int events);
   bool containsAtLeastOneEvents(int events);
 
   Epoll_Event getEpollevents();
+
+private:
+  int fd_;
+  int events_;
 };
 
 ostream& operator<<(ostream& os, Events& events);
 
-#endif // EVENTS_H
+#endif // FAS_EVENTS_H

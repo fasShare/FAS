@@ -1,5 +1,5 @@
-#ifndef MUTEX_H
-#define MUTEX_H
+#ifndef FAS_MUTEX_H
+#define FAS_MUTEX_H
 #include <pthread.h>
 
 class Mutex {
@@ -12,4 +12,4 @@ public:
     ~Mutex();
 };
 
-#endif // MUTEX_H
+#endif // FAS_MUTEX_H

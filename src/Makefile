@@ -4,7 +4,7 @@ NETBASE_HEADERS := ../include
 NETBASE_LIBS    := ../lib
 STATIC_LIB_CMD  := ar rcs
 SHARED_LIB_CMD  := g++ -shared -fPIC
-cflags          := -std=c++11 
+cflags          := -std=c++11 -Wall 
 CC = g++
 objects := $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 
