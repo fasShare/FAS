@@ -6,6 +6,7 @@
 #include <memory>
 #include <Events.h>
 #include <Mutex.h>
+#include <Condition.h>
 #include <MutexLocker.h>
 #include <Handle.h>
 #include <Poller.h>
@@ -26,48 +27,29 @@ public:
   Dispatcher();
   ~Dispatcher();
 
-//Dispatcher list operator!
-	Dispatcher* next();
-	Dispatcher* pre();
-	static Dispatcher* head();
-  static int count();
-	int id();
-
-	Dispatcher* nextLoop();
-
-	bool addHandle(SHandlePtr handle);
   bool addHandle(HandlePtr handle);
-  bool modHandle(SHandlePtr handle);
   bool modHandle(HandlePtr handle);
-  bool delHandle(SHandlePtr handle);
   bool delHandle(HandlePtr handle);
-
   bool updateHandle(HandlePtr handle);
-
-  SHandlePtr handleSharedPtr(int fd);
-  SHandlePtr handleSharedPtr(HandlePtr handle);
-
-  void loop();
-
+  void assertInDispatch();
+  void dispatch();
 private:
   bool updateHandle(SHandlePtr handle);
-
+  bool delHandle(SHandlePtr handle);
+  bool modHandle(SHandlePtr handle);
+  bool addHandle(SHandlePtr handle);
+  SHandlePtr handleSharedPtr(int fd);
+  SHandlePtr handleSharedPtr(HandlePtr handle);
 private:
   static const int kInitMaxHandle_ = 10;
-  Mutex mutex_;
+  static int count_;
   boost::scoped_ptr<Poller> poll_;
   vector<Events> revents_;
   map<int, SHandlePtr> handles_;
   map<int, SHandlePtr> updates_;
-
-//create Dispatcher list auto!
-	static int count_;
-  int id_;
-	static Dispatcher *last_;
-  static Dispatcher *head_;
-	static Dispatcher *cur_;
-  Dispatcher *next_;
-	Dispatcher *pre_;
+  Mutex mutex_;
+  Condition cond_;
+  pid_t tid_;
 };
 
 #endif // FAS_DISPATCHER_H

@@ -4,15 +4,29 @@
 
 using std::exception;
 
-Thread::Thread(function<void ()> threadFunc) :
+Thread::Thread(){
+}
+
+Thread::Thread(const string& name) :
+    name_(name){
+
+}
+
+Thread::Thread(boost::function<void ()> threadFunc) :
     Thread(threadFunc, "") {
 }
 
-Thread::Thread(function<void ()> threadFunc, string name) :
-    tid_(0),
-    threadId_(0),
-    name_(name),
-    threadFunc_(threadFunc) {
+Thread::Thread(boost::function<void ()> threadFunc, string name) :
+  threadId_(0),
+  name_(name),
+  threadFunc_(threadFunc) {
+}
+
+bool Thread::setThreadFunc(boost::function<void ()> threadFunc) {
+  if (threadFunc_)
+    return false;
+  threadFunc_ = threadFunc;
+  return true;
 }
 
 bool Thread::join() {
@@ -24,20 +38,29 @@ bool Thread::join() {
   return true;
 }
 
-bool Thread::isMainThread() {
-  return tid_ == ::getpid();
+bool Thread::MainThread() {
+  return gettid() == ::getpid();
 }
 
-bool Thread::startRun() {
-  errno = ::pthread_create(&threadId_, NULL, &runThreadFunc, this);
-  if(errno != 0) {
+bool Thread::start() {
+  errno = ::pthread_create(&threadId_, NULL, &run, this);
+  if (errno != 0) {
     LOG_SYSERR(string("ERROR pthread_create : ") + strerror(errno));
     return false;
   }
   return true;
 }
 
-void* runThreadFunc(void *obj) {
+bool Thread::stop() {
+  errno = ::pthread_cancel(threadId_);
+  if (errno != 0) {
+    LOG_SYSERR(string("ERROR pthread_cancel : ") + strerror(errno));
+    return false;
+  }
+  return true;
+}
+
+void* run(void *obj) {
   Thread *thread = static_cast<Thread*>(obj);
   thread->ThreadFunc();
   return NULL;
@@ -45,6 +68,7 @@ void* runThreadFunc(void *obj) {
 
 void Thread::ThreadFunc() {
   if (!this->threadFunc_) {
+    LOG_ERROR("Thread no Function object!");
     return;
   }
   try {
@@ -54,12 +78,16 @@ void Thread::ThreadFunc() {
   }
 }
 
-string Thread::getThreadName() {
+string Thread::getName() {
   return name_;
 }
 
-void Thread::setThreadName(const string& name) {
+void Thread::setName(const string& name) {
   this->name_ = name;
+}
+
+Thread::~Thread() {
+
 }
 
 

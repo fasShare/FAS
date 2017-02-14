@@ -17,7 +17,7 @@ using namespace std;
 
 class Handle {
 public:
-  typedef function<void (Events*, Timestamp)> events_handle_t;
+  typedef boost::function<void (Events*, Timestamp)> events_handle_t;
 
   Handle(Events event);
   Handle();
@@ -42,14 +42,14 @@ public:
   uchar getState();
 
 private:
-	Dispatcher *loop_;
+  Dispatcher *loop_;
   Events event_;
   uchar state_;
   bool set_event_flag_;
-  function<void (Events*, Timestamp)> handle_read_event_;
-  function<void (Events*, Timestamp)> handle_write_event_;
-  function<void (Events*, Timestamp)> handle_error_event_;
-  function<void (Events*, Timestamp)> handle_close_event_;
+  boost::function<void (Events*, Timestamp)> handle_read_event_;
+  boost::function<void (Events*, Timestamp)> handle_write_event_;
+  boost::function<void (Events*, Timestamp)> handle_error_event_;
+  boost::function<void (Events*, Timestamp)> handle_close_event_;
 };
 
 #endif // FAS_EXECUTOR_H

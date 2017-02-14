@@ -12,8 +12,7 @@ void threadfunc() {
 
 int main() {
 	Thread thread(threadfunc);
-    thread.startRun();
-
+    thread.start();
 
     sleep(1);
 
@@ -21,7 +20,7 @@ int main() {
 	cout << "pid : " << getpid() << endl;
 
 
-	assert(!thread.isMainThread());
+    assert(!thread.MainThread());
 
 	thread.join();
 	return 0;

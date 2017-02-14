@@ -9,6 +9,7 @@ public:
     Mutex();
     void lock();
     void unlock();
+    pthread_mutex_t* getMutex();
     ~Mutex();
 };
 
