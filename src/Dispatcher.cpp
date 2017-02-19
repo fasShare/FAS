@@ -113,7 +113,7 @@ void Dispatcher::dispatch() {
     int ret = poll_->loop_(revents_, 20, -1);
     looptime = Timestamp::now();
 
-    cout << "current dispather own handles num is " << Dispatcher::count_ << endl;
+    cout << "current dispather num is " << Dispatcher::count_ << endl;
 
     for(int i = 0; i < ret; i++) { 
       int fd = revents_.data()[i].getFd();
