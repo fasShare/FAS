@@ -16,7 +16,8 @@ Thread::Thread(boost::function<void ()> threadFunc) :
     Thread(threadFunc, "") {
 }
 
-Thread::Thread(boost::function<void ()> threadFunc, string name) :
+Thread::Thread(boost::function<void ()> threadFunc,
+               string name) :
   threadId_(0),
   name_(name),
   threadFunc_(threadFunc) {

@@ -1,7 +1,7 @@
 #ifndef FAS_EVENTS_H
 #define FAS_EVENTS_H
 #include <iostream>
-#include <Types.h>
+#include <Default.h>
 #include <boost/static_assert.hpp>
 using std::ostream;
 using std::endl;

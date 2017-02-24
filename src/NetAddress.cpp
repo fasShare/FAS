@@ -10,7 +10,7 @@ NetAddress::NetAddress(unsigned short sa_family,
                        const char *sa_ip) {
   addr_.sin_family = sa_family;
   addr_.sin_port = htobe16(sa_port);
-  addr_.sin_addr.s_addr = inet_addr(sa_ip);
+  addr_.sin_addr.s_addr = ::inet_addr(sa_ip);
 }
 
 NetAddress::NetAddress(unsigned short sa_family,

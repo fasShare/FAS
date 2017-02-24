@@ -17,36 +17,47 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
 EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
                                          int threadNum,
                                          string name) :
-    threadNum_(threadNum),
-    name_(name),
-    baseloop_(baseloop),
-    started_(false),
-    next_(0) {
-    assert(baseloop_  && (threadNum_ >= 0));
+  threadNum_(threadNum),
+  name_(name),
+  threads_(),
+  loops_(),
+  baseloop_(baseloop),
+  started_(false),
+  next_(0),
+  tid_(gettid()) {
+  assert(baseloop_  && (threadNum_ >= 0));
 
   threads_.reserve(threadNum_);
   loops_.reserve(threadNum_);
 }
 
-void EventLoopThreadPool::setThreadNum(int threadNum) {
-  threadNum_ = threadNum;
+void EventLoopThreadPool::updateThreadNum(int newNum) {
+  assertInOwner();
+  assert(!started_);
+  threadNum_ = newNum;
 }
 
 int EventLoopThreadPool::getThreadNum() {
   return threadNum_;
 }
 
-void EventLoopThreadPool::setName(const string& name) {
-  name_ = name;
+void EventLoopThreadPool::updateName(const string& newName) {
+  assertInOwner();
+  assert(!started_);
+  name_ = newName;
 }
 
 string EventLoopThreadPool::getName() {
   return name_;
 }
 
-bool EventLoopThreadPool::start() {
-  assert(!started_);
+void EventLoopThreadPool::assertInOwner() {
+  assert(gettid() == tid_);
+}
 
+bool EventLoopThreadPool::start() {
+  assertInOwner();
+  assert(!started_);
   for(int i = 0; i < threadNum_; i++) {
     EventLoopThread *thread = new EventLoopThread();
     loops_.push_back(thread->start());
@@ -58,6 +69,7 @@ bool EventLoopThreadPool::start() {
 }
 
 EventLoop *EventLoopThreadPool::getNextEventLoop() {
+  assertInOwner();
   EventLoop* loop = baseloop_;
 
   if (!loops_.empty()) {

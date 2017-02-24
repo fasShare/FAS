@@ -3,7 +3,7 @@
 #include <iostream>
 #include <boost/function.hpp>
 
-#include <Types.h>
+#include <Default.h>
 #include <Timestamp.h>
 #include <Events.h>
 

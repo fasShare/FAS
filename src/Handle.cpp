@@ -10,8 +10,8 @@ Handle::Handle(EventLoop* loop,
 }
 
 EventLoop* Handle::getLoop() {
-	assert(loop_ != NULL);
-	return loop_;
+  assert(loop_ != NULL);
+  return loop_;
 }
 
 Events* Handle::getEvent() const {

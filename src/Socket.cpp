@@ -6,7 +6,7 @@
 
 
 Socket_t Socket(int domain, int type, int protocol) {
-  Socket_t sd = socket(domain, type, protocol);
+  Socket_t sd = ::socket(domain, type, protocol);
   if (sd == -1) {
     LOG_SYSERR(strerror(errno));
     return -1;
@@ -26,7 +26,7 @@ Socket_t SocketNoBlockingOrExec(int domain, int type, int protocol) {
 
 
 bool SetNoBlockingOrExec(Socket_t sd) {
-  int flag = fcntl(sd, F_GETFL);
+  int flag = ::fcntl(sd, F_GETFL);
   int nflag = flag | O_NONBLOCK;
   int ret = ::fcntl(sd, F_SETFL, nflag);
 

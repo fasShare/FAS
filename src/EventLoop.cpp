@@ -30,18 +30,21 @@ bool EventLoop::updateHandle(HandlePtr handle) {
 
 
 bool EventLoop::addHandle(HandlePtr handle) {
+  assertInOwner();
   handle->setState(STATE_ADD);
   return updateHandle(handle);
 }
 
 //FIXME:mod by fd
 bool EventLoop::modHandle(HandlePtr handle) {
+  assertInOwner();
   handle->setState(STATE_MOD);
   return updateHandle(handle);
 }
 
 //FIXME:del by fd
 bool EventLoop::delHandle(HandlePtr handle) {
+  assertInOwner();
   handle->setState(STATE_DEL);
   return updateHandle(handle);
 }
@@ -75,8 +78,12 @@ bool EventLoop::addNewToHandles() {
   return false;
 }
 
-void EventLoop::loop() {
+void EventLoop::assertInOwner() {
+  assert(gettid() == tid_);
+}
 
+void EventLoop::loop() {
+  assertInOwner();
   //only defined once
   Timestamp looptime;
   while (true) {

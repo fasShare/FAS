@@ -35,7 +35,7 @@ bool TcpServer::start() {
 void TcpServer::handleReadEvent(Events* event, Timestamp time) {
     cout << time.toFormattedString() << " sd = " << event->getFd() << endl;
 
-    int sd = accept(event->getFd(), NULL, NULL);
+    int sd = ::accept(event->getFd(), NULL, NULL);
 
     close(sd);
 }

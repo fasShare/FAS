@@ -5,7 +5,7 @@
 #include <string>
 #include <sys/types.h>
 #include <sstream>
-#include <Types.h>
+#include <Default.h>
 
 using std::string;
 using std::ostream;

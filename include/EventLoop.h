@@ -10,7 +10,7 @@
 #include <MutexLocker.h>
 #include <Handle.h>
 #include <Poller.h>
-#include <Types.h>
+#include <Default.h>
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/noncopyable.hpp>
@@ -30,6 +30,8 @@ public:
   bool addHandle(HandlePtr handle);
   bool modHandle(HandlePtr handle);
   bool delHandle(HandlePtr handle);
+
+  void assertInOwner();
 
   void loop();
 private:

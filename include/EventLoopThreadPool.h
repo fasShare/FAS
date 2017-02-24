@@ -15,11 +15,13 @@ public:
     EventLoopThreadPool(EventLoop *baseloop, int threadNum, string name);
     ~EventLoopThreadPool();
 
-    void setThreadNum(int threadNum);
+    void updateThreadNum(int threadNum);
     int getThreadNum();
 
-    void setName(const string& name);
+    void updateName(const string& name);
     string getName();
+
+    void assertInOwner();
 
     bool start();
 
@@ -32,6 +34,7 @@ private:
     EventLoop *baseloop_;
     bool started_;
     size_t next_;
+    pid_t tid_; //thread owner pid.
 };
 
 #endif // FAS_EVENTLOOPTHREADPOOL_H

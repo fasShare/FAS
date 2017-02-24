@@ -11,7 +11,7 @@ using namespace std;
 Epoll::Epoll() :
     epoll_fd_(-1) {
   //FIXME : EPOLL_CLOEXEC
-  epoll_fd_ = epoll_create(1);
+  epoll_fd_ = ::epoll_create(1);
   if(epoll_fd_ == -1) {
     LOG_SYSERR((string("ERROR epoll_ctl : ") + strerror(errno)));
   }
@@ -19,7 +19,7 @@ Epoll::Epoll() :
 
 bool Epoll::eventCtl(int op, Socket_t sd, EpollEvent* event) {
   assert(epoll_fd_ != -1);
-  int ret = epoll_ctl(epoll_fd_, op, sd, event);
+  int ret = ::epoll_ctl(epoll_fd_, op, sd, event);
   if (ret == -1) {
     LOG_SYSERR((string("ERROR epoll_ctl : ") + strerror(errno)));
     return false;
@@ -43,7 +43,7 @@ bool Epoll::eventMod(Socket_t sd, EpollEvent* event) {
 int Epoll::loopWait(EpollEvent* events, int maxevents, int timeout) {
   //FIXME : The call was interrupted by a signal
 should_continue:
-  int ret = epoll_wait(epoll_fd_, events, maxevents, timeout);
+  int ret = ::epoll_wait(epoll_fd_, events, maxevents, timeout);
   if (ret == -1) {
     if (errno == EINTR) {
       LOG_SYSERR((string("ERROR epoll_wait : ") + strerror(errno)));
@@ -88,6 +88,6 @@ int Epoll::pollerLoop(vector<Events> &events, int max_events, int timeout) {
 }
 
 Epoll::~Epoll() {
-  close(epoll_fd_);
+  ::close(epoll_fd_);
 }
 
