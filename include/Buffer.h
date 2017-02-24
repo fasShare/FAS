@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <string.h>
 
+#include <boost/noncopyable.hpp>
+
 using std::string;
 
 /// A buffer class modeled after org.jboss.netty.buffer.ChannelBuffer
@@ -21,8 +23,8 @@ using std::string;
 /// |                   |                  |                  |
 /// 0      <=      readerIndex   <=   writerIndex    <=     size
 /// @endcode
-class Buffer {
- public:
+class Buffer : boost::noncopyable {
+public:
   static const size_t kCheapPrepend = 8;
   static const size_t kInitialSize = 1024;
 
@@ -105,7 +107,7 @@ private:
 
   void makeSpace(size_t len);
 
- private:
+private:
   std::vector<char> buffer_;
   size_t readerIndex_;
   size_t writerIndex_;

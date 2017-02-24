@@ -33,3 +33,31 @@ bool defaultLogOutput(const char* data, int len) {
 }
 
 
+void Logger(std::string file, int line, string msg) {
+  Log log;
+  log << file << " " << line << " " << msg << Log::log_endl;
+  log.fflush();
+}
+
+void Logger(std::string file, int line, Log::LogLevel level, string msg) {
+  Log log;
+  log << file << " " << line << " " <<  level << " " << msg << Log::log_endl;
+  log.fflush();
+}
+
+void Logger(std::string file, int line, Log::LogLevel level, std::string func, string msg) {
+  Log log;
+  log << file << " " << line << " " <<  level << " " << func << " " << msg << Log::log_endl;
+  log.fflush();
+}
+
+void Logger(std::string file, int line, bool toAbort, string msg) {
+  Log log;
+  log << file << " " << line << " " << msg << Log::log_endl;
+  log.fflush();
+
+  if (toAbort) {
+    ::abort();
+  }
+}
+

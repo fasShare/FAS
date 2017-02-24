@@ -20,36 +20,38 @@ EventLoop::EventLoop() :
   count_++;
 }
 
-bool EventLoop::updateHandle(HandlePtr handle) {
+int EventLoop::getCount() const {
+  return count_;
+}
+
+bool EventLoop::updateHandle(Handle *handle) {
   MutexLocker lock(mutex_);(void)lock;
-  assert(handle->getLoop() == this);
   SHandlePtr handle_ptr(handle);
   updates_.insert({handle_ptr->getEvent()->getFd(), handle_ptr});
   return true;
 }
 
 
-bool EventLoop::addHandle(HandlePtr handle) {
-  assertInOwner();
+bool EventLoop::addHandle(Handle *handle) {
+  assert(handle->getLoop() == this);
   handle->setState(STATE_ADD);
   return updateHandle(handle);
 }
 
 //FIXME:mod by fd
-bool EventLoop::modHandle(HandlePtr handle) {
-  assertInOwner();
+bool EventLoop::modHandle(Handle *handle) {
   handle->setState(STATE_MOD);
   return updateHandle(handle);
 }
 
 //FIXME:del by fd
-bool EventLoop::delHandle(HandlePtr handle) {
-  assertInOwner();
+bool EventLoop::delHandle(Handle *handle) {
   handle->setState(STATE_DEL);
   return updateHandle(handle);
 }
 
 bool EventLoop::addNewToHandles() {
+  MutexLocker lock(mutex_);(void)lock;
   for(auto cur = updates_.begin();
        cur != updates_.end();
        cur++) {
@@ -83,9 +85,11 @@ void EventLoop::assertInOwner() {
 }
 
 void EventLoop::loop() {
+  //cout << "Thread tid " << gettid() << " " << tid_ << " will loop." << endl;
   assertInOwner();
   //only defined once
   Timestamp looptime;
+  uint waitTime = 0;
   while (true) {
     if (!updates_.empty())
       addNewToHandles();
@@ -93,10 +97,16 @@ void EventLoop::loop() {
     updates_.clear();
     revents_.clear();
 
-    int ret = poll_->loop_(revents_, 20, -1);
+    if (handles_.size() > 0) {
+        cout << "tid : " << gettid() << " handles num " << handles_.size() << endl;
+      waitTime = -1;
+    } else {
+      waitTime = 10;
+    }
+    int ret = poll_->loop_(revents_, 20, waitTime);
     looptime = Timestamp::now();
 
-    cout << "current dispather own handles num is " << EventLoop::count_ << endl;
+
 
     for(int i = 0; i < ret; i++) { 
       int fd = revents_.data()[i].getFd();

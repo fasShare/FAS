@@ -7,6 +7,7 @@ Handle::Handle(EventLoop* loop,
   loop_(loop),
   event_(new Events(event)),
   state_(STATE_ADD) {
+
 }
 
 EventLoop* Handle::getLoop() {

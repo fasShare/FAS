@@ -55,7 +55,9 @@ EventLoopThread::~EventLoopThread() {
 }
 
 void EventLoopThread::threadFunc() {
+  cout << "Thread tid :" << gettid() << endl;
   EventLoop loop;
+  loop.assertInOwner();
 
   {
     MutexLocker lock(mutex_);

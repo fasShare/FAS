@@ -71,7 +71,7 @@ bool EventLoopThreadPool::start() {
 EventLoop *EventLoopThreadPool::getNextEventLoop() {
   assertInOwner();
   EventLoop* loop = baseloop_;
-
+  cout << __func__ << " : " << loops_.size() << " next :" << next_ << endl;
   if (!loops_.empty()) {
     // round-robin
     loop = loops_[next_];

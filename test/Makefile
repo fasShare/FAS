@@ -6,7 +6,7 @@ all:
 	echo $(NETBASE_HEADERS)
 	echo $(NETBASE_LIBS)
 	
-#	$(CC) thread_test.cpp  -I${NETBASE_HEADERS} -L${NETBASE_LIBS} $(cflags) -o thread_test $(libs)
+	$(CC) EventLoopTest.cpp  -I${NETBASE_HEADERS} -L${NETBASE_LIBS} $(cflags) -o EventLoopTest $(libs)
 
 
 .PHONY : clean

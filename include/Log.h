@@ -64,35 +64,10 @@ Log& operator<<(Log& log, T val) {
   return log;
 }
 
-template<typename T>
-void Logger(std::string file, int line, T msg) {
-  Log log;
-  log << file << " " << line << " " << msg << Log::log_endl;
-  log.fflush();
-}
-template<typename T>
-void Logger(std::string file, int line, Log::LogLevel level, T msg) {
-  Log log;
-  log << file << " " << line << " " <<  level << " " << msg << Log::log_endl;
-  log.fflush();
-}
-template<typename T>
-void Logger(std::string file, int line, Log::LogLevel level, std::string func, T msg) {
-  Log log;
-  log << file << " " << line << " " <<  level << " " << func << " " << msg << Log::log_endl;
-  log.fflush();
-}
-template<typename T>
-void Logger(std::string file, int line, bool toAbort, T msg) {
-  Log log;
-  log << file << " " << line << " " << msg << Log::log_endl;
-  log.fflush();
-
-  if (toAbort) {
-    ::abort();
-  }
-}
-
+void Logger(std::string file, int line, string msg);
+void Logger(std::string file, int line, Log::LogLevel level, string msg);
+void Logger(std::string file, int line, Log::LogLevel level, std::string func, string msg);
+void Logger(std::string file, int line, bool toAbort, string msg);
 
 #define LOG_TRACE(msg) if (Log::logLevel() <= Log::TRACE) \
     Logger(__FILE__, __LINE__, Log::TRACE, __func__, #msg)

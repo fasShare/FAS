@@ -17,8 +17,6 @@ using namespace std;
 
 class Handle {
 public:
-  typedef boost::function<void (Events*, Timestamp)> events_handle_t;
-
   Handle(EventLoop* loop, Events event);
   virtual ~Handle();
 

@@ -43,7 +43,8 @@ bool SetNoBlockingOrExec(Socket_t sd) {
 bool SocketBind(Socket_t socket, NetAddress& addr) {
   int ret = ::bind(socket, (const struct sockaddr *)&addr.addr(), addr.addrLen());
   if (ret == -1) {
-    LOG_ERROR((string("ERROR bind :") + strerror(errno).c_str()));
+    string msg = string("ERROR bind :") + strerror(errno);
+    LOG_ERROR(msg);
     return false;
   }
   return true;

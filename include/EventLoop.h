@@ -27,6 +27,8 @@ public:
   EventLoop();
   ~EventLoop();
 
+  int getCount() const;
+
   bool addHandle(HandlePtr handle);
   bool modHandle(HandlePtr handle);
   bool delHandle(HandlePtr handle);
