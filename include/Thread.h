@@ -5,7 +5,7 @@
 #include <boost/function.hpp>
 #include <string>
 #include <syscall.h>
-#include <Dispatcher.h>
+#include <EventLoop.h>
 
 using std::string;
 

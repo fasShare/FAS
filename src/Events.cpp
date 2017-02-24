@@ -1,29 +1,27 @@
 #include "Events.h"
 
 Events::Events(int fd, int events) :
-    fd_(fd),
-    events_(events){
-}
-Events::Events(const Epoll_Event& events) {
-  fd_ = events.data.fd;
-  events_ = events.events;
+  fd_(fd),
+  events_(events) {
 }
 
-Events::~Events() {
+Events::Events(const Events& events) :
+  Events(events.fd_, events.events_) {
 }
+
+Events::Events(const EpollEvent& events) :
+  Events(events.data.fd, events.events){
+}
+
 int Events::getFd() {
   return fd_;
-}
-
-void Events::setFd(int fd) {
-  this->fd_ = fd;
 }
 
 int Events::getEvents() {
   return events_;
 }
 
-void Events::setEvents(int events) {
+void Events::updateEvents(int events) {
   this->events_ = events;
 }
 
@@ -35,8 +33,8 @@ bool Events::containsAtLeastOneEvents(int events) {
   return ((events_ & events) != 0);
 }
 
-Epoll_Event Events::getEpollevents() {
-  Epoll_Event events;
+EpollEvent Events::epollEvents() {
+  EpollEvent events;
   events.data.fd = this->fd_;
   events.events = this->events_;
   return events;
@@ -45,4 +43,7 @@ Epoll_Event Events::getEpollevents() {
 ostream& operator<<(ostream& os, Events& events) {
   os << "fd = " << events.getFd();
   return os;
+}
+
+Events::~Events() {
 }

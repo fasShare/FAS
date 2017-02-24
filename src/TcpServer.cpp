@@ -3,59 +3,43 @@
 #include <Socket.h>
 #include <unistd.h>
 #include <boost/bind.hpp>
-#include <Dispatcher.h>
+#include <EventLoop.h>
 #include <Timestamp.h>
 
 using namespace std;
 
-TcpServer::TcpServer(NetAddress addr) {
-  handle_ = new Handle;
-
-  server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
-
-  SocketBind(server_socket_, addr);
-
-  SocketListen(server_socket_, 50);
-
-  Events serevn(server_socket_, EPOLLIN);
-
-  handle_->setEvent(serevn);
+TcpServer::TcpServer(EventLoop* loop,
+                     const NetAddress& addr) :
+  server_(SocketNoBlockingOrExec(AF_INET, SOCK_STREAM, 0)),
+  loop_(loop),
+  events_(server_, kReadEvent),
+  handle_(new Handle(loop_, events_)),
+  addr_(addr),
+  listenBacklog_(50),
+  threadPool_(loop, 4) {
+  SocketBind(server_, addr_);
+  SocketListen(server_, listenBacklog_);
 }
 
-TcpServer::TcpServer() {
-  handle_ = new Handle;
-
-  server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
-  NetAddress addr(8899, "127.0.0.1");
-
-  SocketBind(server_socket_, addr);
-
-  SocketListen(server_socket_, 50);
-
-  Events serevn(server_socket_, kReadEvent);
-
-  handle_->setEvent(serevn);
+EventLoop* TcpServer::getLoop() const{
+  return loop_;
 }
 
-
-bool TcpServer::init(Dispatcher *dispatcher) {
-  this->dispatch_ = dispatcher;
-  handle_->setHandleRead(boost::bind(&TcpServer::handle_read_event, this, _1, _2));
-  dispatch_->addHandle(handle_);
-
+bool TcpServer::start() {
+  handle_->setHandleRead(boost::bind(&TcpServer::handleReadEvent, this, _1, _2));
+  loop_->addHandle(handle_);
+  threadPool_.start();
   return true;
 }
 
-
-inline Dispatcher* TcpServer::get_dispatcher() {
-  return dispatch_;
-}
-
-
-void TcpServer::handle_read_event(Events* event, Timestamp time) {
+void TcpServer::handleReadEvent(Events* event, Timestamp time) {
     cout << time.toFormattedString() << " sd = " << event->getFd() << endl;
 
     int sd = accept(event->getFd(), NULL, NULL);
 
     close(sd);
+}
+
+TcpServer::~TcpServer() {
+  delete handle_;
 }

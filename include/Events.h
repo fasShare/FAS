@@ -19,18 +19,18 @@ const events_t kWriteEvent = POLLOUT;
 class Events {
 public:
   Events(int fd, int events);
-  Events(const Epoll_Event& events);
-  Events() = default;
+  Events(const Events& events);
+  Events(const EpollEvent& events);
    ~Events();
+
   int getFd();
-  void setFd(int fd);
   int getEvents();
-  void setEvents(int events);
+  void updateEvents(int events);
 
   bool containsEvents(int events);
   bool containsAtLeastOneEvents(int events);
 
-  Epoll_Event getEpollevents();
+  EpollEvent epollEvents();
 
 private:
   int fd_;

@@ -21,11 +21,11 @@ class Epoll : boost::noncopyable {
 public:
   Epoll();
   ~Epoll();
-  bool eventCtl(int op, int fd, Epoll_Event* event);
-  bool eventAdd(Socket_t fd, Epoll_Event* event);
-  bool eventDel(Socket_t fd, Epoll_Event* event);
-  bool eventMod(Socket_t fd, Epoll_Event* event);
-  int loopWait(Epoll_Event* events, int maxevents, int timeout);
+  bool eventCtl(int op, int fd, EpollEvent* event);
+  bool eventAdd(Socket_t fd, EpollEvent* event);
+  bool eventDel(Socket_t fd, EpollEvent* event);
+  bool eventMod(Socket_t fd, EpollEvent* event);
+  int loopWait(EpollEvent* events, int maxevents, int timeout);
 
   bool pollerEventsAdd(Events* events);
   bool pollerEventsMod(Events* events);
@@ -34,7 +34,7 @@ public:
 
 private:
   int epoll_fd_;
-  vector<Epoll_Event> revents_;
+  vector<EpollEvent> revents_;
 };
 
 #endif // FAS_EPOLL_H

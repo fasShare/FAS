@@ -17,7 +17,7 @@ Epoll::Epoll() :
   }
 }
 
-bool Epoll::eventCtl(int op, Socket_t sd, Epoll_Event* event) {
+bool Epoll::eventCtl(int op, Socket_t sd, EpollEvent* event) {
   assert(epoll_fd_ != -1);
   int ret = epoll_ctl(epoll_fd_, op, sd, event);
   if (ret == -1) {
@@ -28,19 +28,19 @@ bool Epoll::eventCtl(int op, Socket_t sd, Epoll_Event* event) {
   }
 }
 
-bool Epoll::eventAdd(Socket_t sd, Epoll_Event* event) {
+bool Epoll::eventAdd(Socket_t sd, EpollEvent* event) {
   return eventCtl(EPOLL_CTL_ADD, sd, event);
 }
 
-bool Epoll::eventDel(Socket_t sd, Epoll_Event* event) {
+bool Epoll::eventDel(Socket_t sd, EpollEvent* event) {
   return eventCtl(EPOLL_CTL_DEL, sd, event);
 }
 
-bool Epoll::eventMod(Socket_t sd, Epoll_Event* event) {
+bool Epoll::eventMod(Socket_t sd, EpollEvent* event) {
   return eventCtl(EPOLL_CTL_MOD, sd, event);
 }
 
-int Epoll::loopWait(Epoll_Event* events, int maxevents, int timeout) {
+int Epoll::loopWait(EpollEvent* events, int maxevents, int timeout) {
   //FIXME : The call was interrupted by a signal
 should_continue:
   int ret = epoll_wait(epoll_fd_, events, maxevents, timeout);
@@ -57,17 +57,17 @@ should_continue:
 }
 
 bool Epoll::pollerEventsAdd(Events* events) {
-  Epoll_Event event = events->getEpollevents();
+  EpollEvent event = events->epollEvents();
   return this->eventAdd(event.data.fd, &event);
 }
 
 bool Epoll::pollerEventsMod(Events* events) {
-  Epoll_Event event = events->getEpollevents();
+  EpollEvent event = events->epollEvents();
   return this->eventMod(event.data.fd, &event);
 }
 
 bool Epoll::pollerEventsDel(Events* events) {
-  Epoll_Event event = events->getEpollevents();
+  EpollEvent event = events->epollEvents();
   return this->eventDel(event.data.fd, &event);
 }
 

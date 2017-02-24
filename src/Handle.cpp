@@ -2,42 +2,21 @@
 #include <assert.h>
 #include <Log.h>
 
-Handle::Handle(Events event) :
-    event_(event),
-    state_(STATE_ADD),
-    set_event_flag_(true) {
-}
-Handle::Handle() :
-    state_(STATE_ADD),
-    set_event_flag_(false) {
+Handle::Handle(EventLoop* loop,
+               Events event) :
+  loop_(loop),
+  event_(new Events(event)),
+  state_(STATE_ADD) {
 }
 
-Dispatcher* Handle::loop() {
+EventLoop* Handle::getLoop() {
 	assert(loop_ != NULL);
 	return loop_;
 }
-void Handle::setLoop(Dispatcher* loop) {
-    assert((loop != NULL) && (loop_ == NULL));
-	loop_ = loop;
-}
 
-Events Handle::getEvent() {
-  assert(set_event_flag_);
+Events* Handle::getEvent() const {
   return event_;
 }
- void Handle::setEvent(Events& event) {
-  if (set_event_flag_ == false) {
-    event_ = event;
-  }
-  set_event_flag_ = true;
-}
-
-
-Events* Handle::getEventPtr() {
-  assert(set_event_flag_);
-  return &event_;
-}
-
 
 void Handle::setHandleRead(const events_handle_t& handle_read) {
   handle_read_event_ = handle_read;
@@ -57,7 +36,6 @@ void Handle::setHandleClose(const events_handle_t& handle_close) {
 
 
 void Handle::setState(unsigned char state) {
-  assert(true);
   state_ = state;
 }
 unsigned char Handle::getState() {
@@ -92,5 +70,4 @@ void Handle::handleEvent(Events* events, Timestamp time) {
 
 Handle::~Handle() {
   state_ = STATE_DEL;
-  set_event_flag_ = false;
 }

@@ -1,6 +1,6 @@
 #include <iostream>
-#include <Dispatcher.h>
-#include <DispatcherThreadPool.h>
+#include <EventLoop.h>
+#include <EventLoopThreadPool.h>
 #include <TcpServer.h>
 #include <Timestamp.h>
 #include <Log.h>
@@ -11,13 +11,10 @@ using namespace std;
 
 int main()
 {
-    Dispatcher *dis = new Dispatcher;
-    TcpServer *ser = new TcpServer;
-    ser->init(dis);
+    EventLoop *loop = new EventLoop;
+    TcpServer *ser = new TcpServer(loop, NetAddress(8899, "127.0.0.1"));
 
-    DispatcherThreadPool pool(dis, 4);
-    pool.start();
-
-    dis->dispatch();
+    ser->start();
+    loop->loop();
 }
 

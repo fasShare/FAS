@@ -3,8 +3,8 @@
 #include <sys/epoll.h>
 #include <sys/poll.h>
 
-typedef struct epoll_event  Epoll_Event;
-typedef struct pollfd  Poll_Event;
+typedef struct epoll_event  EpollEvent;
+typedef struct pollfd  PollEvent;
 
 typedef int Socket_t;
 typedef int events_t;

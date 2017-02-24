@@ -12,24 +12,23 @@
 #define STATE_DEL 3
 #define STATE_LOOP 4
 
-class Dispatcher;
+class EventLoop;
 using namespace std;
 
 class Handle {
 public:
   typedef boost::function<void (Events*, Timestamp)> events_handle_t;
 
-  Handle(Events event);
-  Handle();
+  Handle(EventLoop* loop, Events event);
   virtual ~Handle();
 
-	Dispatcher* loop();
-	void setLoop(Dispatcher* loop);
+  EventLoop* getLoop();
   
-	Events getEvent();
-  void setEvent(Events& event);
+  Events* getEvent() const;
+  void updateEvent(Events& event);
 
-  Events* getEventPtr();
+  void setState(uchar state);
+  uchar getState();
 
   void setHandleRead(const events_handle_t& handle_read);
   void setHandleWrite(const events_handle_t& handle_write);
@@ -37,15 +36,10 @@ public:
   void setHandleClose(const events_handle_t& handle_close);
 
   void handleEvent(Events*, Timestamp);
-
-  void setState(uchar state);
-  uchar getState();
-
 private:
-  Dispatcher *loop_;
-  Events event_;
-  uchar state_;
-  bool set_event_flag_;
+  EventLoop *loop_;
+  Events *event_;
+  uint state_;
   boost::function<void (Events*, Timestamp)> handle_read_event_;
   boost::function<void (Events*, Timestamp)> handle_write_event_;
   boost::function<void (Events*, Timestamp)> handle_error_event_;
