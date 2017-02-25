@@ -1,16 +1,24 @@
-#include <EventLoop.h>
-#include <Timestamp.h>
-#include <Thread.h>
 #include <assert.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/eventfd.h>
+
+
 #include <Log.h>
+#include <Poller.h>
+#include <Socket.h>
+#include <EventLoop.h>
+#include <Timestamp.h>
+#include <Thread.h>
+#include <Handle.h>
+#include <MutexLocker.h>
+
 
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
 
-#include <sys/eventfd.h>
+
 
 int EventLoop::count_ = 0;
 
@@ -44,27 +52,30 @@ int EventLoop::getCount() const {
 bool EventLoop::updateHandle(SHandlePtr handle) {
   assert(handle->getLoop() == this);
   MutexLocker lock(mutex_);(void)lock;
-  updates_.insert({handle->getEvent()->getFd(), handle});
+  //It'll insert() fail when the key is same.
+  updates_[handle->getEvent()->getFd()] = handle;
   return true;
 }
 
 bool EventLoop::addHandle(HandlePtr handle) {
   assert(handle->getState() == Handle::state::STATE_NEW);
   handle->setState(Handle::state::STATE_ADD);
-  return updateHandle(shared_ptr<Handle>(handle));
+  return updateHandle(std::shared_ptr<Handle>(handle));
 }
 
-//FIXME:mod by fd
+//FIXME : mod by fd
 bool EventLoop::modHandle(HandlePtr handle) {
   assert(handle->getState() != Handle::state::STATE_DEL);
   handle->setState(Handle::state::STATE_MOD);
-  return updateHandle(handles_.find(handle->getEvent()->getFd())->second);
+  assert(handles_.find(handle->fd()) != handles_.end());
+  return updateHandle(handles_.find(handle->fd())->second);
 }
 
-//FIXME:del by fd
+// FIXME : del by fd
 bool EventLoop::delHandle(HandlePtr handle) {
   handle->setState(Handle::state::STATE_DEL);
-  return updateHandle(handles_.find(handle->getEvent()->getFd())->second);
+  assert(handles_.find(handle->fd()) != handles_.end());
+  return updateHandle(handles_.find(handle->fd())->second);
 }
 
 bool EventLoop::updateHandles() {
@@ -73,30 +84,22 @@ bool EventLoop::updateHandles() {
     SHandlePtr handle = cur->second;
     Events* event = handle->getEvent();
 
-
-    int n = 0;
-
-
-    switch(handle->getState()) {
-    case Handle::state::STATE_ADD:
+    if (Handle::state::STATE_ADD) {
       poll_->events_add_(event);
       handles_[cur->first] = handle;
       handle->setState(Handle::state::STATE_LOOP);
-      break;
-    case Handle::state::STATE_MOD:
+    } else if (Handle::state::STATE_MOD) {
       poll_->events_mod_(event);
       //mod
       handles_[cur->first] = handle;
       handle->setState(Handle::state::STATE_LOOP);
-      break;
-    case Handle::state::STATE_DEL:
+    }else if (Handle::state::STATE_DEL) {
       poll_->events_del_(event);
         //del
-      n = handles_.erase(handle->getEvent()->getFd());
-      ::close(handle->getEvent()->getFd());
-      cout << "close fd! n = "  << n << endl;
-      break;
-    default :
+      int n = handles_.erase(handle->fd());
+      assert(n == 1);
+      CloseSocket(handle->fd());
+    } else {
       assert(false);
     }
   }
@@ -107,7 +110,7 @@ bool EventLoop::isInLoopOwnerThread() {
   return (gettid() == tid_);
 }
 
-void EventLoop::assertInOwner() {
+void EventLoop::assertInOwnerThread() {
   assert(isInLoopOwnerThread());
 }
 
@@ -176,33 +179,32 @@ void EventLoop::runFunctors() {
 void EventLoop::quit() {
   MutexLocker lock(mutex_);
   quit_ = true;
-  wakeUp();
+  if(!isInLoopOwnerThread()) {
+    wakeUp();
+  }
   boost::ignore_unused(lock);
 }
 
 bool EventLoop::loop() {
-  assertInOwner();
+  assertInOwnerThread();
   Timestamp looptime;
 
   while (!quit_) {
     if (!updates_.empty()) {
       updateHandles();
-      cout << "updateHandles" << endl;
     }
 
     updates_.clear();
     revents_.clear();
 
-
-
-    //cout << "tid : " << gettid() << " handles num " << 0 << endl;
+    std::cout << "tid : " << gettid() << " handles num " << handles_.size() << std::endl;
 
     looptime = poll_->loop_(revents_, pollDelayTime_);
 
     for(std::vector<Events>::iterator iter = revents_.begin();
         iter != revents_.end(); iter++) {
       //handle will decreament reference after for end!
-      map<int, SHandlePtr>::iterator finditer = handles_.find((*iter).getFd());
+      std::map<int, SHandlePtr>::iterator finditer = handles_.find((*iter).getFd());
       if (finditer == handles_.end()) {
         continue;
       }

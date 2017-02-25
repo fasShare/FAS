@@ -1,4 +1,4 @@
-#include "Events.h"
+#include <Events.h>
 
 Events::Events(int fd, int events) :
   fd_(fd),
@@ -40,7 +40,7 @@ EpollEvent Events::epollEvents() {
   return events;
 }
 
-ostream& operator<<(ostream& os, Events& events) {
+std::ostream& operator<<(std::ostream& os, Events& events) {
   os << "fd = " << events.getFd();
   return os;
 }

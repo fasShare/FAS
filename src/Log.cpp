@@ -1,6 +1,7 @@
-#include <Log.h>
 #include <string.h>
 #include <errno.h>
+
+#include <Log.h>
 
 const char *Log::log_endl = "\n\r";
 
@@ -33,25 +34,25 @@ bool defaultLogOutput(const char* data, int len) {
 }
 
 
-void Logger(std::string file, int line, string msg) {
+void Logger(std::string file, int line, std::string msg) {
   Log log;
   log << file << " " << line << " " << msg << Log::log_endl;
   log.fflush();
 }
 
-void Logger(std::string file, int line, Log::LogLevel level, string msg) {
+void Logger(std::string file, int line, Log::LogLevel level, std::string msg) {
   Log log;
   log << file << " " << line << " " <<  level << " " << msg << Log::log_endl;
   log.fflush();
 }
 
-void Logger(std::string file, int line, Log::LogLevel level, std::string func, string msg) {
+void Logger(std::string file, int line, Log::LogLevel level, std::string func, std::string msg) {
   Log log;
   log << file << " " << line << " " <<  level << " " << func << " " << msg << Log::log_endl;
   log.fflush();
 }
 
-void Logger(std::string file, int line, bool toAbort, string msg) {
+void Logger(std::string file, int line, bool toAbort, std::string msg) {
   Log log;
   log << file << " " << line << " " << msg << Log::log_endl;
   log.fflush();

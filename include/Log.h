@@ -1,15 +1,14 @@
 #ifndef FAS_LOG_H
 #define FAS_LOG_H
-#include <boost/function.hpp>
 #include <ostream>
-#include <string>
 #include <sys/types.h>
+#include <string>
 #include <sstream>
+
 #include <Default.h>
 
-using std::string;
-using std::ostream;
-using std::ostringstream;
+
+#include <boost/function.hpp>
 
 bool defaultLogOutput(const char* data, int len);
 
@@ -52,7 +51,7 @@ public:
   void logChars(const char* chars, int len);
   void logFloat(float val);
   void logDouble(double val);
-  void logString(const string& str);
+  void logString(const std::string& str);
 
   void setOutput(default_output_t output);
 };
@@ -64,10 +63,10 @@ Log& operator<<(Log& log, T val) {
   return log;
 }
 
-void Logger(std::string file, int line, string msg);
-void Logger(std::string file, int line, Log::LogLevel level, string msg);
-void Logger(std::string file, int line, Log::LogLevel level, std::string func, string msg);
-void Logger(std::string file, int line, bool toAbort, string msg);
+void Logger(std::string file, int line, std::string msg);
+void Logger(std::string file, int line, Log::LogLevel level, std::string msg);
+void Logger(std::string file, int line, Log::LogLevel level, std::string func, std::string msg);
+void Logger(std::string file, int line, bool toAbort, std::string msg);
 
 #define LOG_TRACE(msg) if (Log::logLevel() <= Log::TRACE) \
     Logger(__FILE__, __LINE__, Log::TRACE, __func__, msg)

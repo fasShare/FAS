@@ -1,13 +1,13 @@
-#include <Thread.h>
 #include <exception>
-#include <Log.h>
 
-using std::exception;
+
+#include <Thread.h>
+#include <Log.h>
 
 Thread::Thread(){
 }
 
-Thread::Thread(const string& name) :
+Thread::Thread(const std::string& name) :
     name_(name){
 
 }
@@ -17,7 +17,7 @@ Thread::Thread(boost::function<void ()> threadFunc) :
 }
 
 Thread::Thread(boost::function<void ()> threadFunc,
-               string name) :
+               const std::string name) :
   threadId_(0),
   name_(name),
   threadFunc_(threadFunc) {
@@ -33,7 +33,7 @@ bool Thread::setThreadFunc(boost::function<void ()> threadFunc) {
 bool Thread::join() {
   errno = ::pthread_join(threadId_, NULL);
   if (errno != 0) {
-    LOG_SYSERR(string("ERROR pthread_join : ") + strerror(errno));
+    LOG_SYSERR(std::string("ERROR pthread_join : ") + ::strerror(errno));
     return false;
   }
   return true;
@@ -46,16 +46,7 @@ bool Thread::MainThread() {
 bool Thread::start() {
   errno = ::pthread_create(&threadId_, NULL, &run, this);
   if (errno != 0) {
-    LOG_SYSERR(string("ERROR pthread_create : ") + strerror(errno));
-    return false;
-  }
-  return true;
-}
-
-bool Thread::stop() {
-  errno = ::pthread_cancel(threadId_);
-  if (errno != 0) {
-    LOG_SYSERR(string("ERROR pthread_cancel : ") + strerror(errno));
+    LOG_SYSERR(std::string("ERROR pthread_create : ") + ::strerror(errno));
     return false;
   }
   return true;
@@ -74,16 +65,16 @@ void Thread::ThreadFunc() {
   }
   try {
     threadFunc_();
-  } catch (const exception &ex) {
+  } catch (const std::exception &ex) {
     LOG_ERROR(ex.what());
   }
 }
 
-string Thread::getName() {
+std::string Thread::getName() {
   return name_;
 }
 
-void Thread::setName(const string& name) {
+void Thread::setName(const std::string& name) {
   this->name_ = name;
 }
 

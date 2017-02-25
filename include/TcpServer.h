@@ -1,15 +1,19 @@
 #ifndef FAS_TCPSERVER_H
 #define FAS_TCPSERVER_H
-#include <Handle.h>
+#include <memory>
+#include <map>
+#include <vector>
+
+
 #include <Socket.h>
 #include <Default.h>
 #include <Events.h>
+#include <TcpConnection.h>
 #include <NetAddress.h>
 #include <EventLoopThreadPool.h>
-#include <TcpConnection.h>
 
-#include <memory>
-
+class EventLoop;
+class Handle;
 
 class TcpServer {
 public:
@@ -34,13 +38,13 @@ private:
   NetAddress addr_;
   const uint listenBacklog_;
   EventLoopThreadPool threadPool_;
-  map<int, std::shared_ptr<TcpConnection>> conns_;
+  std::map<int, std::shared_ptr<TcpConnection>> conns_;
 
   MessageCallback messageCb_;
 };
 
 template<typename T>
-shared_ptr<T> getSharedPtr(T *ptr) {
+std::shared_ptr<T> getSharedPtr(T *ptr) {
   return std::shared_ptr<T>(ptr);
 }
 

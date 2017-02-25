@@ -1,7 +1,9 @@
-#include <boost/bind.hpp>
-
-#include <MutexLocker.h>
 #include <EventLoopThread.h>
+#include <EventLoop.h>
+#include <MutexLocker.h>
+
+
+#include <boost/bind.hpp>
 
 EventLoopThread::EventLoopThread() :
     EventLoopThread("EventLoopThread") {
@@ -13,10 +15,6 @@ EventLoopThread::EventLoopThread(const string& name) :
   thread_(boost::bind(&EventLoopThread::threadFunc, this), name),
   loop_(NULL),
   started_(false) {
-}
-
-bool EventLoopThread::join() {
-  return thread_.join();
 }
 
 bool EventLoopThread::MainThread() {
@@ -38,9 +36,13 @@ EventLoop *EventLoopThread::start() {
   return loop_;
 }
 
-bool EventLoopThread::stop() {
-  loop_->quit();
-  return thread_.stop();
+bool EventLoopThread::join() {
+  if (started_) {
+    loop_->quit();
+    thread_.join();;
+    started_ = false;
+  }
+  return !started_;
 }
 
 void EventLoopThread::setName(const string name) {
@@ -52,13 +54,12 @@ string EventLoopThread::getName() {
 }
 
 EventLoopThread::~EventLoopThread() {
-
 }
 
 void EventLoopThread::threadFunc() {
-  cout << "Thread tid :" << gettid() << endl;
+  std::cout << "Thread tid :" << gettid() << std::endl;
   EventLoop loop;
-  loop.assertInOwner();
+  loop.assertInOwnerThread();
 
   {
     MutexLocker lock(mutex_);

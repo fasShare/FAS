@@ -2,16 +2,15 @@
 #define FAS_EPOLL_H
 #include <sys/epoll.h>
 #include <vector>
-#include "Poller.h"
-#include "Socket.h"
-#include "Default.h"
-#include "Events.h"
+
+
+#include <Default.h>
+
 
 #include <boost/noncopyable.hpp>
 
 class Poller;
 class Events;
-using namespace std;
 
 /**
 *EPOLLIN, EPOLLOUT, EPOLLRDHUP, EPOLLPRI, EPOLLERR, EPOLLHUP, EPOLLET
@@ -30,11 +29,11 @@ public:
   bool pollerEventsAdd(Events* events);
   bool pollerEventsMod(Events* events);
   bool pollerEventsDel(Events* events);
-  Timestamp pollerLoop(vector<Events> &events, int timeout);
+  Timestamp pollerLoop(std::vector<Events> &events, int timeout);
 
 private:
   int epoll_fd_;
-  vector<EpollEvent> revents_;
+  std::vector<EpollEvent> revents_;
   int maxNum_;
   const int addStep_;
 };

@@ -2,6 +2,8 @@
 #define FAS_TYPES_H
 #include <sys/epoll.h>
 #include <sys/poll.h>
+
+
 #include <boost/function.hpp>
 
 typedef struct epoll_event  EpollEvent;
@@ -12,6 +14,7 @@ typedef int events_t;
 
 typedef unsigned char uchar;
 typedef unsigned int uint;
+typedef unsigned short ubyte;
 
 class Events;
 class Timestamp;

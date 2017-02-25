@@ -1,12 +1,16 @@
 #ifndef FAS_EVENTLOOPTHREAD_H
 #define FAS_EVENTLOOPTHREAD_H
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
 
-#include <EventLoop.h>
+
 #include <Mutex.h>
 #include <Condition.h>
 #include <Thread.h>
+
+
+#include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
+
+class EventLoop;
 
 class EventLoopThread : boost::noncopyable {
 public:
@@ -17,7 +21,6 @@ public:
     bool MainThread();
 
     EventLoop *start();
-    bool stop();
 
     void setName(const string name);
     string getName();

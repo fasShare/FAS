@@ -4,25 +4,24 @@
 #include <map>
 #include <iostream>
 #include <memory>
-#include <Events.h>
+
+#include <Default.h>
 #include <Mutex.h>
 #include <Condition.h>
-#include <MutexLocker.h>
-#include <Handle.h>
-#include <Poller.h>
-#include <Default.h>
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 
+class Events;
 class Handle;
-using namespace std;
+class MutexLocker;
+class Poller;
 
 class EventLoop : boost::noncopyable {
 public:
 
-  typedef shared_ptr<Handle> SHandlePtr;
+  typedef std::shared_ptr<Handle> SHandlePtr;
   typedef Handle* HandlePtr;
   typedef boost::function<void ()> Functor;
 
@@ -37,7 +36,7 @@ public:
 
   bool isInLoopOwnerThread();
   //判断当前loop是否在拥有它的线程中。
-  void assertInOwner();
+  void assertInOwnerThread();
 
   void wakeUp();
   void handWakeUp(Events event, Timestamp time);
@@ -65,9 +64,9 @@ private:
   static int count_;
   boost::scoped_ptr<Poller> poll_;
   int pollDelayTime_;
-  vector<Events> revents_;
-  map<int, SHandlePtr> handles_;
-  map<int, SHandlePtr> updates_;
+  std::vector<Events> revents_;
+  std::map<int, SHandlePtr> handles_;
+  std::map<int, SHandlePtr> updates_;
   Mutex mutex_;
   Condition cond_;
   pid_t tid_;
@@ -76,7 +75,7 @@ private:
   int wakeUpFd_;
   Handle *wakeUpHandle_;
 
-  vector<Functor> functors_;
+  std::vector<Functor> functors_;
   bool runningFunctors_;
 
   bool quit_;

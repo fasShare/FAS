@@ -1,14 +1,16 @@
 #ifndef FAS_EXECUTOR_H
 #define FAS_EXECUTOR_H
 #include <iostream>
-#include <boost/function.hpp>
+
 
 #include <Default.h>
-#include <Timestamp.h>
-#include <Events.h>
+
+
+#include <boost/function.hpp>
 
 class EventLoop;
-using namespace std;
+class Events;
+class Timestamp;
 
 class Handle {
 public:
@@ -25,6 +27,7 @@ public:
 
   EventLoop* getLoop();
   
+  int fd() const;
   Events* getEvent() const;
   void updateEvent(Events& event);
 

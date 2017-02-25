@@ -1,14 +1,17 @@
-#include <TcpServer.h>
 #include <iostream>
-#include <Socket.h>
-#include <unistd.h>
 #include <memory>
+#include <unistd.h>
+
+
+#include <TcpServer.h>
+#include <Socket.h>
 #include <Timestamp.h>
+#include <Handle.h>
+#include <EventLoop.h>
+
 
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
-
-using namespace std;
 
 TcpServer::TcpServer(EventLoop* loop,
                      const NetAddress& addr) :
@@ -37,12 +40,12 @@ bool TcpServer::start() {
   handle_->setHandleRead(boost::bind(&TcpServer::handleReadEvent, this, _1, _2));
   loop_->addHandle(handle_);
   threadPool_.start();
-  cout << "Current EventLoop num is " << loop_->getCount() << endl;
+  std::cout << "Current EventLoop num is " << loop_->getCount() << std::endl;
   return true;
 }
 
 void TcpServer::handleReadEvent(Events event, Timestamp time) {
-  loop_->assertInOwner();
+  loop_->assertInOwnerThread();
   EventLoop *workloop = threadPool_.getNextEventLoop();
 
   int sd = ::accept(event.getFd(), NULL, NULL);
@@ -57,8 +60,8 @@ void TcpServer::handleReadEvent(Events event, Timestamp time) {
   conns_[sd] = conn;
   workloop->wakeUp();
 
-  cout << "sd  = " << sd << endl;
-  cout << "Current connection num is " << conns_.size() << endl;
+  std::cout << "sd  = " << sd << std::endl;
+  std::cout << "Current connection num is " << conns_.size() << std::endl;
 }
 
 void TcpServer::setMessageCallback(const MessageCallback& cb) {
@@ -70,15 +73,11 @@ void TcpServer::removeConnection(TcpConnShreadPtr conn) {
 }
 
 void TcpServer::removeConnectionInLoop(TcpConnShreadPtr conn) {
-  loop_->assertInOwner();
+  loop_->assertInOwnerThread();
   size_t n = conns_.erase(conn->getConnfd());
-  cout << __func__ << " fd: " << conn->getConnfd() << " n = "<< n << endl;
   boost::ignore_unused(n);
   assert(n == 1);
   EventLoop* ioLoop = conn->getLoop();
-
-  cout << __func__ << endl;
-
   ioLoop->queueInLoop(
       boost::bind(&TcpConnection::closeAndClearTcpConnection, conn));
 }

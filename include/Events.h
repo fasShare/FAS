@@ -1,10 +1,12 @@
 #ifndef FAS_EVENTS_H
 #define FAS_EVENTS_H
 #include <iostream>
+
+
 #include <Default.h>
+
+
 #include <boost/static_assert.hpp>
-using std::ostream;
-using std::endl;
 
 BOOST_STATIC_ASSERT_MSG(EPOLLIN == POLLIN, "EPOLLIN != POLLIN");
 BOOST_STATIC_ASSERT_MSG(EPOLLOUT == POLLOUT, "EPOLLOUT != POLLOUT");
@@ -37,6 +39,6 @@ private:
   int events_;
 };
 
-ostream& operator<<(ostream& os, Events& events);
+std::ostream& operator<<(std::ostream& os, Events& events);
 
 #endif // FAS_EVENTS_H

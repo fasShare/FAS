@@ -1,10 +1,12 @@
-#include <boost/bind.hpp>
-
-#include <EventLoopThreadPool.h>
 #include <memory>
 
-using std::shared_ptr;
-using std::make_shared;
+
+#include <EventLoopThreadPool.h>
+#include <EventLoop.h>
+
+
+#include <boost/bind.hpp>
+
 
 EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
                                          int threadNum) :
@@ -16,7 +18,7 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
 
 EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
                                          int threadNum,
-                                         string name) :
+                                         std::string name) :
   threadNum_(threadNum),
   name_(name),
   threads_(),
@@ -32,7 +34,7 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
 }
 
 void EventLoopThreadPool::updateThreadNum(int newNum) {
-  assertInOwner();
+  assertInOwnerThread();
   assert(!started_);
   threadNum_ = newNum;
 }
@@ -41,37 +43,36 @@ int EventLoopThreadPool::getThreadNum() {
   return threadNum_;
 }
 
-void EventLoopThreadPool::updateName(const string& newName) {
-  assertInOwner();
+void EventLoopThreadPool::updateName(const std::string& newName) {
+  assertInOwnerThread();
   assert(!started_);
   name_ = newName;
 }
 
-string EventLoopThreadPool::getName() {
+std::string EventLoopThreadPool::getName() {
   return name_;
 }
 
-void EventLoopThreadPool::assertInOwner() {
+void EventLoopThreadPool::assertInOwnerThread() {
   assert(gettid() == tid_);
 }
 
 bool EventLoopThreadPool::start() {
-  assertInOwner();
+  assertInOwnerThread();
   assert(!started_);
   for(int i = 0; i < threadNum_; i++) {
-    EventLoopThread *thread = new EventLoopThread();
+    std::shared_ptr<EventLoopThread> thread = std::make_shared<EventLoopThread>();
     loops_.push_back(thread->start());
     threads_.push_back(thread);
   }
   started_ = true;
   //if error
-  return true;
+  return started_;
 }
 
 EventLoop *EventLoopThreadPool::getNextEventLoop() {
-  assertInOwner();
+  assertInOwnerThread();
   EventLoop* loop = baseloop_;
-  cout << __func__ << " : " << loops_.size() << " next :" << next_ << endl;
   if (!loops_.empty()) {
     // round-robin
     loop = loops_[next_];
@@ -84,10 +85,10 @@ EventLoop *EventLoopThreadPool::getNextEventLoop() {
 }
 
 EventLoopThreadPool::~EventLoopThreadPool() {
-  for (auto iter = threads_.begin();
-       iter < threads_.end();
-       iter++) {
-    (*iter)->stop();
-    delete *iter;
+  if (started_) {
+    for (auto iter = threads_.begin(); iter < threads_.end(); iter++) {
+      (*iter)->join();
+    }
   }
+  started_ = false;
 }

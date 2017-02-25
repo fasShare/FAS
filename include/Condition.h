@@ -1,9 +1,11 @@
 #ifndef FAS_CONDITION_H
 #define FAS_CONDITION_H
-#include <Mutex.h>
+#include <pthread.h>
+
 
 #include <boost/noncopyable.hpp>
-#include <pthread.h>
+
+class Mutex;
 
 class Condition : boost::noncopyable {
 public:

@@ -1,6 +1,11 @@
-#include <Handle.h>
 #include <assert.h>
+
+
+#include <Handle.h>
+#include <Events.h>
+#include <Timestamp.h>
 #include <Log.h>
+
 
 Handle::Handle(EventLoop* loop,
                Events event) :
@@ -15,9 +20,15 @@ EventLoop* Handle::getLoop() {
   return loop_;
 }
 
+int Handle::fd() const {
+  return event_->getFd();
+}
+
 Events* Handle::getEvent() const {
   return event_;
 }
+
+
 
 void Handle::setHandleRead(const events_handle_t& handle_read) {
   handle_read_event_ = handle_read;
@@ -36,10 +47,10 @@ void Handle::setHandleClose(const events_handle_t& handle_close) {
 }
 
 
-void Handle::setState(unsigned char state) {
+void Handle::setState(uchar state) {
   state_ = state;
 }
-unsigned char Handle::getState() {
+uchar Handle::getState() {
   return state_;
 }
 

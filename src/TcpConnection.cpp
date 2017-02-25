@@ -1,7 +1,9 @@
 #include <TcpConnection.h>
 #include <Handle.h>
-#include <Buffer.h>
 #include <EventLoop.h>
+#include <Timestamp.h>
+#include <Socket.h>
+
 
 #include <boost/bind.hpp>
 
@@ -32,8 +34,9 @@ int TcpConnection::getConnfd() const {
 }
 
 void TcpConnection::closeAndClearTcpConnection() {
+  loop_->assertInOwnerThread();
+  assert(closeing_);
   loop_->delHandle(handle_);
-  cout << __func__ << endl;
 }
 
 void TcpConnection::setOnMessageCallBack(const MessageCallback& cb) {
@@ -46,32 +49,30 @@ void TcpConnection::setOnCloseCallBack(const CloseCallback& cb) {
 
 void TcpConnection::handleRead(Events revents,
                                       Timestamp time) {
-  loop_->assertInOwner();
-  //cout << "TcpConnection::defaultHandleRead" << endl;
+  loop_->assertInOwnerThread();
   char buf[1024];
   int ret = ReadSocket(revents.getFd(), buf, 1023);
   if (ret == 0) {
     if(!closeing_) {
-      cout << "ret == 0 fd = " << revents.getFd() << endl;
       handleClose(revents, time);
     }
   } else if (ret < 0) {
 
   } else {
     buf[ret] = 0;
-    cout << buf << endl;
+    std::cout << buf << std::endl;
      //messageCb_();
   }
 }
 
 void TcpConnection::handleWrite(Events revents,
                                        Timestamp time) {
-  loop_->assertInOwner();
+  loop_->assertInOwnerThread();
 }
 
 void TcpConnection::handleError(Events revents,
                                        Timestamp time) {
-  loop_->assertInOwner();
+  loop_->assertInOwnerThread();
 }
 
 void TcpConnection::handleClose(Events revents, Timestamp time) {

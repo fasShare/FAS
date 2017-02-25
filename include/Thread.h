@@ -1,20 +1,20 @@
 #ifndef FAS_THREAD_H
 #define FAS_THREAD_H
-#include <boost/noncopyable.hpp>
 #include <pthread.h>
-#include <boost/function.hpp>
 #include <string>
 #include <syscall.h>
-#include <EventLoop.h>
 
-using std::string;
+
+#include <boost/noncopyable.hpp>
+#include <boost/function.hpp>
+
 
 class Thread : boost::noncopyable {
 public:
   Thread();
-  Thread(const string& name);
+  Thread(const std::string& name);
   Thread(boost::function<void ()> threadFunc);
-  Thread(boost::function<void ()> threadFunc, string name);
+  Thread(boost::function<void ()> threadFunc, const std::string name);
 
   bool setThreadFunc(boost::function<void ()> threadFunc);
 
@@ -22,10 +22,9 @@ public:
   bool MainThread();
 
   bool start();
-  bool stop();
 
-  string getName();
-  void setName(const string& name);
+  std::string getName();
+  void setName(const std::string& name);
 
   ~Thread();
 
@@ -35,7 +34,7 @@ private:
 
   pid_t tid_;
   pthread_t threadId_;
-  string name_;
+  std::string name_;
   boost::function<void ()> threadFunc_;
 };
 

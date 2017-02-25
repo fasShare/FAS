@@ -1,11 +1,15 @@
 #ifndef FAS_SOCKET_H
 #define FAS_SOCKET_H
-#include <NetAddress.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <fcntl.h>
+
+
+
 #include <Default.h>
 
+
+class NetAddress;
 
 Socket_t Socket(int domain, int type, int protocol);
 Socket_t SocketNoBlockingOrExec(int domain, int type, int protocol);

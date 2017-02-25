@@ -1,12 +1,14 @@
 #ifndef FAS_TCPCONNECTION_H
 #define FAS_TCPCONNECTION_H
+#include <memory>
+
+
 #include <Default.h>
 #include <Buffer.h>
 #include <Events.h>
-#include <Handle.h>
-#include <EventLoop.h>
 
-#include <memory>
+class Handle;
+class EventLoop;
 
 class TcpConnection {
 public:

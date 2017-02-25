@@ -3,11 +3,13 @@
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
+
+
 #include <Epoll.h>
 #include <Log.h>
 #include <Timestamp.h>
+#include <Events.h>
 
-using namespace std;
 
 Epoll::Epoll() :
   epoll_fd_(-1),
@@ -17,7 +19,7 @@ Epoll::Epoll() :
   //FIXME : EPOLL_CLOEXEC
   epoll_fd_ = ::epoll_create(1);
   if(epoll_fd_ == -1) {
-    LOG_SYSERR((string("ERROR epoll_ctl : ") + strerror(errno)));
+    LOG_SYSERR((std::string("ERROR epoll_ctl : ") + ::strerror(errno)));
   }
   revents_.resize(maxNum_);
 }
@@ -26,7 +28,7 @@ bool Epoll::eventCtl(int op, Socket_t sd, EpollEvent* event) {
   assert(epoll_fd_ != -1);
   int ret = ::epoll_ctl(epoll_fd_, op, sd, event);
   if (ret == -1) {
-    LOG_SYSERR((string("ERROR epoll_ctl : ") + strerror(errno)));
+    LOG_SYSERR((std::string("ERROR epoll_ctl : ") + ::strerror(errno)));
     return false;
   } else {
     return true;
@@ -51,14 +53,12 @@ should_continue:
   int ret = ::epoll_wait(epoll_fd_, events, maxevents, timeout);
   if (ret == -1) {
     if (errno == EINTR) {
-      LOG_SYSERR((string("ERROR epoll_wait : ") + strerror(errno)));
+      LOG_SYSERR((std::string("ERROR epoll_wait : ") + ::strerror(errno)));
       goto should_continue;
     }
-    LOG_SYSERR((string("ERROR epoll_wait : ") + strerror(errno)));
-    return false;
-  } else {
-    return ret;
+    LOG_SYSERR((std::string("ERROR epoll_wait : ") + ::strerror(errno)));
   }
+  return ret;
 }
 
 bool Epoll::pollerEventsAdd(Events* events) {
@@ -76,10 +76,7 @@ bool Epoll::pollerEventsDel(Events* events) {
   return this->eventDel(event.data.fd, &event);
 }
 
-Timestamp Epoll::pollerLoop(vector<Events> &events, int timeout) {
-
-  cout << __func__ << endl;
-
+Timestamp Epoll::pollerLoop(std::vector<Events> &events, int timeout) {
   int ret = this->loopWait(revents_.data(), maxNum_, timeout);
   for(int i = 0; i < ret; i++) {
     events.push_back(revents_.data()[i]);

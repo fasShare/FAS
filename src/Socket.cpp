@@ -1,14 +1,17 @@
-#include <Socket.h>
 #include <unistd.h>
-#include <Log.h>
 #include <string.h>
 #include <errno.h>
+
+
+#include <Socket.h>
+#include <Log.h>
+#include <NetAddress.h>
 
 
 Socket_t Socket(int domain, int type, int protocol) {
   Socket_t sd = ::socket(domain, type, protocol);
   if (sd == -1) {
-    LOG_SYSERR(strerror(errno));
+    LOG_SYSERR(::strerror(errno));
     return -1;
   }
   return sd;
@@ -34,7 +37,7 @@ bool SetNoBlockingOrExec(Socket_t sd) {
   nflag |= FD_CLOEXEC;
   ret == -1? ret : (::fcntl(sd, F_SETFD, nflag));
   if (ret == -1) {
-    LOG_SYSERR((string("ERROR fcntl :") + strerror(errno)).c_str());
+    LOG_SYSERR(std::string("ERROR fcntl :") + ::strerror(errno));
     return false;
   }
   return true;
@@ -43,8 +46,7 @@ bool SetNoBlockingOrExec(Socket_t sd) {
 bool SocketBind(Socket_t socket, NetAddress& addr) {
   int ret = ::bind(socket, (const struct sockaddr *)&addr.addr(), addr.addrLen());
   if (ret == -1) {
-    string msg = string("ERROR bind :") + strerror(errno);
-    LOG_ERROR(msg);
+    LOG_ERROR(std::string("ERROR bind :") + ::strerror(errno));
     return false;
   }
   return true;
@@ -53,7 +55,7 @@ bool SocketBind(Socket_t socket, NetAddress& addr) {
 bool SocketListen(Socket_t socket, int backlog) {
   int ret = ::listen(socket, backlog);
   if (ret == -1) {
-    LOG_SYSERR(strerror(errno));
+    LOG_SYSERR(::strerror(errno));
     return false;
   }
   return true;
@@ -62,11 +64,11 @@ bool SocketListen(Socket_t socket, int backlog) {
 Socket_t SocketAccept(Socket_t socket, struct sockaddr* addr, socklen_t* addrlen) {
   int ret = ::accept(socket, addr, addrlen);
   if(ret == -1) {
-    LOG_ERROR((string("ERROR accept :") + strerror(errno)).c_str());
+    LOG_ERROR(std::string("ERROR accept :") + ::strerror(errno));
     return ret;
   }
   if (SetNoBlockingOrExec(ret) == false) {
-    LOG_ERROR((string("ERROR SetNoBlockingOrExec :") + strerror(errno)).c_str());
+    LOG_ERROR(std::string("ERROR SetNoBlockingOrExec :") + ::strerror(errno));
     return ret;
   }
   return ret;
@@ -86,12 +88,14 @@ ssize_t WriteSocket(Socket_t sockfd, const void *buf, size_t count) {
 
 void CloseSocket(Socket_t sockfd) {
   if (::close(sockfd) < 0) {
-    LOG_ERROR(strerror(errno));
+    LOG_ERROR(::strerror(errno));
   }
 }
 
 void ShutdownWrite(Socket_t sockfd) {
   if (::shutdown(sockfd, SHUT_WR) < 0) {
-    LOG_ERROR(strerror(errno));
+    LOG_ERROR(::strerror(errno));
   }
 }
+
+

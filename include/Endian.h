@@ -1,6 +1,5 @@
 #ifndef FAS_ENDIAN_H
 #define FAS_ENDIAN_H
-
 #include <stdint.h>
 #include <endian.h>
 

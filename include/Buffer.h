@@ -1,13 +1,13 @@
 #ifndef FAS_BUFFER_H
 #define FAS_BUFFER_H
+#include <algorithm>
+#include <vector>
+#include <assert.h>
+#include <string.h>
+
 
 #include <Endian.h>
 
-#include <algorithm>
-#include <vector>
-
-#include <assert.h>
-#include <string.h>
 
 #include <boost/noncopyable.hpp>
 

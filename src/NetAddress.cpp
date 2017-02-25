@@ -1,11 +1,10 @@
-#include "NetAddress.h"
 #include <endian.h>
 #include <typeinfo>
 #include <iostream>
 
-using namespace std;
+#include <NetAddress.h>
 
-NetAddress::NetAddress(unsigned short sa_family,
+NetAddress::NetAddress(ushort sa_family,
                        int sa_port,
                        const char *sa_ip) {
   addr_.sin_family = sa_family;
@@ -13,9 +12,9 @@ NetAddress::NetAddress(unsigned short sa_family,
   addr_.sin_addr.s_addr = ::inet_addr(sa_ip);
 }
 
-NetAddress::NetAddress(unsigned short sa_family,
+NetAddress::NetAddress(ushort sa_family,
                        int sa_port,
-                       unsigned int sa_ip) {
+                       uint sa_ip) {
   addr_.sin_family = sa_family;
   addr_.sin_port = htobe16(sa_port);
   addr_.sin_addr.s_addr = htobe32(sa_ip);
