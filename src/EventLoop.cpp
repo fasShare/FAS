@@ -7,17 +7,29 @@
 #include <unistd.h>
 #include <Log.h>
 
+#include <boost/bind.hpp>
+
+#include <sys/eventfd.h>
+
 int EventLoop::count_ = 0;
 
 EventLoop::EventLoop() :
   poll_(NULL),
+  revents_(),
+  handles_(),
+  updates_(),
   mutex_(),
   cond_(mutex_),
-  tid_(gettid()) {
-  revents_.reserve(kInitMaxHandle_);
+  tid_(gettid()),
+  wakeUpFd_(createEventfd()),
+  wakeUpHandle_(new Handle(this, Events(wakeUpFd_, kReadEvent))) {
+
   poll_.reset(new Poller);
   assert(poll_);
   count_++;
+
+  wakeUpHandle_->setHandleRead(boost::bind(&EventLoop::handWakeUp, this, _1, _2));
+  addHandle(wakeUpHandle_);
 }
 
 int EventLoop::getCount() const {
@@ -82,6 +94,32 @@ bool EventLoop::addNewToHandles() {
 
 void EventLoop::assertInOwner() {
   assert(gettid() == tid_);
+}
+
+void EventLoop::wakeUp() {
+  uint64_t one = 1;
+  ssize_t n = ::write(wakeUpFd_, &one, sizeof one);
+  if (n != sizeof one) {
+    cout << "EventLoop::wakeup() writes " << n << " bytes instead of 8" << endl;
+  }
+
+}
+
+void EventLoop::handWakeUp(Events *event, Timestamp time) {
+  uint64_t one = 1;
+  ssize_t n = ::read(wakeUpFd_, &one, sizeof one);
+  if (n != sizeof one){
+    cout << "EventLoop::handleRead() reads " << n << " bytes instead of 8" <<endl;
+  }
+}
+
+int createEventfd() {
+  int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+  if (evtfd < 0) {
+    LOG_SYSERR("Failed in eventfd");
+    ::abort();
+  }
+  return evtfd;
 }
 
 void EventLoop::loop() {

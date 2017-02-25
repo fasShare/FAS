@@ -55,6 +55,7 @@ void TcpServer::handleReadEvent(Events* event, Timestamp time) {
   conn->setHandleClose(boost::bind(&TcpConnection::defaultHandleClose, conn, _1, _2));
   conns_[sd] = conn;
 
+  workloop->wakeUp();
   cout << "Current connection num is " << conns_.size() << endl;
 }
 

@@ -33,7 +33,11 @@ public:
   bool modHandle(HandlePtr handle);
   bool delHandle(HandlePtr handle);
 
+  //判断当前loop是否在拥有它的线程中。
   void assertInOwner();
+
+  void wakeUp();
+  void handWakeUp(Events *event, Timestamp time);
 
   void loop();
 private:
@@ -49,6 +53,12 @@ private:
   Mutex mutex_;
   Condition cond_;
   pid_t tid_;
+
+  //从一个loop向另外一个loop传递handle时，用来把线程从loop循环中唤醒。
+  int wakeUpFd_;
+  Handle *wakeUpHandle_;
 };
+
+int createEventfd();
 
 #endif // FAS_EVENTLOOP_H
