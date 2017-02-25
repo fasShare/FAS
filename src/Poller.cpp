@@ -12,7 +12,7 @@ Poller::Poller() {
   events_add_ = boost::bind(&DEFAULT_POLLER::pollerEventsAdd, poll, _1);
   events_mod_ = boost::bind(&DEFAULT_POLLER::pollerEventsMod, poll, _1);
   events_del_ = boost::bind(&DEFAULT_POLLER::pollerEventsDel, poll, _1);
-  loop_ = boost::bind(&DEFAULT_POLLER::pollerLoop, poll, _1, _2, _3);
+  loop_ = boost::bind(&DEFAULT_POLLER::pollerLoop, poll, _1, _2);
   boost::ignore_unused(events_add_, events_mod_, events_del_, loop_);
 }
 

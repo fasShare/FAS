@@ -5,16 +5,21 @@
 #include <unistd.h>
 #include <Epoll.h>
 #include <Log.h>
+#include <Timestamp.h>
 
 using namespace std;
 
 Epoll::Epoll() :
-    epoll_fd_(-1) {
+  epoll_fd_(-1),
+  revents_(),
+  maxNum_(20),
+  addStep_(15) {
   //FIXME : EPOLL_CLOEXEC
   epoll_fd_ = ::epoll_create(1);
   if(epoll_fd_ == -1) {
     LOG_SYSERR((string("ERROR epoll_ctl : ") + strerror(errno)));
   }
+  revents_.resize(maxNum_);
 }
 
 bool Epoll::eventCtl(int op, Socket_t sd, EpollEvent* event) {
@@ -71,20 +76,21 @@ bool Epoll::pollerEventsDel(Events* events) {
   return this->eventDel(event.data.fd, &event);
 }
 
-int Epoll::pollerLoop(vector<Events> &events, int max_events, int timeout) {
-  revents_.resize(max_events);
+Timestamp Epoll::pollerLoop(vector<Events> &events, int timeout) {
 
-  assert(max_events > 0);
-  int ret = this->loopWait(revents_.data(), max_events, timeout);
+  cout << __func__ << endl;
 
+  int ret = this->loopWait(revents_.data(), maxNum_, timeout);
   for(int i = 0; i < ret; i++) {
     events.push_back(revents_.data()[i]);
   }
-
   //no use!
   revents_.clear();
-
-  return ret;
+  if (ret == maxNum_) {
+    maxNum_ += addStep_;
+  }
+  revents_.resize(maxNum_);
+  return Timestamp::now();
 }
 
 Epoll::~Epoll() {

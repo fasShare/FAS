@@ -1,4 +1,4 @@
-APPNAME = Server
+APPNAME = APP
 CURDIR = $(shell pwd)
 export NETBASE_HEADERS  := $(CURDIR)/include
 export NETBASE_SRCS	    := $(CURDIR)/src

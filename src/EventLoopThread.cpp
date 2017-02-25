@@ -39,6 +39,7 @@ EventLoop *EventLoopThread::start() {
 }
 
 bool EventLoopThread::stop() {
+  loop_->quit();
   return thread_.stop();
 }
 

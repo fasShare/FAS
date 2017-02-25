@@ -6,7 +6,7 @@ Handle::Handle(EventLoop* loop,
                Events event) :
   loop_(loop),
   event_(new Events(event)),
-  state_(STATE_ADD) {
+  state_(STATE_NEW) {
 
 }
 
@@ -43,27 +43,27 @@ unsigned char Handle::getState() {
   return state_;
 }
 
-void Handle::handleEvent(Events* events, Timestamp time) {
-  if ((events->containsAtLeastOneEvents(POLLHUP)) && \
-          !(events->containsAtLeastOneEvents(POLLIN))) {
+void Handle::handleEvent(Events events, Timestamp time) {
+  if ((events.containsAtLeastOneEvents(POLLHUP)) && \
+          !(events.containsAtLeastOneEvents(POLLIN))) {
      if (handle_close_event_) handle_close_event_(events, time);
    }
 
-  if (events->containsAtLeastOneEvents(POLLNVAL)) {
+  if (events.containsAtLeastOneEvents(POLLNVAL)) {
     LOG_DEBUG("events contains POLLNVAL!");
   }
 
-  if (events->containsAtLeastOneEvents(POLLERR | POLLNVAL)) {
+  if (events.containsAtLeastOneEvents(POLLERR | POLLNVAL)) {
     if (handle_error_event_)
       handle_error_event_(events, time);
 
   }
-  if (events->containsAtLeastOneEvents(POLLIN | POLLPRI | POLLRDHUP)) {
+  if (events.containsAtLeastOneEvents(POLLIN | POLLPRI | POLLRDHUP)) {
     if (handle_read_event_)
       handle_read_event_(events, time);
 
   }
-  if (events->containsAtLeastOneEvents(POLLOUT)) {
+  if (events.containsAtLeastOneEvents(POLLOUT)) {
     if (handle_write_event_)
       handle_write_event_(events, time);
   }

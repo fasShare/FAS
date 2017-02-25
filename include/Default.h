@@ -15,7 +15,19 @@ typedef unsigned int uint;
 
 class Events;
 class Timestamp;
-typedef boost::function<void (Events *, Timestamp)> events_handle_t;
+class TcpConnection;
+class Buffer;
+
+typedef std::shared_ptr<TcpConnection> TcpConnShreadPtr;
+typedef boost::function<void (Events, Timestamp)> events_handle_t;
+
+
+typedef boost::function<void ()> CloseCallback;
+// the data has been read to (buf, len)
+typedef boost::function<void (const TcpConnShreadPtr,
+                              Buffer*,
+                              Timestamp)> MessageCallback;
+
 
 #endif // FAS_TYPES_H
 

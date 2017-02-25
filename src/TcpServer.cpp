@@ -2,8 +2,11 @@
 #include <iostream>
 #include <Socket.h>
 #include <unistd.h>
-#include <boost/bind.hpp>
+#include <memory>
 #include <Timestamp.h>
+
+#include <boost/bind.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 using namespace std;
 
@@ -38,26 +41,48 @@ bool TcpServer::start() {
   return true;
 }
 
-void TcpServer::handleReadEvent(Events* event, Timestamp time) {
+void TcpServer::handleReadEvent(Events event, Timestamp time) {
   loop_->assertInOwner();
   EventLoop *workloop = threadPool_.getNextEventLoop();
 
-  int sd = ::accept(event->getFd(), NULL, NULL);
+  int sd = ::accept(event.getFd(), NULL, NULL);
   assert(sd > 0);
   // FIXME : if sd < 0
   assert(SetNoBlockingOrExec(sd)); // FIXME : if error
 
-  TcpConnection *conn = new TcpConnection(workloop, Events(sd, kReadEvent));
+  TcpConnShreadPtr conn = getSharedPtr(new TcpConnection(workloop, Events(sd, kReadEvent)));
+  conn->setOnMessageCallBack(messageCb_);
+  conn->setOnCloseCallBack(boost::bind(&TcpServer::removeConnection, this, conn));
 
-  conn->setHandleRead(boost::bind(&TcpConnection::defaultHandleRead, conn, _1, _2));
-  conn->setHandleWrite(boost::bind(&TcpConnection::defaultHandleWrite, conn, _1, _2));
-  conn->setHandleError(boost::bind(&TcpConnection::defaultHandleError, conn, _1, _2));
-  conn->setHandleClose(boost::bind(&TcpConnection::defaultHandleClose, conn, _1, _2));
   conns_[sd] = conn;
-
   workloop->wakeUp();
+
+  cout << "sd  = " << sd << endl;
   cout << "Current connection num is " << conns_.size() << endl;
 }
+
+void TcpServer::setMessageCallback(const MessageCallback& cb) {
+  messageCb_  = cb;
+}
+
+void TcpServer::removeConnection(TcpConnShreadPtr conn) {
+  loop_->runInLoop(boost::bind(&TcpServer::removeConnectionInLoop, this, conn));
+}
+
+void TcpServer::removeConnectionInLoop(TcpConnShreadPtr conn) {
+  loop_->assertInOwner();
+  size_t n = conns_.erase(conn->getConnfd());
+  cout << __func__ << " fd: " << conn->getConnfd() << " n = "<< n << endl;
+  boost::ignore_unused(n);
+  assert(n == 1);
+  EventLoop* ioLoop = conn->getLoop();
+
+  cout << __func__ << endl;
+
+  ioLoop->queueInLoop(
+      boost::bind(&TcpConnection::closeAndClearTcpConnection, conn));
+}
+
 
 TcpServer::~TcpServer() {
   delete handle_;

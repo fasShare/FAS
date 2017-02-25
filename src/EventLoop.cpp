@@ -8,6 +8,7 @@
 #include <Log.h>
 
 #include <boost/bind.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <sys/eventfd.h>
 
@@ -15,6 +16,7 @@ int EventLoop::count_ = 0;
 
 EventLoop::EventLoop() :
   poll_(NULL),
+  pollDelayTime_(10000),
   revents_(),
   handles_(),
   updates_(),
@@ -22,7 +24,10 @@ EventLoop::EventLoop() :
   cond_(mutex_),
   tid_(gettid()),
   wakeUpFd_(createEventfd()),
-  wakeUpHandle_(new Handle(this, Events(wakeUpFd_, kReadEvent))) {
+  wakeUpHandle_(new Handle(this, Events(wakeUpFd_, kReadEvent))),
+  functors_(),
+  runningFunctors_(false),
+  quit_(false) {
 
   poll_.reset(new Poller);
   assert(poll_);
@@ -36,76 +41,87 @@ int EventLoop::getCount() const {
   return count_;
 }
 
-bool EventLoop::updateHandle(Handle *handle) {
+bool EventLoop::updateHandle(SHandlePtr handle) {
+  assert(handle->getLoop() == this);
   MutexLocker lock(mutex_);(void)lock;
-  SHandlePtr handle_ptr(handle);
-  updates_.insert({handle_ptr->getEvent()->getFd(), handle_ptr});
+  updates_.insert({handle->getEvent()->getFd(), handle});
   return true;
 }
 
-
-bool EventLoop::addHandle(Handle *handle) {
-  assert(handle->getLoop() == this);
-  handle->setState(STATE_ADD);
-  return updateHandle(handle);
+bool EventLoop::addHandle(HandlePtr handle) {
+  assert(handle->getState() == Handle::state::STATE_NEW);
+  handle->setState(Handle::state::STATE_ADD);
+  return updateHandle(shared_ptr<Handle>(handle));
 }
 
 //FIXME:mod by fd
-bool EventLoop::modHandle(Handle *handle) {
-  handle->setState(STATE_MOD);
-  return updateHandle(handle);
+bool EventLoop::modHandle(HandlePtr handle) {
+  assert(handle->getState() != Handle::state::STATE_DEL);
+  handle->setState(Handle::state::STATE_MOD);
+  return updateHandle(handles_.find(handle->getEvent()->getFd())->second);
 }
 
 //FIXME:del by fd
-bool EventLoop::delHandle(Handle *handle) {
-  handle->setState(STATE_DEL);
-  return updateHandle(handle);
+bool EventLoop::delHandle(HandlePtr handle) {
+  handle->setState(Handle::state::STATE_DEL);
+  return updateHandle(handles_.find(handle->getEvent()->getFd())->second);
 }
 
-bool EventLoop::addNewToHandles() {
+bool EventLoop::updateHandles() {
   MutexLocker lock(mutex_);(void)lock;
-  for(auto cur = updates_.begin();
-       cur != updates_.end();
-       cur++) {
-
+  for(auto cur = updates_.begin(); cur != updates_.end(); cur++) {
     SHandlePtr handle = cur->second;
+    Events* event = handle->getEvent();
 
-    if (handle->getState() == STATE_ADD) {
-      poll_->events_add_(handle->getEvent());
-      //insert
+
+    int n = 0;
+
+
+    switch(handle->getState()) {
+    case Handle::state::STATE_ADD:
+      poll_->events_add_(event);
       handles_[cur->first] = handle;
-      handle->setState(STATE_LOOP);
-    } else if (handle->getState() == STATE_MOD) {
-      poll_->events_mod_(handle->getEvent());
+      handle->setState(Handle::state::STATE_LOOP);
+      break;
+    case Handle::state::STATE_MOD:
+      poll_->events_mod_(event);
       //mod
       handles_[cur->first] = handle;
-      handle->setState(STATE_LOOP);
-    } else if (handle->getState() == STATE_DEL) {
-      poll_->events_del_(handle->getEvent());
-      //del
-      handles_.erase(handle->getEvent()->getFd());
-    } else {
-      //error
+      handle->setState(Handle::state::STATE_LOOP);
+      break;
+    case Handle::state::STATE_DEL:
+      poll_->events_del_(event);
+        //del
+      n = handles_.erase(handle->getEvent()->getFd());
+      ::close(handle->getEvent()->getFd());
+      cout << "close fd! n = "  << n << endl;
+      break;
+    default :
       assert(false);
     }
   }
-  return false;
+  return true;
+}
+
+bool EventLoop::isInLoopOwnerThread() {
+  return (gettid() == tid_);
 }
 
 void EventLoop::assertInOwner() {
-  assert(gettid() == tid_);
+  assert(isInLoopOwnerThread());
 }
 
 void EventLoop::wakeUp() {
   uint64_t one = 1;
   ssize_t n = ::write(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one) {
-    cout << "EventLoop::wakeup() writes " << n << " bytes instead of 8" << endl;
+    //cout << "EventLoop::wakeup() writes " << n << " bytes instead of 8" << endl;
   }
 
 }
 
-void EventLoop::handWakeUp(Events *event, Timestamp time) {
+void EventLoop::handWakeUp(Events event, Timestamp time) {
+  boost::ignore_unused(event, time);
   uint64_t one = 1;
   ssize_t n = ::read(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one){
@@ -122,44 +138,87 @@ int createEventfd() {
   return evtfd;
 }
 
-void EventLoop::loop() {
-  //cout << "Thread tid " << gettid() << " " << tid_ << " will loop." << endl;
+
+void EventLoop::runInLoop(const Functor& cb) {
+  if (isInLoopOwnerThread()) {
+    cb();
+  } else {
+    queueInLoop(cb);
+  }
+}
+
+void EventLoop::queueInLoop(const Functor& cb) {
+  {
+    MutexLocker lock(mutex_);
+    functors_.push_back(cb);
+  }
+
+  if (!isInLoopOwnerThread() || runningFunctors_) {
+    wakeUp();
+  }
+}
+
+void EventLoop::runFunctors() {
+  std::vector<Functor> functors;
+  runningFunctors_ = true;
+
+  {
+    MutexLocker lock(mutex_);
+    functors.swap(functors_);
+  }
+
+  for (size_t i = 0; i < functors.size(); ++i) {
+    functors[i]();
+  }
+  runningFunctors_ = false;
+}
+
+void EventLoop::quit() {
+  MutexLocker lock(mutex_);
+  quit_ = true;
+  wakeUp();
+  boost::ignore_unused(lock);
+}
+
+bool EventLoop::loop() {
   assertInOwner();
-  //only defined once
   Timestamp looptime;
-  uint waitTime = 0;
-  while (true) {
-    if (!updates_.empty())
-      addNewToHandles();
+
+  while (!quit_) {
+    if (!updates_.empty()) {
+      updateHandles();
+      cout << "updateHandles" << endl;
+    }
 
     updates_.clear();
     revents_.clear();
 
-    if (handles_.size() > 0) {
-        cout << "tid : " << gettid() << " handles num " << handles_.size() << endl;
-      waitTime = -1;
-    } else {
-      waitTime = 10;
-    }
-    int ret = poll_->loop_(revents_, 20, waitTime);
-    looptime = Timestamp::now();
 
 
+    //cout << "tid : " << gettid() << " handles num " << 0 << endl;
 
-    for(int i = 0; i < ret; i++) { 
-      int fd = revents_.data()[i].getFd();
-     
+    looptime = poll_->loop_(revents_, pollDelayTime_);
+
+    for(std::vector<Events>::iterator iter = revents_.begin();
+        iter != revents_.end(); iter++) {
       //handle will decreament reference after for end!
-      SHandlePtr handle = handles_.find(fd)->second;
-      if (handle->getState() != STATE_LOOP) {
+      map<int, SHandlePtr>::iterator finditer = handles_.find((*iter).getFd());
+      if (finditer == handles_.end()) {
+        continue;
+      }
+      SHandlePtr handle = finditer->second;
+      if (handle->getState() != Handle::state::STATE_LOOP) {
         LOG_DEBUG("After Loop have handle with state STATE_LOOP! it is unnormal!");
         continue;
       }
-      assert(handle->getEvent()->getFd() == fd);
       //handle revents
-      handle->handleEvent(&(revents_.data()[i]), looptime);
-    }
-  }
+      handle->handleEvent(*iter, looptime);
+    } //for
+
+    assert(!runningFunctors_);
+    runFunctors();
+  } //while
+  return true;
 }
 
 EventLoop::~EventLoop() {

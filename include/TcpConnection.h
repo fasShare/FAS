@@ -6,27 +6,36 @@
 #include <Handle.h>
 #include <EventLoop.h>
 
+#include <memory>
+
 class TcpConnection {
 public:
   TcpConnection(EventLoop *loop, const Events& event);
 
   EventLoop* getLoop();
 
-  void setHandleRead(const events_handle_t& handle_read);
-  void setHandleWrite(const events_handle_t& handle_write);
-  void setHandleError(const events_handle_t& handle_error);
-  void setHandleClose(const events_handle_t& handle_close);
+  int getConnfd() const;
 
-  void defaultHandleRead(Events* revents, Timestamp time);
-  void defaultHandleWrite(Events* revents, Timestamp time);
-  void defaultHandleError(Events* revents, Timestamp time);
-  void defaultHandleClose(Events* revents, Timestamp time);
+  void closeAndClearTcpConnection();
+
+  void setOnMessageCallBack(const MessageCallback& cb);
+  void setOnCloseCallBack(const CloseCallback& cb);
+
+  void handleRead(Events revents, Timestamp time);
+  void handleWrite(Events revents, Timestamp time);
+  void handleError(Events revents, Timestamp time);
+  void handleClose(Events revents, Timestamp time);
 
 private:
   EventLoop *loop_;
   Events event_;
   Handle *handle_;
   Buffer buffer_;
+  int connfd_;
+
+  bool closeing_;
+  CloseCallback closeCb_;
+  MessageCallback messageCb_;
 };
 
 #endif // FAS_TCPCONNECTION_H

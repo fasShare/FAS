@@ -13,7 +13,7 @@ Events::Events(const EpollEvent& events) :
   Events(events.data.fd, events.events){
 }
 
-int Events::getFd() {
+int Events::getFd() const{
   return fd_;
 }
 

@@ -30,11 +30,13 @@ public:
   bool pollerEventsAdd(Events* events);
   bool pollerEventsMod(Events* events);
   bool pollerEventsDel(Events* events);
-  int pollerLoop(vector<Events> &events, int max_events, int timeout);
+  Timestamp pollerLoop(vector<Events> &events, int timeout);
 
 private:
   int epoll_fd_;
   vector<EpollEvent> revents_;
+  int maxNum_;
+  const int addStep_;
 };
 
 #endif // FAS_EPOLL_H

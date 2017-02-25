@@ -70,16 +70,16 @@ void Logger(std::string file, int line, Log::LogLevel level, std::string func, s
 void Logger(std::string file, int line, bool toAbort, string msg);
 
 #define LOG_TRACE(msg) if (Log::logLevel() <= Log::TRACE) \
-    Logger(__FILE__, __LINE__, Log::TRACE, __func__, #msg)
+    Logger(__FILE__, __LINE__, Log::TRACE, __func__, msg)
 #define LOG_DEBUG(msg) if (Log::logLevel() <= Log::DEBUG) \
-    Logger(__FILE__, __LINE__, Log::DEBUG, __func__, #msg)
+    Logger(__FILE__, __LINE__, Log::DEBUG, __func__, msg)
 #define LOG_INFO(msg) if (Log::logLevel() <= Log::INFO) \
-    Logger(__FILE__, __LINE__, #msg)
-#define LOG_WARN(msg) Logger(__FILE__, __LINE__, Log::WARN, #msg)
-#define LOG_ERROR(msg) Logger(__FILE__, __LINE__, Log::ERROR, #msg)
-#define LOG_FATAL(msg) Logger(__FILE__, __LINE__, Log::FATAL, #msg)
-#define LOG_SYSERR(msg) Logger(__FILE__, __LINE__, false, #msg)
-#define LOG_SYSFATAL(msg) Logger(__FILE__, __LINE__, true, #msg)
+    Logger(__FILE__, __LINE__, msg)
+#define LOG_WARN(msg) Logger(__FILE__, __LINE__, Log::WARN, msg)
+#define LOG_ERROR(msg) Logger(__FILE__, __LINE__, Log::ERROR, msg)
+#define LOG_FATAL(msg) Logger(__FILE__, __LINE__, Log::FATAL, msg)
+#define LOG_SYSERR(msg) Logger(__FILE__, __LINE__, false, msg)
+#define LOG_SYSFATAL(msg) Logger(__FILE__, __LINE__, true, msg)
 
 
 #endif // FAS_LOG_H

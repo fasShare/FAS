@@ -34,7 +34,7 @@ bool SetNoBlockingOrExec(Socket_t sd) {
   nflag |= FD_CLOEXEC;
   ret == -1? ret : (::fcntl(sd, F_SETFD, nflag));
   if (ret == -1) {
-    LOG_SYSERR((string("ERROR fcntl :") + strerror(errno).c_str()));
+    LOG_SYSERR((string("ERROR fcntl :") + strerror(errno)).c_str());
     return false;
   }
   return true;
@@ -62,11 +62,11 @@ bool SocketListen(Socket_t socket, int backlog) {
 Socket_t SocketAccept(Socket_t socket, struct sockaddr* addr, socklen_t* addrlen) {
   int ret = ::accept(socket, addr, addrlen);
   if(ret == -1) {
-    LOG_ERROR((string("ERROR accept :") + strerror(errno).c_str()));
+    LOG_ERROR((string("ERROR accept :") + strerror(errno)).c_str());
     return ret;
   }
   if (SetNoBlockingOrExec(ret) == false) {
-    LOG_ERROR((string("ERROR SetNoBlockingOrExec :") + strerror(errno).c_str()));
+    LOG_ERROR((string("ERROR SetNoBlockingOrExec :") + strerror(errno)).c_str());
     return ret;
   }
   return ret;
@@ -86,12 +86,12 @@ ssize_t WriteSocket(Socket_t sockfd, const void *buf, size_t count) {
 
 void CloseSocket(Socket_t sockfd) {
   if (::close(sockfd) < 0) {
-    LOG_ERROR(strerror(errno).c_str());
+    LOG_ERROR(strerror(errno));
   }
 }
 
 void ShutdownWrite(Socket_t sockfd) {
   if (::shutdown(sockfd, SHUT_WR) < 0) {
-    LOG_ERROR(strerror(errno).c_str());
+    LOG_ERROR(strerror(errno));
   }
 }

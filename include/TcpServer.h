@@ -2,24 +2,30 @@
 #define FAS_TCPSERVER_H
 #include <Handle.h>
 #include <Socket.h>
+#include <Default.h>
 #include <Events.h>
 #include <NetAddress.h>
-#include <Default.h>
 #include <EventLoopThreadPool.h>
 #include <TcpConnection.h>
 
+#include <memory>
 
 
 class TcpServer {
 public:
-    TcpServer(EventLoop *loop, const NetAddress& addr);
-    ~TcpServer();
+  TcpServer(EventLoop *loop, const NetAddress& addr);
+  ~TcpServer();
 
-    EventLoop* getLoop() const;
+  EventLoop* getLoop() const;
 
-    bool start();
+  bool start();
 
-    void handleReadEvent(Events* event, Timestamp time);
+  void handleReadEvent(Events event, Timestamp time);
+
+  void setMessageCallback(const MessageCallback& cb);
+
+  void removeConnection(TcpConnShreadPtr conn);
+  void removeConnectionInLoop(TcpConnShreadPtr conn);
 private:
   Socket_t server_;
   EventLoop *loop_;
@@ -28,7 +34,14 @@ private:
   NetAddress addr_;
   const uint listenBacklog_;
   EventLoopThreadPool threadPool_;
-  map<int, TcpConnection*> conns_;
+  map<int, std::shared_ptr<TcpConnection>> conns_;
+
+  MessageCallback messageCb_;
 };
+
+template<typename T>
+shared_ptr<T> getSharedPtr(T *ptr) {
+  return std::shared_ptr<T>(ptr);
+}
 
 #endif // FAS_TCPSERVER_H

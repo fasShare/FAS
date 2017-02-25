@@ -23,7 +23,7 @@ public:
   Events(const EpollEvent& events);
    ~Events();
 
-  int getFd();
+  int getFd() const;
   int getEvents();
   void updateEvents(int events);
 
