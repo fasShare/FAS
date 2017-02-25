@@ -1,2 +1,2 @@
 # FAS
-C++ server lib
+A C++ non-blocking network library in reactor mode for multi-threaded server in Linux
