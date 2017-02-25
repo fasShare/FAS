@@ -3,6 +3,7 @@
 #include <EventLoop.h>
 #include <Timestamp.h>
 #include <Socket.h>
+#include <Log.h>
 
 
 #include <boost/bind.hpp>
@@ -34,6 +35,7 @@ int TcpConnection::getConnfd() const {
 }
 
 void TcpConnection::closeAndClearTcpConnection() {
+  LOG_TRACE("closeAndClearTcpConnection");
   loop_->assertInOwnerThread();
   assert(closeing_);
   loop_->delHandle(handle_);
@@ -78,8 +80,10 @@ void TcpConnection::handleError(Events revents,
 void TcpConnection::handleClose(Events revents, Timestamp time) {
   assert(!closeing_);
   if(closeCb_) {
+    LOG_TRACE("closeCb_");
     closeCb_();
   }
   closeing_ = true;
+  LOG_TRACE("handleClose");
 }
 

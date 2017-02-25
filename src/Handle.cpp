@@ -82,4 +82,6 @@ void Handle::handleEvent(Events events, Timestamp time) {
 
 Handle::~Handle() {
   state_ = STATE_DEL;
+  ::close(fd());
+  std::cout << "handle Destroyed!" << std::endl;
 }

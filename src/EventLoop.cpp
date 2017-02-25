@@ -12,6 +12,7 @@
 #include <Timestamp.h>
 #include <Thread.h>
 #include <Handle.h>
+#include <Events.h>
 #include <MutexLocker.h>
 
 
@@ -50,10 +51,11 @@ int EventLoop::getCount() const {
 }
 
 bool EventLoop::updateHandle(SHandlePtr handle) {
+  LOG_TRACE("updateHandle");
   assert(handle->getLoop() == this);
   MutexLocker lock(mutex_);(void)lock;
   //It'll insert() fail when the key is same.
-  updates_[handle->getEvent()->getFd()] = handle;
+  updates_[handle->fd()] = handle;
   return true;
 }
 
@@ -65,40 +67,44 @@ bool EventLoop::addHandle(HandlePtr handle) {
 
 //FIXME : mod by fd
 bool EventLoop::modHandle(HandlePtr handle) {
-  assert(handle->getState() != Handle::state::STATE_DEL);
-  handle->setState(Handle::state::STATE_MOD);
-  assert(handles_.find(handle->fd()) != handles_.end());
-  return updateHandle(handles_.find(handle->fd())->second);
+    LOG_TRACE("modHandle");
+    assert(handles_.find(handle->fd()) != handles_.end());
+    SHandlePtr mod = handles_.find(handle->fd())->second;
+    mod->setState(Handle::state::STATE_MOD);
+    return updateHandle(mod);
 }
 
 // FIXME : del by fd
 bool EventLoop::delHandle(HandlePtr handle) {
-  handle->setState(Handle::state::STATE_DEL);
+  LOG_TRACE("delHandle");
   assert(handles_.find(handle->fd()) != handles_.end());
-  return updateHandle(handles_.find(handle->fd())->second);
+  SHandlePtr del = handles_.find(handle->fd())->second;
+  del->setState(Handle::state::STATE_DEL);
+  return updateHandle(del);
 }
 
 bool EventLoop::updateHandles() {
+  LOG_TRACE("updateHandles");
   MutexLocker lock(mutex_);(void)lock;
   for(auto cur = updates_.begin(); cur != updates_.end(); cur++) {
     SHandlePtr handle = cur->second;
     Events* event = handle->getEvent();
 
-    if (Handle::state::STATE_ADD) {
+    if (handle->getState() == Handle::state::STATE_ADD) {
+      LOG_TRACE("updateHandles::STATE_ADD");
       poll_->events_add_(event);
       handles_[cur->first] = handle;
       handle->setState(Handle::state::STATE_LOOP);
-    } else if (Handle::state::STATE_MOD) {
+    } else if (handle->getState() == Handle::state::STATE_MOD) {
+      LOG_TRACE("updateHandles::STATE_MOD");
       poll_->events_mod_(event);
-      //mod
       handles_[cur->first] = handle;
       handle->setState(Handle::state::STATE_LOOP);
-    }else if (Handle::state::STATE_DEL) {
+    }else if (handle->getState() == Handle::state::STATE_DEL) {
+      LOG_TRACE("updateHandles::STATE_DEL");
       poll_->events_del_(event);
-        //del
       int n = handles_.erase(handle->fd());
       assert(n == 1);
-      CloseSocket(handle->fd());
     } else {
       assert(false);
     }
@@ -128,7 +134,7 @@ void EventLoop::handWakeUp(Events event, Timestamp time) {
   uint64_t one = 1;
   ssize_t n = ::read(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one){
-    cout << "EventLoop::handleRead() reads " << n << " bytes instead of 8" <<endl;
+    std::cout << "EventLoop::handleRead() reads " << n << " bytes instead of 8" << std::endl;
   }
 }
 
@@ -197,7 +203,7 @@ bool EventLoop::loop() {
     updates_.clear();
     revents_.clear();
 
-    std::cout << "tid : " << gettid() << " handles num " << handles_.size() << std::endl;
+    //std::cout << "tid : " << gettid() << " handles num " << handles_.size() << std::endl;
 
     looptime = poll_->loop_(revents_, pollDelayTime_);
 

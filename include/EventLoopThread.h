@@ -15,15 +15,15 @@ class EventLoop;
 class EventLoopThread : boost::noncopyable {
 public:
     EventLoopThread();
-    EventLoopThread(const string& name);
+    EventLoopThread(const std::string& name);
 
     bool join();
     bool MainThread();
 
     EventLoop *start();
 
-    void setName(const string name);
-    string getName();
+    void setName(const std::string name);
+    std::string getName();
 
     void threadFunc();
 

@@ -9,7 +9,7 @@ EventLoopThread::EventLoopThread() :
     EventLoopThread("EventLoopThread") {
 }
 
-EventLoopThread::EventLoopThread(const string& name) :
+EventLoopThread::EventLoopThread(const std::string& name) :
   mutex_(),
   cond_(mutex_),
   thread_(boost::bind(&EventLoopThread::threadFunc, this), name),
@@ -45,11 +45,11 @@ bool EventLoopThread::join() {
   return !started_;
 }
 
-void EventLoopThread::setName(const string name) {
+void EventLoopThread::setName(const std::string name) {
   return thread_.setName(name);
 }
 
-string EventLoopThread::getName() {
+std::string EventLoopThread::getName() {
   return thread_.getName();
 }
 

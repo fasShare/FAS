@@ -17,7 +17,7 @@ bool Log::fflush() {
 }
 
 Log::LogLevel Log::logLevel() {
-  return Log::LogLevel::DEBUG;
+  return Log::LogLevel::TRACE;
 }
 
 void Log::setOutput(default_output_t output) {

@@ -7,6 +7,7 @@
 #include <Socket.h>
 #include <Timestamp.h>
 #include <Handle.h>
+#include <Log.h>
 #include <EventLoop.h>
 
 
@@ -69,10 +70,12 @@ void TcpServer::setMessageCallback(const MessageCallback& cb) {
 }
 
 void TcpServer::removeConnection(TcpConnShreadPtr conn) {
+  LOG_TRACE("removeConnection");
   loop_->runInLoop(boost::bind(&TcpServer::removeConnectionInLoop, this, conn));
 }
 
 void TcpServer::removeConnectionInLoop(TcpConnShreadPtr conn) {
+  LOG_TRACE("removeConnectionInLoop");
   loop_->assertInOwnerThread();
   size_t n = conns_.erase(conn->getConnfd());
   boost::ignore_unused(n);
