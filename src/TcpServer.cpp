@@ -41,19 +41,22 @@ bool TcpServer::start() {
   handle_->setHandleRead(boost::bind(&TcpServer::handleReadEvent, this, _1, _2));
   loop_->addHandle(handle_);
   threadPool_.start();
+  // FIXME : use Log
   std::cout << "Current EventLoop num is " << loop_->getCount() << std::endl;
   return true;
 }
 
 void TcpServer::handleReadEvent(Events event, Timestamp time) {
+  LOG_TRACE("TcpServer::handleReadEvent");
   loop_->assertInOwnerThread();
   EventLoop *workloop = threadPool_.getNextEventLoop();
 
   int sd = ::accept(event.getFd(), NULL, NULL);
-  assert(sd > 0);
   // FIXME : if sd < 0
   assert(SetNoBlockingOrExec(sd)); // FIXME : if error
 
+  //conn will be destroy if there are not other shared_ptr
+  //increase the refcount of it
   TcpConnShreadPtr conn = getSharedPtr(new TcpConnection(workloop, Events(sd, kReadEvent)));
   conn->setOnMessageCallBack(messageCb_);
   conn->setOnCloseCallBack(boost::bind(&TcpServer::removeConnection, this, conn));
@@ -61,8 +64,7 @@ void TcpServer::handleReadEvent(Events event, Timestamp time) {
   conns_[sd] = conn;
   workloop->wakeUp();
 
-  std::cout << "sd  = " << sd << std::endl;
-  std::cout << "Current connection num is " << conns_.size() << std::endl;
+  //FIXME : use Log output debug msg.
 }
 
 void TcpServer::setMessageCallback(const MessageCallback& cb) {
@@ -70,12 +72,10 @@ void TcpServer::setMessageCallback(const MessageCallback& cb) {
 }
 
 void TcpServer::removeConnection(TcpConnShreadPtr conn) {
-  LOG_TRACE("removeConnection");
   loop_->runInLoop(boost::bind(&TcpServer::removeConnectionInLoop, this, conn));
 }
 
 void TcpServer::removeConnectionInLoop(TcpConnShreadPtr conn) {
-  LOG_TRACE("removeConnectionInLoop");
   loop_->assertInOwnerThread();
   size_t n = conns_.erase(conn->getConnfd());
   boost::ignore_unused(n);

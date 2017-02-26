@@ -51,7 +51,6 @@ int EventLoop::getCount() const {
 }
 
 bool EventLoop::updateHandle(SHandlePtr handle) {
-  LOG_TRACE("updateHandle");
   assert(handle->getLoop() == this);
   MutexLocker lock(mutex_);(void)lock;
   //It'll insert() fail when the key is same.
@@ -67,7 +66,6 @@ bool EventLoop::addHandle(HandlePtr handle) {
 
 //FIXME : mod by fd
 bool EventLoop::modHandle(HandlePtr handle) {
-    LOG_TRACE("modHandle");
     assert(handles_.find(handle->fd()) != handles_.end());
     SHandlePtr mod = handles_.find(handle->fd())->second;
     mod->setState(Handle::state::STATE_MOD);
@@ -76,7 +74,6 @@ bool EventLoop::modHandle(HandlePtr handle) {
 
 // FIXME : del by fd
 bool EventLoop::delHandle(HandlePtr handle) {
-  LOG_TRACE("delHandle");
   assert(handles_.find(handle->fd()) != handles_.end());
   SHandlePtr del = handles_.find(handle->fd())->second;
   del->setState(Handle::state::STATE_DEL);
@@ -84,24 +81,20 @@ bool EventLoop::delHandle(HandlePtr handle) {
 }
 
 bool EventLoop::updateHandles() {
-  LOG_TRACE("updateHandles");
   MutexLocker lock(mutex_);(void)lock;
   for(auto cur = updates_.begin(); cur != updates_.end(); cur++) {
     SHandlePtr handle = cur->second;
     Events* event = handle->getEvent();
 
     if (handle->getState() == Handle::state::STATE_ADD) {
-      LOG_TRACE("updateHandles::STATE_ADD");
       poll_->events_add_(event);
       handles_[cur->first] = handle;
       handle->setState(Handle::state::STATE_LOOP);
     } else if (handle->getState() == Handle::state::STATE_MOD) {
-      LOG_TRACE("updateHandles::STATE_MOD");
       poll_->events_mod_(event);
       handles_[cur->first] = handle;
       handle->setState(Handle::state::STATE_LOOP);
     }else if (handle->getState() == Handle::state::STATE_DEL) {
-      LOG_TRACE("updateHandles::STATE_DEL");
       poll_->events_del_(event);
       int n = handles_.erase(handle->fd());
       assert(n == 1);
@@ -124,7 +117,8 @@ void EventLoop::wakeUp() {
   uint64_t one = 1;
   ssize_t n = ::write(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one) {
-    //cout << "EventLoop::wakeup() writes " << n << " bytes instead of 8" << endl;
+    // FIXME : use Log
+    std::cout << "EventLoop::wakeup() writes " << n << " bytes instead of 8" << std::endl;
   }
 
 }
@@ -134,6 +128,7 @@ void EventLoop::handWakeUp(Events event, Timestamp time) {
   uint64_t one = 1;
   ssize_t n = ::read(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one){
+    // FIXME : use Log
     std::cout << "EventLoop::handleRead() reads " << n << " bytes instead of 8" << std::endl;
   }
 }
@@ -203,9 +198,8 @@ bool EventLoop::loop() {
     updates_.clear();
     revents_.clear();
 
-    //std::cout << "tid : " << gettid() << " handles num " << handles_.size() << std::endl;
-
-    looptime = poll_->loop_(revents_, pollDelayTime_);
+    //looptime = poll_->loop_(revents_, pollDelayTime_);
+    looptime = poll_->loop_(revents_, 0);
 
     for(std::vector<Events>::iterator iter = revents_.begin();
         iter != revents_.end(); iter++) {

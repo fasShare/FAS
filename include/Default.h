@@ -27,10 +27,10 @@ typedef boost::function<void (Events, Timestamp)> events_handle_t;
 
 typedef boost::function<void ()> CloseCallback;
 // the data has been read to (buf, len)
-typedef boost::function<void (const TcpConnShreadPtr,
+typedef boost::function<void (const TcpConnection *,
                               Buffer*,
                               Timestamp)> MessageCallback;
-
+typedef boost::function<bool (const Events&)> EventCheckFunc;
 
 #endif // FAS_TYPES_H
 

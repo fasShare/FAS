@@ -20,23 +20,23 @@ const events_t kWriteEvent = POLLOUT;
 
 class Events {
 public:
-  Events(int fd, int events);
+  Events(int fd, uint32_t events);
   Events(const Events& events);
   Events(const EpollEvent& events);
    ~Events();
 
   int getFd() const;
-  int getEvents();
-  void updateEvents(int events);
+  uint32_t getEvents() const;
+  void updateEvents(uint32_t events);
 
-  bool containsEvents(int events);
-  bool containsAtLeastOneEvents(int events);
+  bool containsEvents(uint32_t events) const;
+  bool containsAtLeastOneEvents(uint32_t events) const;
 
   EpollEvent epollEvents();
 
 private:
   int fd_;
-  int events_;
+  uint32_t events_;
 };
 
 std::ostream& operator<<(std::ostream& os, Events& events);

@@ -4,11 +4,11 @@
 
 
 #include <Default.h>
-#include <Buffer.h>
 #include <Events.h>
 
 class Handle;
 class EventLoop;
+class buffer;
 
 class TcpConnection {
 public:
@@ -32,13 +32,17 @@ private:
   EventLoop *loop_;
   Events event_;
   Handle *handle_;
-  Buffer buffer_;
+  Buffer *buffer_;
   int connfd_;
 
   bool closeing_;
   CloseCallback closeCb_;
   MessageCallback messageCb_;
 };
+
+void TcpConnMessageCallback(const TcpConnection *conn,
+                            Buffer *buffer,
+                            Timestamp time);
 
 #endif // FAS_TCPCONNECTION_H
 
