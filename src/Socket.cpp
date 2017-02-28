@@ -48,47 +48,47 @@ bool Socket::setExecClose() {
 }
 
 bool Socket::bind(const NetAddress& addr) {
-    int ret = ::bind(socket_, addr.addrPtr(), addr.addrLen());
-    if (ret == -1) {
-      LOG_ERROR(std::string("ERROR bind :") + ::strerror(errno));
-      return false;
-    }
-    return true;
-}
-
-bool Socket::listen(int backlog) {
-    int ret = ::listen(socket_, backlog);
-    if (ret == -1) {
-      LOG_SYSERR(::strerror(errno));
-      return false;
-    }
-    return true;
-}
-
-bool Socket::connect(const NetAddress& addr) {
-  int ret = ::connect(socket_, addr.addrPtr(), addr.addrLen());
+  int ret = ::bind(socket_, addr.addrPtr(), addr.addrLen());
   if (ret == -1) {
-    LOG_DEBUG(std::string("connect ") + ::strerror(errno));
+    LOG_ERROR(std::string("ERROR bind :") + ::strerror(errno));
     return false;
   }
   return true;
 }
 
+bool Socket::listen(int backlog) {
+  int ret = ::listen(socket_, backlog);
+  if (ret == -1) {
+    LOG_SYSERR(::strerror(errno));
+    return false;
+  }
+  return true;
+}
+
+bool Socket::connect(const NetAddress& addr) {
+  int ret = ::connect(socket_, addr.addrPtr(), addr.addrLen());
+  if (ret == -1) {
+  LOG_DEBUG(std::string("connect ") + ::strerror(errno));
+    return false;
+  }
+    return true;
+}
+
 Socket_t Socket::accept(NetAddress& addr, bool noblockingexec) {
-    socklen_t len = addr.addrLen();
-    Socket_t ret = ::accept(socket_, addr.addrPtr(), &len);
-    if(ret == -1) {
-      LOG_ERROR(std::string("ERROR accept :") + ::strerror(errno));
-      return ret;
-    }
-    if (!noblockingexec) {
-      return ret;
-    }
-    if (SetNoBlockingOrExec(ret) == false) {
-      LOG_ERROR(std::string("ERROR SetNoBlockingOrExec :") + ::strerror(errno));
-      return ret;
-    }
+  socklen_t len = addr.addrLen();
+  Socket_t ret = ::accept(socket_, addr.addrPtr(), &len);
+  if(ret == -1) {
+    LOG_ERROR(std::string("ERROR accept :") + ::strerror(errno));
     return ret;
+  }
+  if (!noblockingexec) {
+    return ret;
+  }
+  if (SetNoBlockingOrExec(ret) == false) {
+    LOG_ERROR(std::string("ERROR SetNoBlockingOrExec :") + ::strerror(errno));
+    return ret;
+  }
+  return ret;
 }
 
 void Socket::close() {

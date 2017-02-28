@@ -7,6 +7,10 @@
 #undef __STDC_FORMAT_MACROS
 
 
+Timestamp::Timestamp() :
+  microSecondsSinceEpoch_(0) {
+}
+
 Timestamp::Timestamp(int64_t microseconds) :
     microSecondsSinceEpoch_(microseconds) {
 }
@@ -38,6 +42,10 @@ Timestamp Timestamp::now() {
   gettimeofday(&tv, NULL);
   int64_t seconds = tv.tv_sec;
   return Timestamp(seconds * kMicroSecondsPerSecond + tv.tv_usec);
+}
+
+Timestamp Timestamp::invalid() {
+  return Timestamp();
 }
 
 bool Timestamp::isvalid() const {

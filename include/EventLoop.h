@@ -5,7 +5,7 @@
 #include <iostream>
 #include <memory>
 
-#include <Default.h>
+#include <Types.h>
 #include <Mutex.h>
 #include <Condition.h>
 
@@ -17,6 +17,8 @@ class Events;
 class Handle;
 class MutexLocker;
 class Poller;
+class TimersScheduler;
+class timer;
 
 class EventLoop : boost::noncopyable {
 public:
@@ -33,6 +35,9 @@ public:
   bool addHandle(HandlePtr handle);
   bool modHandle(HandlePtr handle);
   bool delHandle(HandlePtr handle);
+
+  void addTimer(Timer *timer);
+  void delTimer(Timer *timer);
 
   bool isInLoopOwnerThread();
   //判断当前loop是否在拥有它的线程中。
@@ -77,6 +82,8 @@ private:
 
   std::vector<Functor> functors_;
   bool runningFunctors_;
+
+  TimersScheduler *timerScheduler_;
 
   bool quit_;
 };

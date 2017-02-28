@@ -14,6 +14,7 @@
 #include <Handle.h>
 #include <Events.h>
 #include <MutexLocker.h>
+#include <TimersScheduler.h>
 
 
 #include <boost/bind.hpp>
@@ -24,7 +25,7 @@
 int EventLoop::count_ = 0;
 
 EventLoop::EventLoop() :
-  poll_(NULL),
+  poll_(new Poller),
   pollDelayTime_(10000),
   revents_(),
   handles_(),
@@ -36,9 +37,10 @@ EventLoop::EventLoop() :
   wakeUpHandle_(new Handle(this, Events(wakeUpFd_, kReadEvent))),
   functors_(),
   runningFunctors_(false),
+  timerScheduler_(new TimersScheduler(this)),
   quit_(false) {
 
-  poll_.reset(new Poller);
+  //poll_.reset(new Poller);
   assert(poll_);
   count_++;
 
@@ -78,6 +80,16 @@ bool EventLoop::delHandle(HandlePtr handle) {
   SHandlePtr del = handles_.find(handle->fd())->second;
   del->setState(Handle::state::STATE_DEL);
   return updateHandle(del);
+}
+
+void EventLoop::addTimer(Timer *timer) {
+  assertInOwnerThread();
+  timerScheduler_->addTimer(timer);
+}
+
+void EventLoop::delTimer(Timer *timer) {
+  assertInOwnerThread();
+  timerScheduler_->delTimer(timer);
 }
 
 bool EventLoop::updateHandles() {

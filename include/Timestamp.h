@@ -9,10 +9,7 @@ class Timestamp {
   ///
   /// Timestamp can not used
   ///
-  Timestamp()
-    : microSecondsSinceEpoch_(0)
-  {
-  }
+  Timestamp();
 
   ///
   /// Constucts a Timestamp at specific time
@@ -22,19 +19,17 @@ class Timestamp {
 
   void swap(Timestamp& that);
 
-  // default copy/assignment/dtor are Okay
-
   string toString() const;
   string toFormattedString() const;
 
+  static Timestamp invalid();
   bool isvalid() const;
 
   // for internal usage.
   int64_t get_microSecondsSinceEpoch() const;
   time_t secondsSinceEpoch() const;
-  ///
-  /// Get time of now.
-  ///
+
+  // Get time of now.
   static Timestamp now();
 
   static const int kMicroSecondsPerSecond = 1000 * 1000;
