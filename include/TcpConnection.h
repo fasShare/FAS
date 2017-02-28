@@ -5,6 +5,8 @@
 
 #include <Default.h>
 #include <Events.h>
+#include <Socket.h>
+#include <NetAddress.h>
 
 class Handle;
 class EventLoop;
@@ -13,10 +15,13 @@ class buffer;
 class TcpConnection {
 public:
   TcpConnection(EventLoop *loop, const Events& event);
+  ~TcpConnection();
 
   EventLoop* getLoop();
 
-  int getConnfd() const;
+  Socket_t getConnfd() const;
+
+  void setPeerAddr(const NetAddress& addr);
 
   void closeAndClearTcpConnection();
 
@@ -33,8 +38,8 @@ private:
   Events event_;
   Handle *handle_;
   Buffer *buffer_;
-  int connfd_;
-
+  Socket connfd_;
+  NetAddress peerAddr_;
   bool closeing_;
   CloseCallback closeCb_;
   MessageCallback messageCb_;

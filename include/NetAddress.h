@@ -8,14 +8,17 @@
 class NetAddress {
 public:
   NetAddress(ushort sa_family, int sa_port, const char *sa_ip);
-  NetAddress(ushort sa_family, int sa_port, uint sa_ip);
-  NetAddress(int sa_port, const char *sa_ip);
-  NetAddress(int sa_port);
-  struct sockaddr_in& addr();
-  socklen_t addrLen();
+  NetAddress() = default;
+  struct sockaddr *addrPtr();
+  const struct sockaddr *addrPtr() const;
+  socklen_t addrLen() const;
 
 private:
+  sa_family_t family_;
+  union {
   struct sockaddr_in addr_;
+  struct sockaddr_in6 addr6_;
+  };
 };
 
 #endif // FAS_SOCKETNETADDRESS_H

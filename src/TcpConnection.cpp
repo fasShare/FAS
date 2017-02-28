@@ -42,14 +42,19 @@ EventLoop* TcpConnection::getLoop() {
   return loop_;
 }
 
-int TcpConnection::getConnfd() const {
-  return connfd_;
+Socket_t TcpConnection::getConnfd() const {
+  return connfd_.getSocket();
+}
+
+void TcpConnection::setPeerAddr(const NetAddress& addr) {
+  peerAddr_ = addr;
 }
 
 void TcpConnection::closeAndClearTcpConnection() {
+  //Add this function to QueueInLoop can ensure handle_ destroy before TcpConnection
   loop_->assertInOwnerThread();
   assert(closeing_);
-  loop_->delHandle(handle_);
+  // FIXME : Other clear.
 }
 
 void TcpConnection::setOnMessageCallBack(const MessageCallback& cb) {
@@ -64,8 +69,8 @@ void TcpConnection::handleRead(Events revents,
                                       Timestamp time) {
   boost::ignore_unused(time);
   loop_->assertInOwnerThread();
+  assert(revents.getFd() == connfd_.getSocket());
   int err = 0;
-  //ssize_t ret = ReadvSocket(revents.getFd(), buf, 1023);
   ssize_t ret = buffer_->readFd(revents.getFd(), &err);
   if (ret == 0) {
     if(!closeing_) {
@@ -75,6 +80,7 @@ void TcpConnection::handleRead(Events revents,
     LOG_DEBUG(std::string("buffer_.readFd return ") + ::strerror(err));
   } else {
     if (messageCb_) {
+      // FIXME : replace this with share_ptr
       messageCb_(this, buffer_, time);
     }
   }
@@ -95,9 +101,15 @@ void TcpConnection::handleError(Events revents,
 void TcpConnection::handleClose(Events revents, Timestamp time) {
   boost::ignore_unused(revents, time);
   assert(!closeing_);
+  loop_->delHandle(handle_);
   if(closeCb_) {
-    closeCb_();
+    closeing_ = true;
+    closeCb_(connfd_.getSocket());
   }
-  closeing_ = true;
 }
 
+TcpConnection::~TcpConnection() {
+  LOG_TRACE("TcpConnection destroy!");
+  connfd_.close();
+  delete buffer_;
+}

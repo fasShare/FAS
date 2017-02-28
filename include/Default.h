@@ -25,12 +25,20 @@ typedef std::shared_ptr<TcpConnection> TcpConnShreadPtr;
 typedef boost::function<void (Events, Timestamp)> events_handle_t;
 
 
-typedef boost::function<void ()> CloseCallback;
+typedef int map_conn_key_t;
+
+typedef boost::function<void (map_conn_key_t)> CloseCallback;
 // the data has been read to (buf, len)
 typedef boost::function<void (const TcpConnection *,
                               Buffer*,
                               Timestamp)> MessageCallback;
 typedef boost::function<bool (const Events&)> EventCheckFunc;
+
+
+template<typename T>
+std::shared_ptr<T> getSharedPtr(T *ptr) {
+  return std::shared_ptr<T>(ptr);
+}
 
 #endif // FAS_TYPES_H
 

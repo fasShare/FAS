@@ -8,25 +8,98 @@
 #include <NetAddress.h>
 
 
-Socket_t Socket(int domain, int type, int protocol) {
-  Socket_t sd = ::socket(domain, type, protocol);
-  if (sd == -1) {
-    LOG_SYSERR(::strerror(errno));
-    return -1;
-  }
-  return sd;
+Socket::Socket(int domain, int type, int protocol) :
+  socket_(::socket(domain, type, protocol)),
+  state_(Socket::STATE::OPENED) {
+
 }
 
-Socket_t SocketNoBlockingOrExec(int domain, int type, int protocol) {
-  Socket_t socket = Socket(domain, type, protocol);
-  if(socket != -1) {
-    if (false == SetNoBlockingOrExec(socket) ){
-      socket = -1;
+Socket::Socket(Socket_t sd) :
+  socket_(sd),
+  state_(Socket::STATE::OPENED) {
+}
+
+Socket_t Socket::getSocket() const {
+  return socket_;
+}
+
+// FIXME : invoking other func
+bool Socket::setNoBlocking() {
+  int flag = ::fcntl(socket_, F_GETFL);
+  flag |= O_NONBLOCK;
+  int ret = ::fcntl(socket_, F_SETFL, flag);
+  if (ret == -1) {
+    // FIXME : Log msg
+    return false;
+  }
+  return true;
+}
+
+// FIXME : invoking other func
+bool Socket::setExecClose() {
+  int flag = ::fcntl(socket_, F_GETFD, 0);
+  flag |= FD_CLOEXEC;
+  int ret = ::fcntl(socket_, F_SETFD, flag);
+  if (ret == -1) {
+    // FIXME : Log msg
+    return false;
+  }
+  return true;
+}
+
+bool Socket::bind(const NetAddress& addr) {
+    int ret = ::bind(socket_, addr.addrPtr(), addr.addrLen());
+    if (ret == -1) {
+      LOG_ERROR(std::string("ERROR bind :") + ::strerror(errno));
+      return false;
     }
-  }
-  return socket;
+    return true;
 }
 
+bool Socket::listen(int backlog) {
+    int ret = ::listen(socket_, backlog);
+    if (ret == -1) {
+      LOG_SYSERR(::strerror(errno));
+      return false;
+    }
+    return true;
+}
+
+bool Socket::connect(const NetAddress& addr) {
+  int ret = ::connect(socket_, addr.addrPtr(), addr.addrLen());
+  if (ret == -1) {
+    LOG_DEBUG(std::string("connect ") + ::strerror(errno));
+    return false;
+  }
+  return true;
+}
+
+Socket_t Socket::accept(NetAddress& addr, bool noblockingexec) {
+    socklen_t len = addr.addrLen();
+    Socket_t ret = ::accept(socket_, addr.addrPtr(), &len);
+    if(ret == -1) {
+      LOG_ERROR(std::string("ERROR accept :") + ::strerror(errno));
+      return ret;
+    }
+    if (!noblockingexec) {
+      return ret;
+    }
+    if (SetNoBlockingOrExec(ret) == false) {
+      LOG_ERROR(std::string("ERROR SetNoBlockingOrExec :") + ::strerror(errno));
+      return ret;
+    }
+    return ret;
+}
+
+void Socket::close() {
+  ::close(socket_);
+  state_ = Socket::STATE::CLOSED;
+}
+
+Socket::~Socket() {
+  LOG_TRACE("socket close!");
+  //Don't close socket_.
+}
 
 bool SetNoBlockingOrExec(Socket_t sd) {
   int flag = ::fcntl(sd, F_GETFL);
@@ -41,61 +114,6 @@ bool SetNoBlockingOrExec(Socket_t sd) {
     return false;
   }
   return true;
-}
-
-bool SocketBind(Socket_t socket, NetAddress& addr) {
-  int ret = ::bind(socket, (const struct sockaddr *)&addr.addr(), addr.addrLen());
-  if (ret == -1) {
-    LOG_ERROR(std::string("ERROR bind :") + ::strerror(errno));
-    return false;
-  }
-  return true;
-}
-
-bool SocketListen(Socket_t socket, int backlog) {
-  int ret = ::listen(socket, backlog);
-  if (ret == -1) {
-    LOG_SYSERR(::strerror(errno));
-    return false;
-  }
-  return true;
-}
-
-Socket_t SocketAccept(Socket_t socket, struct sockaddr* addr, socklen_t* addrlen) {
-  int ret = ::accept(socket, addr, addrlen);
-  if(ret == -1) {
-    LOG_ERROR(std::string("ERROR accept :") + ::strerror(errno));
-    return ret;
-  }
-  if (SetNoBlockingOrExec(ret) == false) {
-    LOG_ERROR(std::string("ERROR SetNoBlockingOrExec :") + ::strerror(errno));
-    return ret;
-  }
-  return ret;
-}
-
-ssize_t ReadSocket(Socket_t sockfd, void *buf, size_t count) {
-  return ::read(sockfd, buf, count);
-}
-
-ssize_t ReadvSocket(Socket_t sockfd, const struct iovec *iov, int iovcnt) {
-  return ::readv(sockfd, iov, iovcnt);
-}
-
-ssize_t WriteSocket(Socket_t sockfd, const void *buf, size_t count) {
-  return ::write(sockfd, buf, count);
-}
-
-void CloseSocket(Socket_t sockfd) {
-  if (::close(sockfd) < 0) {
-    LOG_ERROR(::strerror(errno));
-  }
-}
-
-void ShutdownWrite(Socket_t sockfd) {
-  if (::shutdown(sockfd, SHUT_WR) < 0) {
-    LOG_ERROR(::strerror(errno));
-  }
 }
 
 

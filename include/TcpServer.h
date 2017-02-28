@@ -22,16 +22,19 @@ public:
 
   EventLoop* getLoop() const;
 
+  TcpConnShreadPtr getConn(map_conn_key_t key) const;
+  TcpConnShreadPtr getConn(map_conn_key_t key);
+
   bool start();
 
   void handleReadEvent(Events event, Timestamp time);
 
   void setMessageCallback(const MessageCallback& cb);
 
-  void removeConnection(TcpConnShreadPtr conn);
-  void removeConnectionInLoop(TcpConnShreadPtr conn);
+  void removeConnection(map_conn_key_t conn);
+  void removeConnectionInLoop(map_conn_key_t conn);
 private:
-  Socket_t server_;
+  Socket server_;
   EventLoop *loop_;
   Events events_;
   Handle *handle_;
@@ -42,10 +45,5 @@ private:
 
   MessageCallback messageCb_;
 };
-
-template<typename T>
-std::shared_ptr<T> getSharedPtr(T *ptr) {
-  return std::shared_ptr<T>(ptr);
-}
 
 #endif // FAS_TCPSERVER_H

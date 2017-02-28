@@ -119,8 +119,7 @@ bool Handle::defaultCheckClose(const Events& event) {
 
 
 Handle::~Handle() {
-  state_ = STATE_DEL;
-  ::close(fd());
+  assert(state_ == STATE_DEL);
   // FIXME : use Log
   std::cout << "handle Destroyed!" << std::endl;
 }
