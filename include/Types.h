@@ -29,7 +29,7 @@ typedef int map_conn_key_t;
 
 typedef boost::function<void (map_conn_key_t)> CloseCallback;
 // the data has been read to (buf, len)
-typedef boost::function<void (const TcpConnection *,
+typedef boost::function<void (TcpConnection *,
                               Buffer*,
                               Timestamp)> MessageCallback;
 typedef boost::function<bool (const Events&)> EventCheckFunc;

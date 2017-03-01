@@ -234,11 +234,9 @@ ssize_t Buffer::readFd(int fd, int* savedErrno) {
   const ssize_t n = ::readv(fd, vec, 2);
   if (n < 0) {
     *savedErrno = errno;
-  }
-  else if (boost::implicit_cast<size_t>(n) <= writable) {
+  } else if (boost::implicit_cast<size_t>(n) <= writable) {
     writerIndex_ += n;
-  }
-  else {
+  } else {
     writerIndex_ = buffer_.size();
     append(extrabuf, n - writable);
   }
@@ -257,8 +255,7 @@ void Buffer::makeSpace(size_t len) {    //
   if (writableBytes() + prependableBytes() < len + kCheapPrepend) {
     // FIXME: move readable data
     buffer_.resize(writerIndex_+len);
-  }
-  else {
+  } else {
     // move readable data to the front, make space inside buffer
     assert(kCheapPrepend < readerIndex_);
     size_t readable = readableBytes();

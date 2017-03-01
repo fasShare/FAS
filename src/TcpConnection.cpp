@@ -13,11 +13,12 @@
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
 
-void TcpConnMessageCallback(const TcpConnection *conn, Buffer *buffer, \
+void TcpConnMessageCallback(TcpConnection *conn, Buffer *buffer, \
                             Timestamp time) {
   std::cout << time.toFormattedString() << " from socket : " \
             << conn->getConnfd() <<" recv : " \
-            << buffer->retrieveAllAsString() << std::endl;
+            << buffer->peek() << std::endl;
+  conn->sendString(buffer->retrieveAllAsString());
 }
 
 TcpConnection::TcpConnection(EventLoop *loop,
@@ -25,7 +26,8 @@ TcpConnection::TcpConnection(EventLoop *loop,
   loop_(loop),
   event_(event),
   handle_(NULL),
-  buffer_(new Buffer()),
+  readBuffer_(new Buffer()),
+  writeBuffer_(new Buffer()),
   connfd_(event.getFd()),
   closeing_(false) {
   assert(loop_ != NULL);
@@ -65,31 +67,62 @@ void TcpConnection::setOnCloseCallBack(const CloseCallback& cb) {
   closeCb_ = cb;
 }
 
+size_t TcpConnection::sendString(const std::string& msg) {
+  handle_->enableWrite();
+  loop_->modHandle(handle_);
+  writeBuffer_->append(msg.c_str(), msg.size());
+  return 0;
+}
+
 void TcpConnection::handleRead(Events revents,
                                       Timestamp time) {
   boost::ignore_unused(time);
   loop_->assertInOwnerThread();
   assert(revents.getFd() == connfd_.getSocket());
   int err = 0;
-  ssize_t ret = buffer_->readFd(revents.getFd(), &err);
+  ssize_t ret = readBuffer_->readFd(revents.getFd(), &err);
   if (ret == 0) {
     if(!closeing_) {
       handleClose(revents, time);
     }
   } else if (ret < 0) {
-    LOG_DEBUG(std::string("buffer_.readFd return ") + ::strerror(err));
+    LOG_DEBUG(std::string("readBuffer_.readFd return ") + ::strerror(err));
   } else {
     if (messageCb_) {
       // FIXME : replace this with share_ptr
-      messageCb_(this, buffer_, time);
+      messageCb_(this, readBuffer_, time);
     }
   }
 }
 
-void TcpConnection::handleWrite(Events revents,
-                                       Timestamp time) {
+void TcpConnection::handleWrite(Events revents, Timestamp time) {
+  LOG_TRACE("TcpConnection::handleWrite");
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
+
+  Socket_t writeSd = connfd_.getSocket();
+  int readablesizes = writeBuffer_->readableBytes();
+reWrite:
+  int ret = ::write(writeSd, writeBuffer_->peek(), readablesizes);
+  if (ret < 0) {
+    if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+      return;
+    } else if (errno == EINTR) {
+      goto reWrite;
+    }
+    LOG_SYSERR(std::string("handleWrite error") + ::strerror(errno));
+  } else if (ret == 0) {
+    if(!closeing_) {
+      handleClose(revents, time);
+    }
+  } else {
+    readablesizes -= ret;
+    writeBuffer_->retrieve(ret);
+    if (readablesizes == 0) {
+      handle_->disableWrite();
+      loop_->modHandle(handle_);
+    }
+  }
 }
 
 void TcpConnection::handleError(Events revents,
@@ -111,5 +144,5 @@ void TcpConnection::handleClose(Events revents, Timestamp time) {
 TcpConnection::~TcpConnection() {
   LOG_TRACE("TcpConnection destroy!");
   connfd_.close();
-  delete buffer_;
+  delete readBuffer_;
 }

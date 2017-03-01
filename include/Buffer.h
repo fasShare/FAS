@@ -26,7 +26,7 @@ using std::string;
 class Buffer : boost::noncopyable {
 public:
   static const size_t kCheapPrepend = 8;
-  static const size_t kInitialSize = 1024;
+  static const size_t kInitialSize = 100;
 
   Buffer();
 

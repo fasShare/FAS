@@ -48,7 +48,8 @@ int main() {
     heap.restartIntervalTimer(expiredList);
 
     for (auto iter = expiredList.begin(); iter != expiredList.end(); iter++) {
-      iter->second->run();
+      if (iter->second != nullptr)
+        iter->second->run();
     }
 
     assert(heap.getTimerNum() == 6);

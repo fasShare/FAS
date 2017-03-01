@@ -1,6 +1,6 @@
 #include <Events.h>
 
-Events::Events(int fd, uint32_t events) :
+Events::Events(const int fd, uint32_t events) :
   fd_(fd),
   events_(events) {
 }
@@ -22,7 +22,15 @@ uint32_t Events::getEvents() const{
 }
 
 void Events::updateEvents(uint32_t events) {
-  this->events_ = events;
+  events_ = events;
+}
+
+void Events::addEvent(uint32_t event) {
+  events_ |= event;
+}
+
+void Events::deleteEvent(uint32_t event) {
+  events_ &= ~event;
 }
 
 bool Events::containsEvents(uint32_t events) const {

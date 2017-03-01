@@ -41,10 +41,7 @@ public:
 
   bool isInLoopOwnerThread();
   //判断当前loop是否在拥有它的线程中。
-  void assertInOwnerThread();
-
-  void wakeUp();
-  void handWakeUp(Events event, Timestamp time);
+  void assertInOwnerThread();  
 
   /// Runs callback immediately in the loop thread.
   /// It wakes up the loop, and run the cb.
@@ -56,14 +53,17 @@ public:
   /// Safe to call from other threads.
   void queueInLoop(const Functor& cb);
 
-  void runFunctors();
-
   void quit();
+
+  void wakeUp();
 
   bool loop();
 private:
   bool updateHandle(SHandlePtr handle);
   bool updateHandles();
+  void runFunctors();
+
+  void handWakeUp(Events event, Timestamp time);
 
   static const int kInitMaxHandle_ = 10;
   static int count_;

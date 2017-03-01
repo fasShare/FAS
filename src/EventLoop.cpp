@@ -236,5 +236,10 @@ bool EventLoop::loop() {
 }
 
 EventLoop::~EventLoop() {
+  delete wakeUpHandle_;
+  wakeUpHandle_ = nullptr;
+  ::close(wakeUpFd_);
+  delete timerScheduler_;
+  timerScheduler_ = nullptr;
 }
 

@@ -10,9 +10,9 @@
 #include <boost/bind.hpp>
 
 Handle::Handle(EventLoop* loop,
-               Events event) :
+               Events events) :
   loop_(loop),
-  event_(new Events(event)),
+  events_(new Events(events)),
   state_(STATE_NEW) {
   checkRead_ = boost::bind(&Handle::defaultCheckRead, this, _1);
   checkWrite_ = boost::bind(&Handle::defaultCheckWrite, this, _1);
@@ -26,14 +26,28 @@ EventLoop* Handle::getLoop() {
 }
 
 int Handle::fd() const {
-  return event_->getFd();
+  return events_->getFd();
 }
 
 Events* Handle::getEvent() const {
-  return event_;
+  return events_;
 }
 
+void Handle::enableWrite() {
+  events_->addEvent(kWriteEvent);
+}
 
+void Handle::disableWrite() {
+  events_->deleteEvent(kWriteEvent);
+}
+
+void Handle::enableRead() {
+  events_->addEvent(kReadEvent);
+}
+
+void Handle::disableRead() {
+  events_->deleteEvent(kReadEvent);
+}
 
 void Handle::setHandleRead(const events_handle_t& handle_read) {
   handle_read_event_ = handle_read;

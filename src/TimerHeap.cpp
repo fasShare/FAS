@@ -46,6 +46,7 @@ void TimerHeap::restartIntervalTimer(std::vector<std::pair<Timestamp, Timer*>>& 
     } else {
       iter->second->setState(Timer::STATE::DELETED);
       delete iter->second;
+      iter->second = nullptr;
     }
   } // for
   earlistChange_ = earlistChangeTemp;
@@ -87,4 +88,5 @@ void TimerHeap::delTimer(Timer *timer) {
   }
 
   delete timer;
+  timer = nullptr;
 }

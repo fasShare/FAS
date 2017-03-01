@@ -28,6 +28,8 @@ public:
   void setOnMessageCallBack(const MessageCallback& cb);
   void setOnCloseCallBack(const CloseCallback& cb);
 
+  size_t sendString(const std::string& msg);
+
   void handleRead(Events revents, Timestamp time);
   void handleWrite(Events revents, Timestamp time);
   void handleError(Events revents, Timestamp time);
@@ -37,7 +39,8 @@ private:
   EventLoop *loop_;
   Events event_;
   Handle *handle_;
-  Buffer *buffer_;
+  Buffer *readBuffer_;
+  Buffer *writeBuffer_;
   Socket connfd_;
   NetAddress peerAddr_;
   bool closeing_;
@@ -45,7 +48,7 @@ private:
   MessageCallback messageCb_;
 };
 
-void TcpConnMessageCallback(const TcpConnection *conn,
+void TcpConnMessageCallback(TcpConnection *conn,
                             Buffer *buffer,
                             Timestamp time);
 

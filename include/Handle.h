@@ -31,6 +31,11 @@ public:
   Events* getEvent() const;
   void updateEvent(Events& event);
 
+  void enableWrite();
+  void disableWrite();
+  void enableRead();
+  void disableRead();
+
   void setState(uchar state);
   uchar getState();
 
@@ -52,7 +57,7 @@ public:
   void handleEvent(Events, Timestamp);
 private:
   EventLoop *loop_;
-  Events *event_;
+  Events *events_;
   uint state_;
 
   EventCheckFunc checkRead_;

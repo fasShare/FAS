@@ -20,7 +20,7 @@ const events_t kWriteEvent = POLLOUT;
 
 class Events {
 public:
-  Events(int fd, uint32_t events);
+  Events(const int fd, uint32_t events);
   Events(const Events& events);
   Events(const EpollEvent& events);
    ~Events();
@@ -28,6 +28,9 @@ public:
   int getFd() const;
   uint32_t getEvents() const;
   void updateEvents(uint32_t events);
+
+  void addEvent(uint32_t event);
+  void deleteEvent(uint32_t event);
 
   bool containsEvents(uint32_t events) const;
   bool containsAtLeastOneEvents(uint32_t events) const;
