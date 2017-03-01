@@ -10,6 +10,10 @@
 
 class NetAddress;
 
+/*!
+ * \brief The Socket class
+ * Encapsulation of socket, listen, bind, fcntl(O_NONBLOCK, FD_CLOEXEC), accept, close.
+ */
 class Socket {
 public:
   enum STATE {

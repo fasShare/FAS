@@ -16,7 +16,6 @@ void Condition::wait() {
   ::pthread_cond_wait(&cond_, mutex_.getMutex());
 }
 
-// returns true if time out, false otherwise.
 bool Condition::waitForSeconds(int seconds) {
   struct timespec abstime;
   ::clock_gettime(CLOCK_REALTIME, &abstime);

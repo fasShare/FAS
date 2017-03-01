@@ -45,7 +45,7 @@ struct itimerspec TimersScheduler::calculateTimerfdNewValue(Timestamp earlist) {
   if (microseconds < 100) {
     microseconds = 100;
   }
-/**
+/*!
  * The it_interval field returns the interval of the timer.
  * If both fields of this structure are zero,
  * then the timer is set to expire just once,
@@ -127,4 +127,13 @@ void TimersScheduler::handdleRead(Events events, Timestamp time) {
     resetTimer(timerheap_.getEarlistExpiration());
   }
   expired_.clear();
+}
+
+TimersScheduler::~TimersScheduler() {
+  for (auto iter = expired_.begin(); iter != expired_.end(); ++iter) {
+    if (iter->second != nullptr) {
+      delete iter->second;
+      iter->second = nullptr;
+    }
+  }
 }

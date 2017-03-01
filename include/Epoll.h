@@ -12,10 +12,10 @@
 class Poller;
 class Events;
 
-/**
-*EPOLLIN, EPOLLOUT, EPOLLRDHUP, EPOLLPRI, EPOLLERR, EPOLLHUP, EPOLLET
-*/
-
+/*!
+ * \brief The Epoll class
+ * Encapsulation of epoll_ctl, epoll_create, epoll_wait
+ */
 class Epoll : boost::noncopyable {
 public:
   Epoll();

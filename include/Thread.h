@@ -8,7 +8,10 @@
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 
-
+/*!
+ * \brief The Thread class
+ * Encapsulation of pthread_create, pthread_join
+ */
 class Thread : boost::noncopyable {
 public:
   Thread();
@@ -17,10 +20,24 @@ public:
   Thread(boost::function<void ()> threadFunc, const std::string name);
 
   bool setThreadFunc(boost::function<void ()> threadFunc);
-
+  /*!
+   * \brief join
+   * \return bool
+   * pthread_join
+   */
   bool join();
+  /*!
+   * \brief MainThread
+   * \return bool
+   * judge this thread if
+   */
   bool MainThread();
 
+  /*!
+   * \brief start
+   * \return bool
+   * pthread_create(thread_func)
+   */
   bool start();
 
   std::string getName();
@@ -32,10 +49,10 @@ private:
   friend void* run(void *);
   void ThreadFunc();
 
-  pid_t tid_;
-  pthread_t threadId_;
-  std::string name_;
-  boost::function<void ()> threadFunc_;
+
+  pthread_t threadId_;       /*!< Id of the thread */
+  std::string name_;         /*!< Name of the thread */
+  boost::function<void ()> threadFunc_;  /*!< Thread function */
 };
 
 void* run(void *);

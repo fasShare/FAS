@@ -68,7 +68,9 @@ bool EventLoop::addHandle(HandlePtr handle) {
 
 //FIXME : mod by fd
 bool EventLoop::modHandle(HandlePtr handle) {
-    assert(handles_.find(handle->fd()) != handles_.end());
+    if (handles_.find(handle->fd()) == handles_.end()) {
+      return false;
+    }
     SHandlePtr mod = handles_.find(handle->fd())->second;
     mod->setState(Handle::state::STATE_MOD);
     return updateHandle(mod);
@@ -76,7 +78,9 @@ bool EventLoop::modHandle(HandlePtr handle) {
 
 // FIXME : del by fd
 bool EventLoop::delHandle(HandlePtr handle) {
-  assert(handles_.find(handle->fd()) != handles_.end());
+  if (handles_.find(handle->fd()) == handles_.end()) {
+    return false;
+  }
   SHandlePtr del = handles_.find(handle->fd())->second;
   del->setState(Handle::state::STATE_DEL);
   return updateHandle(del);

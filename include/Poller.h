@@ -12,6 +12,11 @@
 class Events;
 class Epoll;
 
+/*!
+ * \brief The Poller class
+ * The Poller class difine the common interface between EventLoop and Epoll or Poll class
+ * use those interface, we can add, del and mol IO events wait on epoll or poll.
+ */
 class Poller : boost::noncopyable {
 public:
   Poller();

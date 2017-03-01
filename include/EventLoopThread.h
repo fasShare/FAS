@@ -11,7 +11,12 @@
 #include <boost/noncopyable.hpp>
 
 class EventLoop;
-
+/*!
+ * \brief The EventLoopThread class
+ * \see The Thread class
+ * one Thread own one EventLoop.
+ * The EventLoop object loop_'s funtion loop will be call in Thread function.
+ */
 class EventLoopThread : boost::noncopyable {
 public:
     EventLoopThread();

@@ -12,6 +12,12 @@ class EventLoop;
 class Events;
 class Timestamp;
 
+/*!
+ * \brief The Handle class
+ * Events's callback and Events was established relationship by handle.
+ * If the events occur. the callback of events will be called.
+ * The callbacks was seted by the user of Handle and Events.
+ */
 class Handle {
 public:
   enum state {

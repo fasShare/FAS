@@ -15,10 +15,12 @@
 
 void TcpConnMessageCallback(TcpConnection *conn, Buffer *buffer, \
                             Timestamp time) {
+
+  std::string str(buffer->retrieveAllAsString());
   std::cout << time.toFormattedString() << " from socket : " \
             << conn->getConnfd() <<" recv : " \
-            << buffer->peek() << std::endl;
-  conn->sendString(buffer->retrieveAllAsString());
+            << str;
+  conn->sendString(str);
 }
 
 TcpConnection::TcpConnection(EventLoop *loop,
@@ -68,6 +70,7 @@ void TcpConnection::setOnCloseCallBack(const CloseCallback& cb) {
 }
 
 size_t TcpConnection::sendString(const std::string& msg) {
+  LOG_TRACE("sendString");
   handle_->enableWrite();
   loop_->modHandle(handle_);
   writeBuffer_->append(msg.c_str(), msg.size());

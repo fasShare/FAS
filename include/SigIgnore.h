@@ -1,6 +1,11 @@
 #ifndef FAS_SIGIGNORE
 #define FAS_SIGIGNORE
 
+/*!
+ * \brief The SigIgnore class
+ * We can define a global SigIgnore variable to ignore the signal.
+ * see ::signal(SIGPIPE, SIG_IGN) in SigIgnore ctor.
+ */
 class SigIgnore {
 public:
   SigIgnore();

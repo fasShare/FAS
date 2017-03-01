@@ -58,9 +58,6 @@ const char* Buffer::findCRLF(const char* start) const {
   return crlf == beginWrite() ? NULL : crlf;
 }
 
-// retrieve returns void, to prevent
-// string str(retrieve(readableBytes()), readableBytes());
-// the evaluation of two functions are unspecified
 void Buffer::retrieve(size_t len) {
   assert(len <= readableBytes());
   if (len < readableBytes()) {
@@ -135,9 +132,6 @@ void Buffer::hasWritten(size_t len) {
   writerIndex_ += len;
 }
 
-///
-/// Append int32_t using network endian
-///
 void Buffer::appendInt32(int32_t x) {
   int32_t be32 = sockets::hostToNetwork32(x);
   append(&be32, sizeof be32);
@@ -152,10 +146,6 @@ void Buffer::appendInt8(int8_t x) {
   append(&x, sizeof x);
 }
 
-///
-/// Read int32_t from network endian
-///
-/// Require: buf->readableBytes() >= sizeof(int32_t)
 int32_t Buffer::readInt32() {
   int32_t result = peekInt32();
   retrieveInt32();
@@ -174,10 +164,6 @@ int8_t Buffer::readInt8() {
   return result;
 }
 
-///
-/// Peek int32_t from network endian
-///
-/// Require: buf->readableBytes() >= sizeof(int32_t)
 int32_t Buffer::peekInt32() const {
   assert(readableBytes() >= sizeof(int32_t));
   int32_t be32 = 0;
@@ -198,9 +184,6 @@ int8_t Buffer::peekInt8() const {
   return x;
 }
 
-///
-/// Prepend int32_t using network endian
-///
 void Buffer::prependInt32(int32_t x) {
   int32_t be32 = sockets::hostToNetwork32(x);
   prepend(&be32, sizeof be32);

@@ -10,7 +10,10 @@
 #include <boost/scoped_ptr.hpp>
 
 class EventLoop;
-
+/*!
+ * \brief The EventLoopThreadPool class
+ * ThreadPool of EventLoopThread.
+ */
 class EventLoopThreadPool : boost::noncopyable {
 public:
     EventLoopThreadPool(EventLoop *baseloop, int threadNum);

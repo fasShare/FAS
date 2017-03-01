@@ -12,6 +12,17 @@
 
 bool defaultLogOutput(const char* data, int len);
 
+/*!
+ * \brief The Log class
+ * Output the log of our pragram.
+ * The Log class consist of six levels fllowing:
+ * LogLevel::TRACE,
+ * LogLevel::DEBUG
+ * LogLevel::INFO
+ * LogLevel::WARN
+ * LogLevel::ERROR
+ * LogLevel::FATAL
+ */
 class Log{
 private:
   typedef boost::function<bool (const char* data, int len)> default_output_t;

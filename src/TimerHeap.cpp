@@ -90,3 +90,15 @@ void TimerHeap::delTimer(Timer *timer) {
   delete timer;
   timer = nullptr;
 }
+
+TimerHeap::~TimerHeap() {
+  std::vector<std::pair<Timestamp, Timer *>> destroy;
+  std::copy(timers_.begin(), timers_.end(), std::back_inserter(destroy));
+  timers_.clear();
+  for (auto iter = destroy.begin(); iter != destroy.end(); ++iter) {
+    if (iter->second != nullptr) {
+      delete iter->second;
+      iter->second = nullptr;
+    }
+  }
+}

@@ -4,7 +4,10 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 
-
+/*!
+ * \brief The NetAddress class
+ * Encapsulation of struct sockaddr_in
+ */
 class NetAddress {
 public:
   NetAddress(ushort sa_family, int sa_port, const char *sa_ip);

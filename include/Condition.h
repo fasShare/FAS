@@ -6,7 +6,10 @@
 #include <boost/noncopyable.hpp>
 
 class Mutex;
-
+/*!
+ * \brief The Condition class
+ * Encapsulation of pthread_cond_wait, pthread_cond_signal, pthread_cond_broadcast
+ */
 class Condition : boost::noncopyable {
 public:
   Condition(Mutex& mutex);
