@@ -49,6 +49,7 @@ std::vector<PollEvent>::iterator Poll::getEventPos(const PollEvent& event) {
 
 Timestamp Poll::pollerLoop(std::vector<Events> &events, int timeout) {
 should_continue:
+  // FIXME : use ppoll
   int ret = ::poll(revents_.data(), revents_.size(), timeout);
   if (ret == -1) {
     if (errno == EINTR) {

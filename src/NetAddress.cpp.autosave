@@ -14,12 +14,12 @@ NetAddress::NetAddress(ushort sa_family,
   family_(sa_family) {
   // FIXME : AF_INET and AF_INET6
   if (family_ == AF_INET) {
-    bzero(&addr_, sizeof(struct sockaddr_in));
+    ::bzero(&addr_, sizeof(struct sockaddr_in));
     addr_.sin_family = family_;
     addr_.sin_port = htobe16(sa_port);
     ::inet_pton(family_, sa_ip, &(addr_.sin_addr));
   } else {
-    bzero(&addr6_, sizeof(struct sockaddr_in6));
+    ::bzero(&addr6_, sizeof(struct sockaddr_in6));
     addr6_.sin6_family = family_;
     addr6_.sin6_port = htobe16(sa_port);
     ::inet_pton(family_, sa_ip, &(addr6_.sin6_addr));
