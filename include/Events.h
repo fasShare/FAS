@@ -26,7 +26,18 @@ class Events {
 public:
   Events(const int fd, uint32_t events);
   Events(const Events& events);
+  /*!
+   * \brief Events
+   * \param events
+   * only used after epoll_wait() return.
+   */
   Events(const EpollEvent& events);
+  /*!
+   * \brief Events
+   * \param events
+   * only used after poll() return.
+   */
+  Events(const PollEvent& events);
    ~Events();
 
   /*!
@@ -75,6 +86,13 @@ public:
    * Translate this Events object into struct epoll_event object which can be used to epoll.
    */
   EpollEvent epollEvents();
+
+  /*!
+   * \brief pollEvents
+   * \return struct epollfd
+   * Translate this Events object into struct epollfd object which can be used to poll.
+   */
+  PollEvent pollEvents();
 
 private:
   int fd_;           /*!< descriptor */

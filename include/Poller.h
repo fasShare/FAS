@@ -11,6 +11,7 @@
 
 class Events;
 class Epoll;
+class Poll;
 
 /*!
  * \brief The Poller class

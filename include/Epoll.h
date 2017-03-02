@@ -20,11 +20,6 @@ class Epoll : boost::noncopyable {
 public:
   Epoll();
   ~Epoll();
-  bool eventCtl(int op, int fd, EpollEvent* event);
-  bool eventAdd(Socket_t fd, EpollEvent* event);
-  bool eventDel(Socket_t fd, EpollEvent* event);
-  bool eventMod(Socket_t fd, EpollEvent* event);
-  int loopWait(EpollEvent* events, int maxevents, int timeout);
 
   bool pollerEventsAdd(Events* events);
   bool pollerEventsMod(Events* events);
@@ -32,6 +27,12 @@ public:
   Timestamp pollerLoop(std::vector<Events> &events, int timeout);
 
 private:
+  bool eventCtl(int op, int fd, EpollEvent* event);
+  bool eventAdd(Socket_t fd, EpollEvent* event);
+  bool eventDel(Socket_t fd, EpollEvent* event);
+  bool eventMod(Socket_t fd, EpollEvent* event);
+  int loopWait(EpollEvent* events, int maxevents, int timeout);
+
   int epoll_fd_;
   std::vector<EpollEvent> revents_;
   int maxNum_;

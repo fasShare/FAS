@@ -79,7 +79,7 @@ bool Epoll::pollerEventsDel(Events* events) {
 Timestamp Epoll::pollerLoop(std::vector<Events> &events, int timeout) {
   int ret = this->loopWait(revents_.data(), maxNum_, timeout);
   for(int i = 0; i < ret; i++) {
-    events.push_back(revents_.data()[i]);
+    events.emplace_back(revents_.data()[i]);
   }
   //no use!
   revents_.clear();

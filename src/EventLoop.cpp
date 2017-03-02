@@ -172,7 +172,8 @@ void EventLoop::queueInLoop(const Functor& cb) {
     MutexLocker lock(mutex_);
     functors_.push_back(cb);
   }
-
+  // if isInLoopOwnerThread() == true, we wake up the Thread is useless.
+  // because the statement of program in this Thread is synchronous.
   if (!isInLoopOwnerThread() || runningFunctors_) {
     wakeUp();
   }
@@ -215,7 +216,7 @@ bool EventLoop::loop() {
     revents_.clear();
 
     //looptime = poll_->loop_(revents_, pollDelayTime_);
-    looptime = poll_->loop_(revents_, 0);
+    looptime = poll_->loop_(revents_, pollDelayTime_);
 
     for(std::vector<Events>::iterator iter = revents_.begin();
         iter != revents_.end(); iter++) {

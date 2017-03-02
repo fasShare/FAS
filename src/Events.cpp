@@ -13,6 +13,11 @@ Events::Events(const EpollEvent& events) :
   Events(events.data.fd, events.events){
 }
 
+Events::Events(const PollEvent& events) :
+ Events(events.fd, events.revents) {
+
+}
+
 int Events::getFd() const{
   return fd_;
 }
@@ -43,8 +48,17 @@ bool Events::containsAtLeastOneEvents(uint32_t events) const {
 
 EpollEvent Events::epollEvents() {
   EpollEvent events;
-  events.data.fd = this->fd_;
-  events.events = this->events_;
+  bzero(&events, sizeof(EpollEvent));
+  events.data.fd = this->getFd();
+  events.events = this->getEvents();
+  return events;
+}
+
+PollEvent Events::pollEvents() {
+  PollEvent events;
+  bzero(&events, sizeof(PollEvent));
+  events.fd = this->getFd();
+  events.events = this->getEvents();
   return events;
 }
 

@@ -134,5 +134,9 @@ bool Handle::defaultCheckClose(const Events& event) {
 
 Handle::~Handle() {
   assert(state_ == STATE_DEL);
+  if (events_ != nullptr) {
+    delete events_;
+    events_ = nullptr;
+  }
   LOGGER_TRACE << "handle Destroyed!" << Log::CLRF;
 }
