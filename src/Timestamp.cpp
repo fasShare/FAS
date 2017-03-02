@@ -76,23 +76,24 @@ bool operator==(Timestamp lhs, Timestamp rhs) {
   return lhs.get_microSecondsSinceEpoch() == rhs.get_microSecondsSinceEpoch();
 }
 
-///
-/// Gets time difference of two timestamps, result in seconds.
-///
-/// @param high, low
-/// @return (high-low) in seconds
-/// @c double has 52-bit precision, enough for one-microseciond
-/// resolution for next 100 years.
+/*!
+ * \brief timeDifference
+ * \param high
+ * \param low
+ * \return (high-low) in seconds
+ * double has 52-bit precision, enough for one-microseciond resolution for next 100 years.
+ */
 double timeDifference(Timestamp high, Timestamp low) {
   int64_t diff = high.get_microSecondsSinceEpoch() - low.get_microSecondsSinceEpoch();
   return static_cast<double>(diff) / Timestamp::kMicroSecondsPerSecond;
 }
 
-///
-/// Add @c seconds to given timestamp.
-///
-/// @return timestamp+seconds as Timestamp
-///
+/*!
+ * \brief addTime
+ * \param timestamp
+ * \param seconds
+ * \return timestamp+seconds as Timestamp
+ */
 Timestamp addTime(Timestamp timestamp, double seconds) {
   int64_t delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);
   return Timestamp(timestamp.get_microSecondsSinceEpoch() + delta);

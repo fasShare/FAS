@@ -59,7 +59,7 @@ bool Socket::bind(const NetAddress& addr) {
 bool Socket::listen(int backlog) {
   int ret = ::listen(socket_, backlog);
   if (ret == -1) {
-    LOG_SYSERR(::strerror(errno));
+    LOGGER_SYSERR << " " << ::strerror(errno) << Log::CLRF;
     return false;
   }
   return true;
@@ -68,7 +68,7 @@ bool Socket::listen(int backlog) {
 bool Socket::connect(const NetAddress& addr) {
   int ret = ::connect(socket_, addr.addrPtr(), addr.addrLen());
   if (ret == -1) {
-  LOG_DEBUG(std::string("connect ") + ::strerror(errno));
+    LOGGER_SYSERR << "connect error : " << ::strerror(errno) << Log::CLRF;
     return false;
   }
     return true;
@@ -78,14 +78,13 @@ Socket_t Socket::accept(NetAddress& addr, bool noblockingexec) {
   socklen_t len = addr.addrLen();
   Socket_t ret = ::accept(socket_, addr.addrPtr(), &len);
   if(ret == -1) {
-    LOG_ERROR(std::string("ERROR accept :") + ::strerror(errno));
+    LOGGER_SYSERR << "accept error : " << ::strerror(errno) << Log::CLRF;
     return ret;
   }
   if (!noblockingexec) {
     return ret;
   }
   if (SetNoBlockingOrExec(ret) == false) {
-    LOG_ERROR(std::string("ERROR SetNoBlockingOrExec :") + ::strerror(errno));
     return ret;
   }
   return ret;
@@ -97,7 +96,7 @@ void Socket::close() {
 }
 
 Socket::~Socket() {
-  LOG_TRACE("socket close!");
+  LOGGER_TRACE << "socket close!" << Log::CLRF;
   //Don't close socket_.
 }
 
@@ -110,7 +109,7 @@ bool SetNoBlockingOrExec(Socket_t sd) {
   nflag |= FD_CLOEXEC;
   ret == -1? ret : (::fcntl(sd, F_SETFD, nflag));
   if (ret == -1) {
-    LOG_SYSERR(std::string("ERROR fcntl :") + ::strerror(errno));
+    LOGGER_SYSERR << "accept error : " << ::strerror(errno) << Log::CLRF;
     return false;
   }
   return true;

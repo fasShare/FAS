@@ -28,8 +28,8 @@ TcpConnection::TcpConnection(EventLoop *loop,
   loop_(loop),
   event_(event),
   handle_(NULL),
-  readBuffer_(new Buffer()),
-  writeBuffer_(new Buffer()),
+  readBuffer_(new Buffer(1024)),
+  writeBuffer_(new Buffer(1024)),
   connfd_(event.getFd()),
   closeing_(false) {
   assert(loop_ != NULL);
@@ -70,7 +70,7 @@ void TcpConnection::setOnCloseCallBack(const CloseCallback& cb) {
 }
 
 size_t TcpConnection::sendString(const std::string& msg) {
-  LOG_TRACE("sendString");
+  LOGGER_TRACE << "sendString" << Log::CLRF;
   handle_->enableWrite();
   loop_->modHandle(handle_);
   writeBuffer_->append(msg.c_str(), msg.size());
@@ -89,7 +89,7 @@ void TcpConnection::handleRead(Events revents,
       handleClose(revents, time);
     }
   } else if (ret < 0) {
-    LOG_DEBUG(std::string("readBuffer_.readFd return ") + ::strerror(err));
+    LOGGER_DEBUG << "readBuffer_.readFd return " << ::strerror(err) << Log::CLRF;
   } else {
     if (messageCb_) {
       // FIXME : replace this with share_ptr
@@ -99,7 +99,7 @@ void TcpConnection::handleRead(Events revents,
 }
 
 void TcpConnection::handleWrite(Events revents, Timestamp time) {
-  LOG_TRACE("TcpConnection::handleWrite");
+  LOGGER_TRACE << "TcpConnection::handleWrite" << Log::CLRF;
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
 
@@ -113,7 +113,7 @@ reWrite:
     } else if (errno == EINTR) {
       goto reWrite;
     }
-    LOG_SYSERR(std::string("handleWrite error") + ::strerror(errno));
+    LOGGER_SYSERR << "TcpConnection::handleWrite error" <<  ::strerror(errno) << Log::CLRF;
   } else if (ret == 0) {
     if(!closeing_) {
       handleClose(revents, time);
@@ -145,7 +145,7 @@ void TcpConnection::handleClose(Events revents, Timestamp time) {
 }
 
 TcpConnection::~TcpConnection() {
-  LOG_TRACE("TcpConnection destroy!");
+  LOGGER_TRACE << "TcpConnection destroy!" << Log::CLRF;
   connfd_.close();
   delete readBuffer_;
 }

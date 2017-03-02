@@ -39,5 +39,5 @@ void Timer::restart(Timestamp now) {
 }
 
 Timer::~Timer() {
-  LOG_TRACE("Destroy one Timer!");
+  LOGGER_TRACE << "Destroy one Timer!" << Log::CLRF;
 }

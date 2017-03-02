@@ -74,7 +74,7 @@ bool TimerHeap::addTimer(Timer *timer) {
 void TimerHeap::delTimer(Timer *timer) {
   TimerHeapIter iter = timers_.find(std::make_pair(timer->getExpiration(), timer));
   if (iter == timers_.end()) {
-    LOG_ERROR("This timer which was deleted not exist.");
+    LOGGER_ERROR << "This timer which was deleted not exist." << Log::CLRF;
     return;
   }
   size_t ret = timers_.erase(std::make_pair(timer->getExpiration(), timer));

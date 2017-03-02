@@ -6,15 +6,18 @@ using std::string;
 
 class Timestamp {
  public:
-  ///
-  /// Timestamp can not used
-  ///
+
+  /*!
+   * \brief Timestamp
+   * Timestamp can not used
+   */
   Timestamp();
 
-  ///
-  /// Constucts a Timestamp at specific time
-  ///
-  /// @param microSecondsSinceEpoch
+  /*!
+   * \brief Timestamp
+   * \param microSecondsSinceEpoch
+   * Constucts a Timestamp at specific time
+   */
   explicit Timestamp(int64_t microSecondsSinceEpoch);
 
   void swap(Timestamp& that);
@@ -29,7 +32,11 @@ class Timestamp {
   int64_t get_microSecondsSinceEpoch() const;
   time_t secondsSinceEpoch() const;
 
-  // Get time of now.
+  /*!
+   * \brief now
+   * \return Timestamp
+   * Get time of now.
+   */
   static Timestamp now();
 
   static const int kMicroSecondsPerSecond = 1000 * 1000;

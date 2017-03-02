@@ -50,7 +50,7 @@ bool TcpServer::start() {
   loop_->addHandle(handle_);
   threadPool_.start();
   // FIXME : use Log
-  std::cout << "Current EventLoop num is " << loop_->getCount() << std::endl;
+  LOGGER_TRACE << "Current EventLoop num is " << loop_->getCount() << Log::CLRF;
   return true;
 }
 
@@ -65,7 +65,7 @@ void TcpServer::handleReadEvent(Events event, Timestamp time) {
   // FIXME : if sd < 0
   if (sd < 0) {
     // FIXME : no safe.
-    LOG_SYSERR("In Tcpserver accepted return an error!");
+    LOGGER_SYSERR << "In Tcpserver accepted return an error!" << Log::CLRF;
     return;
   }
   //conn will be destroy if there are not other shared_ptr

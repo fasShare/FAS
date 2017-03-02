@@ -64,7 +64,7 @@ public:
 private:
   EventLoop *loop_;
   Events *events_;
-  uint state_;
+  uchar state_;
 
   EventCheckFunc checkRead_;
   EventCheckFunc checkWrite_;

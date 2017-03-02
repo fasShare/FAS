@@ -12,15 +12,15 @@
 
 const char Buffer::kCRLF[] = "\r\n";
 const size_t Buffer::kCheapPrepend;
-const size_t Buffer::kInitialSize;
 
-Buffer::Buffer()
-  : buffer_(kCheapPrepend + kInitialSize),
-    readerIndex_(kCheapPrepend),
-    writerIndex_(kCheapPrepend)
+Buffer::Buffer(size_t initialSize) :
+  initialSize_(initialSize),
+  buffer_(kCheapPrepend + initialSize_),
+  readerIndex_(kCheapPrepend),
+  writerIndex_(kCheapPrepend)
 {
   assert(readableBytes() == 0);
-  assert(writableBytes() == kInitialSize);
+  assert(writableBytes() == initialSize_);
   assert(prependableBytes() == kCheapPrepend);
 }
 

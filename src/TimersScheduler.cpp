@@ -24,7 +24,7 @@ TimersScheduler::TimersScheduler(EventLoop *loop) :
   timerCallbackRunning_(false) {
 
   if (timerfd_ ==  -1) {
-    LOG_SYSERR(std::string("timerfd_create error : ") + ::strerror(errno));
+    LOGGER_SYSERR << "timerfd_create error : " << ::strerror(errno) << Log::CLRF;
   }
 
   assert(handle_->getLoop() == loop_);
@@ -55,8 +55,8 @@ struct itimerspec TimersScheduler::calculateTimerfdNewValue(Timestamp earlist) {
   newvalue.it_interval.tv_sec = 0;
   newvalue.it_interval.tv_nsec = 0;
 
-  newvalue.it_value.tv_sec = microseconds / Timestamp::kMicroSecondsPerSecond;
-  newvalue.it_value.tv_nsec = (microseconds % Timestamp::kMicroSecondsPerSecond) * 1000;
+  newvalue.it_value.tv_sec = static_cast<time_t>(microseconds / Timestamp::kMicroSecondsPerSecond);
+  newvalue.it_value.tv_nsec = static_cast<long>((microseconds % Timestamp::kMicroSecondsPerSecond) * 1000);
 
   return newvalue;
 }
@@ -69,7 +69,7 @@ bool TimersScheduler::resetTimer(Timestamp earlist) {
   newvalue = calculateTimerfdNewValue(earlist);
   int ret = ::timerfd_settime(timerfd_, 0, &newvalue, &oldvalue);
   if (ret < 0) {
-    LOG_SYSERR(std::string("timerfd_settime error :") + ::strerror(errno));
+    LOGGER_SYSERR << "timerfd_settime error : " << ::strerror(errno) << Log::CLRF;
     return false;
   }
   return true;

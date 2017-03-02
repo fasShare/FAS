@@ -134,7 +134,7 @@ void EventLoop::wakeUp() {
   ssize_t n = ::write(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one) {
     // FIXME : use Log
-    std::cout << "EventLoop::wakeup() writes " << n << " bytes instead of 8" << std::endl;
+    LOGGER_TRACE << "EventLoop::wakeup() writes " << n << " bytes instead of 8" << Log::CLRF;
   }
 
 }
@@ -145,14 +145,14 @@ void EventLoop::handWakeUp(Events event, Timestamp time) {
   ssize_t n = ::read(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one){
     // FIXME : use Log
-    std::cout << "EventLoop::handleRead() reads " << n << " bytes instead of 8" << std::endl;
+    LOGGER_TRACE << "EventLoop::handleRead() reads " << n << " bytes instead of 8" << Log::CLRF;
   }
 }
 
 int createEventfd() {
   int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
   if (evtfd < 0) {
-    LOG_SYSERR("Failed in eventfd");
+    LOGGER_SYSERR << "Failed in eventfd" << Log::CLRF;
     ::abort();
   }
   return evtfd;
@@ -226,7 +226,7 @@ bool EventLoop::loop() {
       }
       SHandlePtr handle = finditer->second;
       if (handle->getState() != Handle::state::STATE_LOOP) {
-        LOG_DEBUG("After Loop have handle with state STATE_LOOP! it is unnormal!");
+        LOGGER_DEBUG << "After Loop have handle with state STATE_LOOP! it is unnormal!" << Log::CLRF;
         continue;
       }
       //handle revents

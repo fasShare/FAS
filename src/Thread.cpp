@@ -33,7 +33,7 @@ bool Thread::setThreadFunc(boost::function<void ()> threadFunc) {
 bool Thread::join() {
   errno = ::pthread_join(threadId_, NULL);
   if (errno != 0) {
-    LOG_SYSERR(std::string("ERROR pthread_join : ") + ::strerror(errno));
+    LOGGER_SYSERR << "ERROR pthread_join : " <<  ::strerror(errno) << Log::CLRF;
     return false;
   }
   return true;
@@ -46,7 +46,7 @@ bool Thread::MainThread() {
 bool Thread::start() {
   errno = ::pthread_create(&threadId_, NULL, &run, this);
   if (errno != 0) {
-    LOG_SYSERR(std::string("ERROR pthread_create : ") + ::strerror(errno));
+    LOGGER_SYSERR << "ERROR pthread_create : " << ::strerror(errno) << Log::CLRF;
     return false;
   }
   return true;
@@ -60,13 +60,13 @@ void* run(void *obj) {
 
 void Thread::ThreadFunc() {
   if (!this->threadFunc_) {
-    LOG_ERROR("Thread no Function object!");
+    LOGGER_ERROR << "Thread no Function object!" << Log::CLRF;
     return;
   }
   try {
     threadFunc_();
   } catch (const std::exception &ex) {
-    LOG_ERROR(ex.what());
+    LOGGER_ERROR << ex.what() << Log::CLRF;
   }
 }
 

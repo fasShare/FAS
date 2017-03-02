@@ -6,9 +6,11 @@
 #include <sstream>
 
 #include <Types.h>
+#include <Buffer.h>
 
 
 #include <boost/function.hpp>
+#include <boost/implicit_cast.hpp>
 
 bool defaultLogOutput(const char* data, int len);
 
@@ -24,12 +26,9 @@ bool defaultLogOutput(const char* data, int len);
  * LogLevel::FATAL
  */
 class Log{
-private:
-  typedef boost::function<bool (const char* data, int len)> default_output_t;
-  default_output_t output_;
-  std::ostringstream buffer_;
 public:
-  const static char *log_endl;
+  typedef boost::function<bool (const char* data, int len)> default_output_t;
+  const static char *CLRF;
   enum LogLevel {
    TRACE,
    DEBUG,
@@ -40,44 +39,53 @@ public:
    NUM_LOG_LEVELS,
    };
 
-  Log() {
-    output_ = defaultLogOutput;
-  }
+  Log();
+  Log(std::string file, int line);
+  Log(std::string file, int line, Log::LogLevel level);
+  Log(std::string file, int line, Log::LogLevel level, std::string func);
+  Log(std::string file, int line, bool toAbort);
+  ~Log();
 
-  std::ostringstream& getBuffer();
-
-  bool fflush();
+  Log& fflush();
 
   static LogLevel logLevel();
 
-  static void Logger(std::string file, int line);
-  static void Logger(std::string file, int line, LogLevel level);
-  static void Logger(std::string file, int line, LogLevel level, std::string func);
-  static void Logger(std::string file, int line, bool toAbort);
-
-  void logInt(int val);
-  void loguInt(uint val);
-  void logChar(char val);
-  void loguChar(uchar val);
-  void logChars(const char* chars, int len);
-  void logFloat(float val);
-  void logDouble(double val);
-  void logString(const std::string& str);
-
   void setOutput(default_output_t output);
+
+  std::ostringstream& getBuffer();
+
+  Log& LOG();
+private:
+  LogLevel runTimeLevel_;
+  std::string file_;
+  int line_;
+  std::string func_;
+  bool abort_;
+  default_output_t output_;
+  // FIXME : use little buffer.
+  std::ostringstream buffer_;
 };
 
+void Logger(std::string file, int line, bool toAbort, std::string msg);
+void Logger(std::string file, int line, Log::LogLevel level, std::string func, std::string msg);
+void Logger(std::string file, int line, Log::LogLevel level, std::string msg);
+void Logger(std::string file, int line, std::string msg);
 
 template<typename T>
 Log& operator<<(Log& log, T val) {
   log.getBuffer() << val;
-  return log;
+  return log.fflush();
 }
 
-void Logger(std::string file, int line, std::string msg);
-void Logger(std::string file, int line, Log::LogLevel level, std::string msg);
-void Logger(std::string file, int line, Log::LogLevel level, std::string func, std::string msg);
-void Logger(std::string file, int line, bool toAbort, std::string msg);
+#define LOGGER_TRACE  Log(__FILE__, __LINE__, Log::TRACE, __func__).LOG()
+#define LOGGER_DEBUG  Log(__FILE__, __LINE__, Log::DEBUG, __func__).LOG()
+#define LOGGER_INFO   Log(__FILE__, __LINE__).LOG()
+#define LOGGER_WARN Log(__FILE__, __LINE__, Log::WARN).LOG()
+#define LOGGER_ERROR Log(__FILE__, __LINE__, Log::ERROR).LOG()
+#define LOGGER_FATAL Log(__FILE__, __LINE__, Log::FATAL).LOG()
+#define LOGGER_SYSERR Log(__FILE__, __LINE__, false).LOG()
+#define LOGGER_SYSFATAL Log(__FILE__, __LINE__, true).LOG()
+
 
 #define LOG_TRACE(msg) if (Log::logLevel() <= Log::TRACE) \
     Logger(__FILE__, __LINE__, Log::TRACE, __func__, msg)

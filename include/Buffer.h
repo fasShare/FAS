@@ -27,9 +27,8 @@ using std::string;
 class Buffer : boost::noncopyable {
 public:
   static const size_t kCheapPrepend = 8;
-  static const size_t kInitialSize = 100;
 
-  Buffer();
+  Buffer(size_t initialSize_);
 
   /*!
    * \brief swap
@@ -192,6 +191,7 @@ private:
   void makeSpace(size_t len);
 
 private:
+  size_t initialSize_;
   std::vector<char> buffer_;  /*!< data buffer */
   size_t readerIndex_;        /*!< buffer.begin() + readerIndex_ == peek()
                                    writerIndex_ - readerIndex_ == readableBytes()

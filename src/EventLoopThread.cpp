@@ -1,6 +1,7 @@
 #include <EventLoopThread.h>
 #include <EventLoop.h>
 #include <MutexLocker.h>
+#include <Log.h>
 
 
 #include <boost/bind.hpp>
@@ -57,7 +58,7 @@ EventLoopThread::~EventLoopThread() {
 }
 
 void EventLoopThread::threadFunc() {
-  std::cout << "Thread tid :" << gettid() << std::endl;
+  LOGGER_TRACE << "Thread tid :"  << gettid() << Log::CLRF;
   EventLoop loop;
   loop.assertInOwnerThread();
 

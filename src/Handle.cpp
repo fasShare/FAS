@@ -94,7 +94,7 @@ void Handle::handleEvent(Events events, Timestamp time) {
   }
 
   if (events.containsAtLeastOneEvents(POLLNVAL)) {
-    LOG_DEBUG("events contains POLLNVAL!");
+    LOGGER_DEBUG << "events contains POLLNVAL!" << Log::CLRF;
   }
 }
 
@@ -134,6 +134,5 @@ bool Handle::defaultCheckClose(const Events& event) {
 
 Handle::~Handle() {
   assert(state_ == STATE_DEL);
-  // FIXME : use Log
-  std::cout << "handle Destroyed!" << std::endl;
+  LOGGER_TRACE << "handle Destroyed!" << Log::CLRF;
 }
