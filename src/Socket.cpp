@@ -68,10 +68,13 @@ bool Socket::listen(int backlog) {
 bool Socket::connect(const NetAddress& addr) {
   int ret = ::connect(socket_, addr.addrPtr(), addr.addrLen());
   if (ret == -1) {
+    if (errno == EINPROGRESS) {
+      return true;
+    }
     LOGGER_SYSERR << "connect error : " << ::strerror(errno) << Log::CLRF;
     return false;
   }
-    return true;
+  return true;
 }
 
 Socket_t Socket::accept(NetAddress& addr, bool noblockingexec) {

@@ -8,6 +8,7 @@ all:
 	echo $(TEST_BIN)
 	
 	$(CC) TcpServerTest.cpp  -I${FAS_HEADERS} -L${FAS_LIBS} $(cflags) -o $(TEST_BIN)/TcpServerTest $(libs)
+	$(CC) EventHandleClientTest.cpp  -I${FAS_HEADERS} -L${FAS_LIBS} $(cflags) -o $(TEST_BIN)/EventHandleClientTest $(libs)
 	$(CC) LogTest.cpp  -I${FAS_HEADERS} -L${FAS_LIBS} $(cflags) -o $(TEST_BIN)/LogTest $(libs)
 	$(CC) TimerHeapTest.cpp  -I${FAS_HEADERS} -L${FAS_LIBS} $(cflags) -o $(TEST_BIN)/TimerHeapTest $(libs)
 	$(CC) TimersSchedulerTest.cpp  -I${FAS_HEADERS} -L${FAS_LIBS} $(cflags) -o $(TEST_BIN)/TimersSchedulerTest $(libs)

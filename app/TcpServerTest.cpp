@@ -38,7 +38,7 @@ void TcpConnMessageCallback(TcpConnection *conn, Buffer *buffer, \
   std::string str(buffer->retrieveAllAsString());
   std::cout << time.toFormattedString() << " from socket : " \
             << conn->getConnfd() <<" recv : " \
-            << str;
+            << str << endl;
   /*!
    * 在把收到的字符串发回去。FAS框架会先把你发送的消息存储的发送buffer里面，等到套接字可读时发送出去。
    */

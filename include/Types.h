@@ -22,6 +22,7 @@ class TcpConnection;
 class Buffer;
 
 typedef std::shared_ptr<TcpConnection> TcpConnShreadPtr;
+
 typedef boost::function<void (Events, Timestamp)> events_handle_t;
 
 
