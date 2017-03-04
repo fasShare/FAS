@@ -21,6 +21,7 @@ void timer_func(int num) {
   if (num == 1) {
     ++firstCount;
     if (firstCount == 3) {
+      // 定时的内存释放又TimerHeap完成。
       loop->delTimer(timer2);
     }
 
@@ -31,9 +32,23 @@ void timer_func(int num) {
   cout << num << " timer is expired!" << endl;
 }
 
+/*!
+ * 在看这个程序之前可以先测试下TimerHeapTest
+ *
+ * 这个程序演示了怎样把我们的定时器添加到loop中。
+ *
+ * EventLoop 最终还是通过TimersScheduler进行定时器的调度的。
+ */
+
 int main() {
 
   loop = new EventLoop();
+
+  /*!
+   * 在这9个定时当中，只有timer1，timer2会被反复调度，因为Timer的第三个参数为1,
+   * 也就是说在第一次调度完成之后，会在后续每个1秒分别调度Timer1， Timer2，
+   * 不过在timer_func中Timer2被Loop删除，最终只会有Timer以1秒间隔执行。
+   */
 
   timer1 = new Timer(boost::bind(timer_func, 1), addTime(Timestamp::now(), 0.1), 1);
   timer2 = new Timer(boost::bind(timer_func, 2), addTime(Timestamp::now(), 0.2), 1);

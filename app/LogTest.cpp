@@ -2,7 +2,7 @@
 
 
 int main() {
-  Log().LOG() << "shang " << "xiao " << "fei" << Log::CLRF;
+  Log().LOG() << "FAS" << Log::CLRF;
 
   LOGGER_DEBUG << "Debug" << 0 << Log::CLRF;
 
@@ -16,5 +16,7 @@ int main() {
 
   LOGGER_FATAL << "Fatal" << 5 << Log::CLRF;
 
-  LOGGER_SYSERR << "SysFatal" << 6 << Log::CLRF;
+  LOGGER_SYSERR << "SysErr" << 6 << Log::CLRF;
+  // 测试程序会abort
+  LOGGER_SYSFATAL << "SysFatal" << " program will be done." << Log::CLRF;
 }

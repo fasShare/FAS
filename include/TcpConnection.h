@@ -46,9 +46,11 @@ public:
    * \brief sendString
    * \param msg
    * \return size_t
+   * \see sendData
    * send msg to connfd_'s peer socket.
    */
-  size_t sendString(const std::string& msg);
+  void sendString(const std::string& msg);
+  void sendData(const void *data, size_t len);
   /*!
    * \brief handleRead
    * \param revents
@@ -74,17 +76,6 @@ private:
   CloseCallback closeCb_;
   MessageCallback messageCb_;
 };
-
-/*!
- * \brief TcpConnMessageCallback
- * \param conn
- * \param buffer
- * \param time
- * deafult TcpConnection message callback.
- */
-void TcpConnMessageCallback(TcpConnection *conn,
-                            Buffer *buffer,
-                            Timestamp time);
 
 #endif // FAS_TCPCONNECTION_H
 

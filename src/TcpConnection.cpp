@@ -13,16 +13,6 @@
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
 
-void TcpConnMessageCallback(TcpConnection *conn, Buffer *buffer, \
-                            Timestamp time) {
-
-  std::string str(buffer->retrieveAllAsString());
-  std::cout << time.toFormattedString() << " from socket : " \
-            << conn->getConnfd() <<" recv : " \
-            << str;
-  conn->sendString(str);
-}
-
 TcpConnection::TcpConnection(EventLoop *loop,
                             const Events& event) :
   loop_(loop),
@@ -69,12 +59,16 @@ void TcpConnection::setOnCloseCallBack(const CloseCallback& cb) {
   closeCb_ = cb;
 }
 
-size_t TcpConnection::sendString(const std::string& msg) {
-  LOGGER_TRACE << "sendString" << Log::CLRF;
+void TcpConnection::sendString(const std::string& msg) {
   handle_->enableWrite();
   loop_->modHandle(handle_);
   writeBuffer_->append(msg.c_str(), msg.size());
-  return 0;
+}
+
+void TcpConnection::sendData(const void *data, size_t len) {
+  handle_->enableWrite();
+  loop_->modHandle(handle_);
+  writeBuffer_->append(data, len);
 }
 
 void TcpConnection::handleRead(Events revents,

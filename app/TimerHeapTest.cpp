@@ -15,6 +15,10 @@ void timer_func(int num) {
 }
 
 int main() {
+    /*!
+     * 这里是测试定时器操作的准确性
+     * Timer的内存释放由TimerHeap负责。
+     */
     Timer *timer1 = new Timer(boost::bind(timer_func, 1), addTime(Timestamp::now(), 0.1), 1);
     Timer *timer2 = new Timer(boost::bind(timer_func, 2), addTime(Timestamp::now(), 0.2), 1);
     Timer *timer3 = new Timer(boost::bind(timer_func, 3), addTime(Timestamp::now(), 0.3), 0);
@@ -37,13 +41,20 @@ int main() {
     heap.addTimer(timer8);
     heap.addTimer(timer9);
   #if 1
+    /*!
+     *这个在TimersScheduler中也是类似的流程来处理定时器，只是添加了很多安全性检查
+     */
+
+    // 这里用定时5的事件作为超时时间，那么定时器1-5都将超时，
     Timestamp expired = timer5->getExpiration();
     std::vector<std::pair<Timestamp, Timer*>> expiredList;
-
+    // 把超时的定时器存储到（定时器超时列表中）expiredList，
+    // 然后后面在for循环中进行定时器回调函数调用(也就是timer_func)，
+    // 我们只需要修改timer_func，为自己的业务逻辑就能使用定时器，实现我们想要的功能
     heap.getExpiredTimers(expiredList, expired);
 
-    assert(heap.getTimerNum() == 4);
-    assert(expiredList.size() == 5);
+    assert(heap.getTimerNum() == 4);  // timer 6-9 未超时
+    assert(expiredList.size() == 5);  // timer 1-5 超时
 
     heap.restartIntervalTimer(expiredList);
 
@@ -56,6 +67,10 @@ int main() {
   #endif
 
   #if 0
+    /*!
+     * 这里是测试定时器操作的准确性
+     * Timer的内存释放由TimerHeap负责。
+     */
   cout << "---------------------------------------------------------" << endl;
 
     cout << heap.getTimerNum() << endl; // 9
