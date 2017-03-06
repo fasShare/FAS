@@ -4,9 +4,11 @@
 #include <sys/types.h>
 #include <string>
 #include <sstream>
+#include <pthread.h>
 
 #include <Types.h>
 #include <Buffer.h>
+#include <Thread.h>
 
 
 #include <boost/function.hpp>
@@ -77,6 +79,8 @@ Log& operator<<(Log& log, T val) {
   return log.fflush();
 }
 
+extern PthreadSpecificData<Log> ThreadLog;
+
 #define LOGGER_TRACE  Log(__FILE__, __LINE__, Log::TRACE, __func__).LOG()
 #define LOGGER_DEBUG  Log(__FILE__, __LINE__, Log::DEBUG, __func__).LOG()
 #define LOGGER_INFO   Log(__FILE__, __LINE__).LOG()
@@ -98,7 +102,6 @@ Log& operator<<(Log& log, T val) {
 #define LOG_FATAL(msg) Logger(__FILE__, __LINE__, Log::FATAL, msg)
 #define LOG_SYSERR(msg) Logger(__FILE__, __LINE__, false, msg)
 #define LOG_SYSFATAL(msg) Logger(__FILE__, __LINE__, true, msg)
-
 
 #endif // FAS_LOG_H
 

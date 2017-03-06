@@ -55,6 +55,37 @@ private:
   boost::function<void ()> threadFunc_;  /*!< Thread function */
 };
 
+
+/*!
+ * only used in multiple threads environment.
+ */
+template <typename T>
+class PthreadSpecificData {
+public:
+  PthreadSpecificData() {
+    pthread_key_create(&key_, &PthreadSpecificData::KeyDataDestroy);
+  }
+
+  T& Data() {
+    T *ptr = static_cast<T *>(pthread_getspecific(key_));
+    if (ptr == NULL) {
+      ptr = new T();
+      pthread_setspecific(key_, ptr);
+    }
+    assert(ptr != NULL);
+    return *ptr;
+  }
+
+  static void KeyDataDestroy(void *data) {
+    T *ptr =  static_cast<T *>(data);
+    delete ptr;
+  }
+
+private:
+  pthread_key_t key_;
+};
+
+
 void* run(void *);
 #define gettid() (::syscall(SYS_gettid))
 
