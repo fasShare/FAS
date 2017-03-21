@@ -1,24 +1,25 @@
 CURRENT_DIR := $(shell pwd)
-export FAS_HEADERS := $(CURRENT_DIR)/include
-export FAS_LIBS    := $(CURRENT_DIR)/lib
-export TEST_BIN    := $(CURRENT_DIR)/test_bin
+export fas_base := $(CURRENT_DIR)/base
+export fas_test := $(CURRENT_DIR)/test
+export fas_libs    := $(CURRENT_DIR)/lib
+export fas_test_bin    := $(CURRENT_DIR)/test_bin
 
 
 all:
-ifneq ($(FAS_LIBS), $(wildcard $(FAS_LIBS)))
-	mkdir $(FAS_LIBS)
+ifneq ($(fas_libs), $(wildcard $(fas_libs)))
+	mkdir $(fas_libs)
 endif
 
-ifneq ($(TEST_BIN), $(wildcard $(TEST_BIN)))	
-	mkdir $(TEST_BIN)
+ifneq ($(fas_test_bin), $(wildcard $(fas_test_bin)))	
+	mkdir $(fas_test_bin)
 endif
-	make -C src
-	make -C app
+	make -C $(fas_base)
+	make -C $(fas_test)
 
 .PHONY : clean
 clean:
-	make clean -C src
-	make clean -C app
-	rm lib/* -rf
-	rm test_bin/* -rf
+	make clean -C $(fas_base)
+	make clean -C $(fas_test)
+	rm $(fas_libs) -rf
+	rm $(fas_test_bin) -rf
 

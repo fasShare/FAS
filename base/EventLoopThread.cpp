@@ -1,0 +1,74 @@
+#include <EventLoopThread.h>
+#include <EventLoop.h>
+#include <MutexLocker.h>
+#include <Log.h>
+
+
+#include <boost/bind.hpp>
+
+using fas::EventLoopThread;
+
+EventLoopThread::EventLoopThread() :
+    EventLoopThread("EventLoopThread") {
+}
+
+EventLoopThread::EventLoopThread(const std::string& name) :
+  mutex_(),
+  cond_(mutex_),
+  thread_(boost::bind(&EventLoopThread::threadFunc, this), name),
+  loop_(NULL),
+  started_(false) {
+}
+
+bool EventLoopThread::MainThread() {
+  return thread_.MainThread();
+}
+
+fas::EventLoop *EventLoopThread::start() {
+  assert(!started_);
+  thread_.start();
+
+  {
+    fas::MutexLocker lock(mutex_);
+    while (loop_ == NULL){
+      cond_.wait();
+    }
+  }
+
+  started_ = true;
+  return loop_;
+}
+
+bool EventLoopThread::join() {
+  if (started_) {
+    loop_->quit();
+    thread_.join();;
+    started_ = false;
+  }
+  return !started_;
+}
+
+void EventLoopThread::setName(const std::string name) {
+  return thread_.setName(name);
+}
+
+std::string EventLoopThread::getName() {
+  return thread_.getName();
+}
+
+EventLoopThread::~EventLoopThread() {
+}
+
+void EventLoopThread::threadFunc() {
+  LOGGER_TRACE << "Thread tid :"  << gettid() << fas::Log::CLRF;
+  fas::EventLoop loop;
+  loop.assertInOwnerThread();
+
+  {
+    fas::MutexLocker lock(mutex_);
+    loop_ = &loop;
+    cond_.notify();
+  }
+  //or other callback if have.
+  loop_->loop();
+}
