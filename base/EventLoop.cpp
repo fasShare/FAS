@@ -23,7 +23,7 @@
 
 using fas::EventLoop;
 
-int EventLoop::count_ = 0;
+std::atomic<int> EventLoop::count_(0);
 
 EventLoop::EventLoop() :
   poll_(new Poller),
