@@ -8,9 +8,7 @@
 
 #include <boost/implicit_cast.hpp>
 
-using fas::NetAddress;
-
-NetAddress::NetAddress(ushort sa_family,
+fas::NetAddress::NetAddress(ushort sa_family,
                        int sa_port,
                        const char *sa_ip):
   family_(sa_family) {
@@ -28,7 +26,7 @@ NetAddress::NetAddress(ushort sa_family,
   }
 }
 
-struct sockaddr *NetAddress::addrPtr() {
+struct sockaddr *fas::NetAddress::addrPtr() {
   if (family_ == AF_INET) {
     return static_cast<struct sockaddr *>(boost::implicit_cast<void*>(&addr_));
   } else if (family_ == AF_INET6) {
@@ -37,7 +35,7 @@ struct sockaddr *NetAddress::addrPtr() {
   return static_cast<struct sockaddr *>(boost::implicit_cast<void*>(&addr6_));
 }
 
-const struct sockaddr *NetAddress::addrPtr() const {
+const struct sockaddr *fas::NetAddress::addrPtr() const {
   if (family_ == AF_INET) {
     return static_cast<const struct sockaddr *>(boost::implicit_cast<const void*>(&addr_));
   } else if (family_ == AF_INET6) {
@@ -46,7 +44,7 @@ const struct sockaddr *NetAddress::addrPtr() const {
   return static_cast<const struct sockaddr *>(boost::implicit_cast<const void*>(&addr6_));
 }
 
-socklen_t NetAddress::addrLen() const{
+socklen_t fas::NetAddress::addrLen() const{
   if (family_ == AF_INET) {
     return sizeof(addr_);
   } else if (family_ == AF_INET6) {

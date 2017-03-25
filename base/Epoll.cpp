@@ -10,9 +10,7 @@
 #include <Timestamp.h>
 #include <Events.h>
 
-using fas::Epoll;
-
-Epoll::Epoll() :
+fas::Epoll::Epoll() :
   epoll_fd_(-1),
   revents_(),
   maxNum_(20),
@@ -25,7 +23,7 @@ Epoll::Epoll() :
   revents_.resize(maxNum_);
 }
 
-bool Epoll::eventCtl(int op, Socket_t sd, EpollEvent* event) {
+bool fas::Epoll::eventCtl(int op, Socket_t sd, EpollEvent* event) {
   assert(epoll_fd_ != -1);
   int ret = ::epoll_ctl(epoll_fd_, op, sd, event);
   if (ret == -1) {
@@ -36,19 +34,19 @@ bool Epoll::eventCtl(int op, Socket_t sd, EpollEvent* event) {
   }
 }
 
-bool Epoll::eventAdd(Socket_t sd, EpollEvent* event) {
+bool fas::Epoll::eventAdd(Socket_t sd, EpollEvent* event) {
   return eventCtl(EPOLL_CTL_ADD, sd, event);
 }
 
-bool Epoll::eventDel(Socket_t sd, EpollEvent* event) {
+bool fas::Epoll::eventDel(Socket_t sd, EpollEvent* event) {
   return eventCtl(EPOLL_CTL_DEL, sd, event);
 }
 
-bool Epoll::eventMod(Socket_t sd, EpollEvent* event) {
+bool fas::Epoll::eventMod(Socket_t sd, EpollEvent* event) {
   return eventCtl(EPOLL_CTL_MOD, sd, event);
 }
 
-int Epoll::loopWait(EpollEvent* events, int maxevents, int timeout) {
+int fas::Epoll::loopWait(EpollEvent* events, int maxevents, int timeout) {
   //FIXME : The call was interrupted by a signal
 should_continue:
   int ret = ::epoll_wait(epoll_fd_, events, maxevents, timeout);
@@ -62,22 +60,22 @@ should_continue:
   return ret;
 }
 
-bool Epoll::pollerEventsAdd(Events* events) {
+bool fas::Epoll::pollerEventsAdd(Events* events) {
   EpollEvent event = events->epollEvents();
   return this->eventAdd(event.data.fd, &event);
 }
 
-bool Epoll::pollerEventsMod(Events* events) {
+bool fas::Epoll::pollerEventsMod(Events* events) {
   EpollEvent event = events->epollEvents();
   return this->eventMod(event.data.fd, &event);
 }
 
-bool Epoll::pollerEventsDel(Events* events) {
+bool fas::Epoll::pollerEventsDel(Events* events) {
   EpollEvent event = events->epollEvents();
   return this->eventDel(event.data.fd, &event);
 }
 
-fas::Timestamp Epoll::pollerLoop(std::vector<Events> &events, int timeout) {
+fas::Timestamp fas::Epoll::pollerLoop(std::vector<Events> &events, int timeout) {
   int ret = this->loopWait(revents_.data(), maxNum_, timeout);
   for(int i = 0; i < ret; i++) {
     events.emplace_back(revents_.data()[i]);
@@ -91,7 +89,7 @@ fas::Timestamp Epoll::pollerLoop(std::vector<Events> &events, int timeout) {
   return Timestamp::now();
 }
 
-Epoll::~Epoll() {
+fas::Epoll::~Epoll() {
   ::close(epoll_fd_);
 }
 

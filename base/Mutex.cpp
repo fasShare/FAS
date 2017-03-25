@@ -1,23 +1,21 @@
 #include "Mutex.h"
 
-using fas::Mutex;
-
-Mutex::Mutex() {
+fas::Mutex::Mutex() {
   mutex_ = PTHREAD_MUTEX_INITIALIZER;
 }
-Mutex::~Mutex(){
+fas::Mutex::~Mutex(){
   ::pthread_mutex_destroy(&mutex_);
 }
 
-void Mutex::lock(){
+void fas::Mutex::lock(){
   ::pthread_mutex_lock(&mutex_);
 }
 
-void Mutex::unlock(){
+void fas::Mutex::unlock(){
   ::pthread_mutex_unlock(&mutex_);
 }
 
-pthread_mutex_t* Mutex::getMutex() {
+pthread_mutex_t* fas::Mutex::getMutex() {
   return &mutex_;
 }
 

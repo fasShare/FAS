@@ -20,12 +20,9 @@
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
 
+std::atomic<int> fas::EventLoop::count_(0);
 
-using fas::EventLoop;
-
-int EventLoop::count_ = 0;
-
-EventLoop::EventLoop() :
+fas::EventLoop::EventLoop() :
   poll_(new Poller),
   pollDelayTime_(10000),
   revents_(),
@@ -49,11 +46,11 @@ EventLoop::EventLoop() :
   addHandle(wakeUpHandle_);
 }
 
-int EventLoop::getCount() const {
+int fas::EventLoop::getCount() const {
   return count_;
 }
 
-bool EventLoop::updateHandle(SHandlePtr handle) {
+bool fas::EventLoop::updateHandle(SHandlePtr handle) {
   assert(handle->getLoop() == this);
   MutexLocker lock(mutex_);(void)lock;
   //It'll insert() fail when the key is same.
@@ -61,14 +58,14 @@ bool EventLoop::updateHandle(SHandlePtr handle) {
   return true;
 }
 
-bool EventLoop::addHandle(HandlePtr handle) {
+bool fas::EventLoop::addHandle(HandlePtr handle) {
   assert(handle->getState() == Handle::state::STATE_NEW);
   handle->setState(Handle::state::STATE_ADD);
   return updateHandle(std::shared_ptr<Handle>(handle));
 }
 
 //FIXME : mod by fd
-bool EventLoop::modHandle(HandlePtr handle) {
+bool fas::EventLoop::modHandle(HandlePtr handle) {
     if (handles_.find(handle->fd()) == handles_.end()) {
       return false;
     }
@@ -78,7 +75,7 @@ bool EventLoop::modHandle(HandlePtr handle) {
 }
 
 // FIXME : del by fd
-bool EventLoop::delHandle(HandlePtr handle) {
+bool fas::EventLoop::delHandle(HandlePtr handle) {
   if (handles_.find(handle->fd()) == handles_.end()) {
     return false;
   }
@@ -87,17 +84,17 @@ bool EventLoop::delHandle(HandlePtr handle) {
   return updateHandle(del);
 }
 
-void EventLoop::addTimer(Timer *timer) {
+void fas::EventLoop::addTimer(Timer *timer) {
   assertInOwnerThread();
   timerScheduler_->addTimer(timer);
 }
 
-void EventLoop::delTimer(Timer *timer) {
+void fas::EventLoop::delTimer(Timer *timer) {
   assertInOwnerThread();
   timerScheduler_->delTimer(timer);
 }
 
-bool EventLoop::updateHandles() {
+bool fas::EventLoop::updateHandles() {
   MutexLocker lock(mutex_);(void)lock;
   for(auto cur = updates_.begin(); cur != updates_.end(); cur++) {
     SHandlePtr handle = cur->second;
@@ -122,15 +119,15 @@ bool EventLoop::updateHandles() {
   return true;
 }
 
-bool EventLoop::isInLoopOwnerThread() {
+bool fas::EventLoop::isInLoopOwnerThread() {
   return (gettid() == tid_);
 }
 
-void EventLoop::assertInOwnerThread() {
+void fas::EventLoop::assertInOwnerThread() {
   assert(isInLoopOwnerThread());
 }
 
-void EventLoop::wakeUp() {
+void fas::EventLoop::wakeUp() {
   uint64_t one = 1;
   ssize_t n = ::write(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one) {
@@ -140,7 +137,7 @@ void EventLoop::wakeUp() {
 
 }
 
-void EventLoop::handWakeUp(Events event, Timestamp time) {
+void fas::EventLoop::handWakeUp(Events event, Timestamp time) {
   boost::ignore_unused(event, time);
   uint64_t one = 1;
   ssize_t n = ::read(wakeUpFd_, &one, sizeof one);
@@ -160,7 +157,7 @@ int fas::createEventfd() {
 }
 
 
-void EventLoop::runInLoop(const Functor& cb) {
+void fas::EventLoop::runInLoop(const Functor& cb) {
   if (isInLoopOwnerThread()) {
     cb();
   } else {
@@ -168,7 +165,7 @@ void EventLoop::runInLoop(const Functor& cb) {
   }
 }
 
-void EventLoop::queueInLoop(const Functor& cb) {
+void fas::EventLoop::queueInLoop(const Functor& cb) {
   {
     MutexLocker lock(mutex_);
     functors_.push_back(cb);
@@ -180,7 +177,7 @@ void EventLoop::queueInLoop(const Functor& cb) {
   }
 }
 
-void EventLoop::runFunctors() {
+void fas::EventLoop::runFunctors() {
   std::vector<Functor> functors;
   runningFunctors_ = true;
 
@@ -195,7 +192,7 @@ void EventLoop::runFunctors() {
   runningFunctors_ = false;
 }
 
-void EventLoop::quit() {
+void fas::EventLoop::quit() {
   MutexLocker lock(mutex_);
   quit_ = true;
   if(!isInLoopOwnerThread()) {
@@ -204,7 +201,7 @@ void EventLoop::quit() {
   boost::ignore_unused(lock);
 }
 
-bool EventLoop::loop() {
+bool fas::EventLoop::loop() {
   assertInOwnerThread();
   Timestamp looptime;
 
@@ -241,7 +238,7 @@ bool EventLoop::loop() {
   return true;
 }
 
-EventLoop::~EventLoop() {
+fas::EventLoop::~EventLoop() {
   delete wakeUpHandle_;
   wakeUpHandle_ = nullptr;
   ::close(wakeUpFd_);

@@ -4,6 +4,7 @@
 #include <map>
 #include <iostream>
 #include <memory>
+#include <atomic>
 
 #include <Types.h>
 #include <Mutex.h>
@@ -141,7 +142,7 @@ private:
   void handWakeUp(Events event, Timestamp time);
 
   static const int kInitMaxHandle_ = 10;   /*!< EventLoop's handle num can more than kInitMaxHandle_ */
-  static int count_;
+  static std::atomic<int> count_;
   boost::scoped_ptr<Poller> poll_;         /*!< poller shared_ptr will be auto released. */
   int pollDelayTime_;
   std::vector<Events> revents_;            /*!< recv the revents was return by poller. */

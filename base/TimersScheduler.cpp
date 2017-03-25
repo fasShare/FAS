@@ -15,9 +15,7 @@
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
 
-using fas::TimersScheduler;
-
-TimersScheduler::TimersScheduler(EventLoop *loop) :
+fas::TimersScheduler::TimersScheduler(fas::EventLoop *loop) :
   timerfd_(::timerfd_create(CLOCK_MONOTONIC, 0)),
   loop_(loop),
   handle_(new Handle(loop_, Events(timerfd_, kReadEvent))),
@@ -37,11 +35,11 @@ TimersScheduler::TimersScheduler(EventLoop *loop) :
   loop_->addHandle(handle_);
 }
 
-fas::timerfd_t TimersScheduler::getTimerfd() const {
+fas::timerfd_t fas::TimersScheduler::getTimerfd() const {
   return timerfd_;
 }
 
-struct itimerspec TimersScheduler::calculateTimerfdNewValue(fas::Timestamp earlist) {
+struct itimerspec fas::TimersScheduler::calculateTimerfdNewValue(fas::Timestamp earlist) {
   int64_t microseconds =  earlist.get_microSecondsSinceEpoch() - \
                           fas::Timestamp::now().get_microSecondsSinceEpoch();
   if (microseconds < 100) {
@@ -63,7 +61,7 @@ struct itimerspec TimersScheduler::calculateTimerfdNewValue(fas::Timestamp earli
   return newvalue;
 }
 
-bool TimersScheduler::resetTimer(fas::Timestamp earlist) {
+bool fas::TimersScheduler::resetTimer(fas::Timestamp earlist) {
   struct itimerspec newvalue;
   struct itimerspec oldvalue;
   bzero(&newvalue, sizeof(struct itimerspec));
@@ -77,7 +75,7 @@ bool TimersScheduler::resetTimer(fas::Timestamp earlist) {
   return true;
 }
 // If Timer add itself in it's callback. this operator will failed.
-bool TimersScheduler::addTimer(fas::Timer *timer) {
+bool fas::TimersScheduler::addTimer(fas::Timer *timer) {
   loop_->assertInOwnerThread();
   if (timerCallbackRunning_ == true) {
     auto iter = std::find(expired_.begin(), expired_.end(), \
@@ -94,7 +92,7 @@ bool TimersScheduler::addTimer(fas::Timer *timer) {
   return true;
 }
 
-void TimersScheduler::delTimer(fas::Timer *timer) {
+void fas::TimersScheduler::delTimer(fas::Timer *timer) {
   loop_->assertInOwnerThread();
   if (timerCallbackRunning_ == true) {
     auto iter = std::find(expired_.begin(), expired_.end(), \
@@ -111,7 +109,7 @@ void TimersScheduler::delTimer(fas::Timer *timer) {
   }
 }
 
-void TimersScheduler::handdleRead(fas::Events events, fas::Timestamp time) {
+void fas::TimersScheduler::handdleRead(fas::Events events, fas::Timestamp time) {
   loop_->assertInOwnerThread();
   boost::ignore_unused(events, time);
   // now is more accurate than the time of loop wait returned.
@@ -131,7 +129,7 @@ void TimersScheduler::handdleRead(fas::Events events, fas::Timestamp time) {
   expired_.clear();
 }
 
-TimersScheduler::~TimersScheduler() {
+fas::TimersScheduler::~TimersScheduler() {
   for (auto iter = expired_.begin(); iter != expired_.end(); ++iter) {
     if (iter->second != nullptr) {
       delete iter->second;
