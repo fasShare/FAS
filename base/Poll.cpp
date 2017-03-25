@@ -3,15 +3,13 @@
 #include <Events.h>
 #include <Log.h>
 
-using fas::Poll;
+size_t fas::Poll::kMaxPollNum_ = 1024;
 
-size_t Poll::kMaxPollNum_ = 1024;
-
-Poll::Poll() :
+fas::Poll::Poll() :
  revents_() {
 }
 
-bool Poll::pollerEventsAdd(Events* events) {
+bool fas::Poll::pollerEventsAdd(Events* events) {
   assert(events != nullptr);
   if (revents_.size() >= kMaxPollNum_) {
     return false;
@@ -20,7 +18,7 @@ bool Poll::pollerEventsAdd(Events* events) {
   return true;
 }
 
-bool Poll::pollerEventsMod(Events* events) {
+bool fas::Poll::pollerEventsMod(Events* events) {
   assert(events != nullptr);
   auto pos = getEventPos(events->pollEvents());
   if (pos == revents_.end()) {
@@ -30,7 +28,7 @@ bool Poll::pollerEventsMod(Events* events) {
   return true;
 }
 
-bool Poll::pollerEventsDel(Events* events) {
+bool fas::Poll::pollerEventsDel(Events* events) {
   assert(events != nullptr);
   auto pos = getEventPos(events->pollEvents());
   if (pos == revents_.end()) {
@@ -40,7 +38,7 @@ bool Poll::pollerEventsDel(Events* events) {
   return true;
 }
 
-std::vector<fas::PollEvent>::iterator Poll::getEventPos(const fas::PollEvent& event) {
+std::vector<fas::PollEvent>::iterator fas::Poll::getEventPos(const fas::PollEvent& event) {
   for (auto iter = revents_.begin(); iter != revents_.end(); ++iter) {
     if (iter->fd == event.fd) {
       return iter;
@@ -49,7 +47,7 @@ std::vector<fas::PollEvent>::iterator Poll::getEventPos(const fas::PollEvent& ev
   return revents_.end();
 }
 
-fas::Timestamp Poll::pollerLoop(std::vector<fas::Events> &events, int timeout) {
+fas::Timestamp fas::Poll::pollerLoop(std::vector<fas::Events> &events, int timeout) {
 should_continue:
   // FIXME : use ppoll
   int ret = ::poll(revents_.data(), revents_.size(), timeout);

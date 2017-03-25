@@ -6,17 +6,15 @@
 #include <inttypes.h>
 #undef __STDC_FORMAT_MACROS
 
-using fas::Timestamp;
-
-Timestamp::Timestamp() :
+fas::Timestamp::Timestamp() :
   microSecondsSinceEpoch_(0) {
 }
 
-Timestamp::Timestamp(int64_t microseconds) :
+fas::Timestamp::Timestamp(int64_t microseconds) :
     microSecondsSinceEpoch_(microseconds) {
 }
 
-std::string Timestamp::toString() const {
+std::string fas::Timestamp::toString() const {
   char buf[32] = {0};
   int64_t seconds = microSecondsSinceEpoch_ / kMicroSecondsPerSecond;
   int64_t microseconds = microSecondsSinceEpoch_ % kMicroSecondsPerSecond;
@@ -24,7 +22,7 @@ std::string Timestamp::toString() const {
   return buf;
 }
 
-std::string Timestamp::toFormattedString() const {
+std::string fas::Timestamp::toFormattedString() const {
   char buf[32] = {0};
   time_t seconds = static_cast<time_t>(microSecondsSinceEpoch_ / kMicroSecondsPerSecond);
   int microseconds = static_cast<int>(microSecondsSinceEpoch_ % kMicroSecondsPerSecond);
@@ -38,30 +36,30 @@ std::string Timestamp::toFormattedString() const {
   return buf;
 }
 
-Timestamp Timestamp::now() {
+fas::Timestamp fas::Timestamp::now() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   int64_t seconds = tv.tv_sec;
-  return Timestamp(seconds * kMicroSecondsPerSecond + tv.tv_usec);
+  return fas::Timestamp(seconds * kMicroSecondsPerSecond + tv.tv_usec);
 }
 
-Timestamp Timestamp::invalid() {
+fas::Timestamp fas::Timestamp::invalid() {
   return Timestamp();
 }
 
-bool Timestamp::isvalid() const {
+bool fas::Timestamp::isvalid() const {
   return microSecondsSinceEpoch_ > 0;
 }
 
-void Timestamp::swap(Timestamp& that) {
+void fas::Timestamp::swap(Timestamp& that) {
   std::swap(microSecondsSinceEpoch_, that.microSecondsSinceEpoch_);
 }
 
-int64_t Timestamp::get_microSecondsSinceEpoch() const {
+int64_t fas::Timestamp::get_microSecondsSinceEpoch() const {
   return microSecondsSinceEpoch_;
 }
 
-time_t Timestamp::secondsSinceEpoch() const {
+time_t fas::Timestamp::secondsSinceEpoch() const {
   return static_cast<time_t>(microSecondsSinceEpoch_ / kMicroSecondsPerSecond);
 }
 
@@ -95,7 +93,7 @@ double fas::timeDifference(Timestamp high, Timestamp low) {
  * \param seconds
  * \return timestamp+seconds as Timestamp
  */
-Timestamp fas::addTime(Timestamp timestamp, double seconds) {
+fas::Timestamp fas::addTime(Timestamp timestamp, double seconds) {
   int64_t delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);
   return Timestamp(timestamp.get_microSecondsSinceEpoch() + delta);
 }

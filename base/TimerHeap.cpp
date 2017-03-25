@@ -5,27 +5,25 @@
 #include <Timer.h>
 #include <Log.h>
 
-using fas::TimerHeap;
-
-TimerHeap::TimerHeap() :
+fas::TimerHeap::TimerHeap() :
   timers_(),
   earlistExpiration_(nullptr),
   earlistChange_(false) {
 }
 
-uint TimerHeap::getTimerNum() const {
+uint fas::TimerHeap::getTimerNum() const {
   return timers_.size();
 }
 
-bool TimerHeap::getEarlistChange() const {
+bool fas::TimerHeap::getEarlistChange() const {
   return earlistChange_;
 }
 
-fas::Timestamp TimerHeap::getEarlistExpiration() const {
+fas::Timestamp fas::TimerHeap::getEarlistExpiration() const {
   return earlistExpiration_->getExpiration();
 }
 
-void TimerHeap::getExpiredTimers(std::vector<std::pair<fas::Timestamp,
+void fas::TimerHeap::getExpiredTimers(std::vector<std::pair<fas::Timestamp,
                                  fas::Timer*>>& expired,
                                  fas::Timestamp now) {
   auto sentry(std::make_pair(now, reinterpret_cast<fas::Timer*>(UINTPTR_MAX)));
@@ -35,7 +33,7 @@ void TimerHeap::getExpiredTimers(std::vector<std::pair<fas::Timestamp,
   timers_.erase(timers_.begin(), end);
 }
 
-void TimerHeap::restartIntervalTimer(std::vector<std::pair<fas::Timestamp, fas::Timer*>>& expired) {
+void fas::TimerHeap::restartIntervalTimer(std::vector<std::pair<fas::Timestamp, fas::Timer*>>& expired) {
   bool earlistChangeTemp = false;
   for (auto iter = expired.begin(); iter != expired.end(); iter++) {
     if (iter->second->getRepeat() &&
@@ -56,7 +54,7 @@ void TimerHeap::restartIntervalTimer(std::vector<std::pair<fas::Timestamp, fas::
   earlistChange_ = earlistChangeTemp;
 }
 
-bool TimerHeap::addTimer(fas::Timer *timer) {
+bool fas::TimerHeap::addTimer(fas::Timer *timer) {
   assert(timer->getExpiration().isvalid());
   TimerHeapSetRetType ret = timers_.insert(std::make_pair(timer->getExpiration(), timer));
   if (!ret.second) {
@@ -75,7 +73,7 @@ bool TimerHeap::addTimer(fas::Timer *timer) {
   return true;
 }
 
-void TimerHeap::delTimer(fas::Timer *timer) {
+void fas::TimerHeap::delTimer(fas::Timer *timer) {
   TimerHeapIter iter = timers_.find(std::make_pair(timer->getExpiration(), timer));
   if (iter == timers_.end()) {
     LOGGER_ERROR << "This timer which was deleted not exist." << fas::Log::CLRF;
@@ -95,7 +93,7 @@ void TimerHeap::delTimer(fas::Timer *timer) {
   timer = nullptr;
 }
 
-TimerHeap::~TimerHeap() {
+fas::TimerHeap::~TimerHeap() {
   std::vector<std::pair<fas::Timestamp, fas::Timer *>> destroy;
   std::copy(timers_.begin(), timers_.end(), std::back_inserter(destroy));
   timers_.clear();

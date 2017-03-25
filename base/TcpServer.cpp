@@ -14,9 +14,7 @@
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
 
-using fas::TcpServer;
-
-TcpServer::TcpServer(fas::EventLoop* loop,
+fas::TcpServer::TcpServer(fas::EventLoop* loop,
                      const fas::NetAddress& addr) :
   server_(AF_INET, SOCK_STREAM, 0),
   loop_(loop),
@@ -35,19 +33,19 @@ TcpServer::TcpServer(fas::EventLoop* loop,
   server_.listen(listenBacklog_);
 }
 
-fas::EventLoop* TcpServer::getLoop() const{
+fas::EventLoop* fas::TcpServer::getLoop() const{
   assert(loop_ != NULL);
   return loop_;
 }
 
-fas::TcpConnShreadPtr TcpServer::getConn(fas::map_conn_key_t key) const {
+fas::TcpConnShreadPtr fas::TcpServer::getConn(fas::map_conn_key_t key) const {
   return conns_.find(key)->second;
 }
-fas::TcpConnShreadPtr TcpServer::getConn(fas::map_conn_key_t key) {
+fas::TcpConnShreadPtr fas::TcpServer::getConn(fas::map_conn_key_t key) {
   return conns_.find(key)->second;
 }
 
-bool TcpServer::start() {
+bool fas::TcpServer::start() {
   handle_->setHandleRead(boost::bind(&TcpServer::handleReadEvent, this, _1, _2));
   loop_->addHandle(handle_);
   threadPool_.start();
@@ -56,7 +54,7 @@ bool TcpServer::start() {
   return true;
 }
 
-void TcpServer::handleReadEvent(fas::Events event, fas::Timestamp time) {
+void fas::TcpServer::handleReadEvent(fas::Events event, fas::Timestamp time) {
   loop_->assertInOwnerThread();
   boost::ignore_unused(time);
   fas::EventLoop *workloop = threadPool_.getNextEventLoop();
@@ -83,15 +81,15 @@ void TcpServer::handleReadEvent(fas::Events event, fas::Timestamp time) {
   //FIXME : use Log output debug msg.
 }
 
-void TcpServer::setMessageCallback(const fas::MessageCallback& cb) {
+void fas::TcpServer::setMessageCallback(const fas::MessageCallback& cb) {
   messageCb_  = cb;
 }
 
-void TcpServer::removeConnection(fas::map_conn_key_t key) {
+void fas::TcpServer::removeConnection(fas::map_conn_key_t key) {
   loop_->runInLoop(boost::bind(&TcpServer::removeConnectionInLoop, this, key));
 }
 
-void TcpServer::removeConnectionInLoop(fas::map_conn_key_t key) {
+void fas::TcpServer::removeConnectionInLoop(fas::map_conn_key_t key) {
   loop_->assertInOwnerThread();
   //must be have this statement.
   fas::TcpConnShreadPtr conn = conns_.find(key)->second;
@@ -104,6 +102,6 @@ void TcpServer::removeConnectionInLoop(fas::map_conn_key_t key) {
 }
 
 
-TcpServer::~TcpServer() {
+fas::TcpServer::~TcpServer() {
   delete handle_;
 }

@@ -1,9 +1,7 @@
 #include <Timer.h>
 #include <Log.h>
 
-using fas::Timer;
-
-Timer::Timer(const fas::TimerCallback& cb, fas::Timestamp when, double interval) :
+fas::Timer::Timer(const fas::TimerCallback& cb, fas::Timestamp when, double interval) :
   callback_(cb),
   expiration_(when),
   interval_(interval),
@@ -11,27 +9,27 @@ Timer::Timer(const fas::TimerCallback& cb, fas::Timestamp when, double interval)
   state_(Timer::STATE::ADDED) {
 }
 
-void Timer::run() const {
+void fas::Timer::run() const {
   callback_();
 }
 
-fas::Timestamp Timer::getExpiration() const {
+fas::Timestamp fas::Timer::getExpiration() const {
   return expiration_;
 }
 
-bool Timer::getRepeat() const {
+bool fas::Timer::getRepeat() const {
   return repeat_;
 }
 
-Timer::STATE Timer::getState() const {
+fas::Timer::STATE fas::Timer::getState() const {
   return state_;
 }
 
-void Timer::setState(Timer::STATE state) {
+void fas::Timer::setState(Timer::STATE state) {
   state_ = state;
 }
 
-void Timer::restart(fas::Timestamp now) {
+void fas::Timer::restart(fas::Timestamp now) {
   if (repeat_) {
     expiration_ = fas::addTime(now, interval_);
   }
@@ -40,6 +38,6 @@ void Timer::restart(fas::Timestamp now) {
   }
 }
 
-Timer::~Timer() {
+fas::Timer::~Timer() {
   LOGGER_TRACE << "Destroy one Timer!" << fas::Log::CLRF;
 }

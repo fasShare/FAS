@@ -9,9 +9,7 @@
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
 
-using fas::Poller;
-
-Poller::Poller() {
+fas::Poller::Poller() {
   boost::shared_ptr<DEFAULT_POLLER> poll(new DEFAULT_POLLER);
 
   events_add_ = boost::bind(&DEFAULT_POLLER::pollerEventsAdd, poll, _1);

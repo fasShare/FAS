@@ -14,9 +14,7 @@
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
 
-using fas::TcpConnection;
-
-TcpConnection::TcpConnection(EventLoop *loop,
+fas::TcpConnection::TcpConnection(EventLoop *loop,
                             const Events& event) :
   loop_(loop),
   event_(event),
@@ -35,46 +33,46 @@ TcpConnection::TcpConnection(EventLoop *loop,
   handle_->setHandleClose(boost::bind(&TcpConnection::handleClose, this, _1, _2));
 }
 
-fas::EventLoop* TcpConnection::getLoop() {
+fas::EventLoop* fas::TcpConnection::getLoop() {
   return loop_;
 }
 
-fas::Socket_t TcpConnection::getConnfd() const {
+fas::Socket_t fas::TcpConnection::getConnfd() const {
   return connfd_.getSocket();
 }
 
-void TcpConnection::setPeerAddr(const fas::NetAddress& addr) {
+void fas::TcpConnection::setPeerAddr(const fas::NetAddress& addr) {
   peerAddr_ = addr;
 }
 
-void TcpConnection::closeAndClearTcpConnection() {
+void fas::TcpConnection::closeAndClearTcpConnection() {
   //Add this function to QueueInLoop can ensure handle_ destroy before TcpConnection
   loop_->assertInOwnerThread();
   assert(closeing_);
   // FIXME : Other clear.
 }
 
-void TcpConnection::setOnMessageCallBack(const fas::MessageCallback& cb) {
+void fas::TcpConnection::setOnMessageCallBack(const fas::MessageCallback& cb) {
   messageCb_ = cb;
 }
 
-void TcpConnection::setOnCloseCallBack(const fas::CloseCallback& cb) {
+void fas::TcpConnection::setOnCloseCallBack(const fas::CloseCallback& cb) {
   closeCb_ = cb;
 }
 
-void TcpConnection::sendString(const std::string& msg) {
+void fas::TcpConnection::sendString(const std::string& msg) {
   handle_->enableWrite();
   loop_->modHandle(handle_);
   writeBuffer_->append(msg.c_str(), msg.size());
 }
 
-void TcpConnection::sendData(const void *data, size_t len) {
+void fas::TcpConnection::sendData(const void *data, size_t len) {
   handle_->enableWrite();
   loop_->modHandle(handle_);
   writeBuffer_->append(data, len);
 }
 
-void TcpConnection::handleRead(fas::Events revents,
+void fas::TcpConnection::handleRead(fas::Events revents,
                                       fas::Timestamp time) {
   boost::ignore_unused(time);
   loop_->assertInOwnerThread();
@@ -95,7 +93,7 @@ void TcpConnection::handleRead(fas::Events revents,
   }
 }
 
-void TcpConnection::handleWrite(fas::Events revents, fas::Timestamp time) {
+void fas::TcpConnection::handleWrite(fas::Events revents, fas::Timestamp time) {
   LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
@@ -125,13 +123,13 @@ reWrite:
   }
 }
 
-void TcpConnection::handleError(fas::Events revents,
+void fas::TcpConnection::handleError(fas::Events revents,
                                        fas::Timestamp time) {
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
 }
 
-void TcpConnection::handleClose(fas::Events revents, fas::Timestamp time) {
+void fas::TcpConnection::handleClose(fas::Events revents, fas::Timestamp time) {
   boost::ignore_unused(revents, time);
   assert(!closeing_);
   loop_->delHandle(handle_);
@@ -141,7 +139,7 @@ void TcpConnection::handleClose(fas::Events revents, fas::Timestamp time) {
   }
 }
 
-TcpConnection::~TcpConnection() {
+fas::TcpConnection::~TcpConnection() {
   LOGGER_TRACE << "TcpConnection destroy!" << Log::CLRF;
   connfd_.close();
   delete readBuffer_;

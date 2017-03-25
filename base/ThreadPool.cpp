@@ -1,9 +1,7 @@
 #include <ThreadPool.h>
 #include <memory>
 
-using fas::ThreadPool;
-
-ThreadPool::ThreadPool(int threadNum, boost::function<void ()> func, const std::string name) :
+fas::ThreadPool::ThreadPool(int threadNum, boost::function<void ()> func, const std::string name) :
   curThreadNum_(0),
   threadNum_(threadNum),
   threads_(),
@@ -14,24 +12,24 @@ ThreadPool::ThreadPool(int threadNum, boost::function<void ()> func, const std::
   assert(threadNum >= 0);
 }
 
-void ThreadPool::updateThreadFunc(boost::function<void ()> func) {
+void fas::ThreadPool::updateThreadFunc(boost::function<void ()> func) {
   assertInOwnerThread();
   assert(!started_);
   this->threadFunc_ = func;
 }
 
-void ThreadPool::updateThreadNum(int newNum) {
+void fas::ThreadPool::updateThreadNum(int newNum) {
   assertInOwnerThread();
   assert(!started_);
   assert(newNum >= 0);
   threadNum_ = newNum;
 }
 
-void ThreadPool::assertInOwnerThread() {
+void fas::ThreadPool::assertInOwnerThread() {
   assert(gettid() == tid_);
 }
 
-bool ThreadPool::start() {
+bool fas::ThreadPool::start() {
   assertInOwnerThread();
   assert(!started_);
   for(int i = 0; i < threadNum_; i++) {
@@ -50,7 +48,7 @@ bool ThreadPool::start() {
 }
 
 
-ThreadPool::~ThreadPool() {
+fas::ThreadPool::~ThreadPool() {
   if (started_) {
     for(auto iter = threads_.begin(); iter < threads_.end(); iter++) {
       (*iter)->join();

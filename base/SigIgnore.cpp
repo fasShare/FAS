@@ -1,10 +1,8 @@
 #include <SigIgnore.h>
 #include <signal.h>
 
-using fas::SigIgnore;
-
-SigIgnore::SigIgnore() {
+fas::SigIgnore::SigIgnore() {
   ::signal(SIGPIPE, SIG_IGN);
 }
 
-SigIgnore SigIgn;
+fas::SigIgnore SigIgn;

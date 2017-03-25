@@ -6,13 +6,11 @@
 
 #include <boost/bind.hpp>
 
-using fas::EventLoopThread;
-
-EventLoopThread::EventLoopThread() :
+fas::EventLoopThread::EventLoopThread() :
     EventLoopThread("EventLoopThread") {
 }
 
-EventLoopThread::EventLoopThread(const std::string& name) :
+fas::EventLoopThread::EventLoopThread(const std::string& name) :
   mutex_(),
   cond_(mutex_),
   thread_(boost::bind(&EventLoopThread::threadFunc, this), name),
@@ -20,11 +18,11 @@ EventLoopThread::EventLoopThread(const std::string& name) :
   started_(false) {
 }
 
-bool EventLoopThread::MainThread() {
+bool fas::EventLoopThread::MainThread() {
   return thread_.MainThread();
 }
 
-fas::EventLoop *EventLoopThread::start() {
+fas::EventLoop *fas::EventLoopThread::start() {
   assert(!started_);
   thread_.start();
 
@@ -39,7 +37,7 @@ fas::EventLoop *EventLoopThread::start() {
   return loop_;
 }
 
-bool EventLoopThread::join() {
+bool fas::EventLoopThread::join() {
   if (started_) {
     loop_->quit();
     thread_.join();;
@@ -48,18 +46,18 @@ bool EventLoopThread::join() {
   return !started_;
 }
 
-void EventLoopThread::setName(const std::string name) {
+void fas::EventLoopThread::setName(const std::string name) {
   return thread_.setName(name);
 }
 
-std::string EventLoopThread::getName() {
+std::string fas::EventLoopThread::getName() {
   return thread_.getName();
 }
 
-EventLoopThread::~EventLoopThread() {
+fas::EventLoopThread::~EventLoopThread() {
 }
 
-void EventLoopThread::threadFunc() {
+void fas::EventLoopThread::threadFunc() {
   LOGGER_TRACE << "Thread tid :"  << gettid() << fas::Log::CLRF;
   fas::EventLoop loop;
   loop.assertInOwnerThread();

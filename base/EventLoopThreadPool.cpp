@@ -7,9 +7,7 @@
 
 #include <boost/bind.hpp>
 
-using fas::EventLoopThreadPool;
-
-EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
+fas::EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
                                          int threadNum) :
     EventLoopThreadPool(baseloop,
                         threadNum,
@@ -17,7 +15,7 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
 
 }
 
-EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
+fas::EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
                                          int threadNum,
                                          std::string name) :
   threadNum_(threadNum),
@@ -34,31 +32,31 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
   loops_.reserve(threadNum_);
 }
 
-void EventLoopThreadPool::updateThreadNum(int newNum) {
+void fas::EventLoopThreadPool::updateThreadNum(int newNum) {
   assertInOwnerThread();
   assert(!started_);
   threadNum_ = newNum;
 }
 
-int EventLoopThreadPool::getThreadNum() {
+int fas::EventLoopThreadPool::getThreadNum() {
   return threadNum_;
 }
 
-void EventLoopThreadPool::updateName(const std::string& newName) {
+void fas::EventLoopThreadPool::updateName(const std::string& newName) {
   assertInOwnerThread();
   assert(!started_);
   name_ = newName;
 }
 
-std::string EventLoopThreadPool::getName() {
+std::string fas::EventLoopThreadPool::getName() {
   return name_;
 }
 
-void EventLoopThreadPool::assertInOwnerThread() {
+void fas::EventLoopThreadPool::assertInOwnerThread() {
   assert(gettid() == tid_);
 }
 
-bool EventLoopThreadPool::start() {
+bool fas::EventLoopThreadPool::start() {
   assertInOwnerThread();
   assert(!started_);
   for(int i = 0; i < threadNum_; i++) {
@@ -71,7 +69,7 @@ bool EventLoopThreadPool::start() {
   return started_;
 }
 
-fas::EventLoop *EventLoopThreadPool::getNextEventLoop() {
+fas::EventLoop *fas::EventLoopThreadPool::getNextEventLoop() {
   assertInOwnerThread();
   fas::EventLoop* loop = baseloop_;
   if (!loops_.empty()) {
@@ -85,7 +83,7 @@ fas::EventLoop *EventLoopThreadPool::getNextEventLoop() {
   return loop;
 }
 
-EventLoopThreadPool::~EventLoopThreadPool() {
+fas::EventLoopThreadPool::~EventLoopThreadPool() {
   if (started_) {
     for (auto iter = threads_.begin(); iter < threads_.end(); iter++) {
       (*iter)->join();

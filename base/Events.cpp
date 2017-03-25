@@ -1,54 +1,52 @@
 #include <Events.h>
 
-using fas::Events;
-
-Events::Events(const int fd, uint32_t events) :
+fas::Events::Events(const int fd, uint32_t events) :
   fd_(fd),
   events_(events) {
 }
 
-Events::Events(const Events& events) :
+fas::Events::Events(const Events& events) :
   Events(events.fd_, events.events_) {
 }
 
-Events::Events(const EpollEvent& events) :
+fas::Events::Events(const EpollEvent& events) :
   Events(events.data.fd, events.events){
 }
 
-Events::Events(const PollEvent& events) :
+fas::Events::Events(const PollEvent& events) :
  Events(events.fd, events.revents) {
 
 }
 
-int Events::getFd() const{
+int fas::Events::getFd() const{
   return fd_;
 }
 
-uint32_t Events::getEvents() const{
+uint32_t fas::Events::getEvents() const{
   return events_;
 }
 
-void Events::updateEvents(uint32_t events) {
+void fas::Events::updateEvents(uint32_t events) {
   events_ = events;
 }
 
-void Events::addEvent(uint32_t event) {
+void fas::Events::addEvent(uint32_t event) {
   events_ |= event;
 }
 
-void Events::deleteEvent(uint32_t event) {
+void fas::Events::deleteEvent(uint32_t event) {
   events_ &= ~event;
 }
 
-bool Events::containsEvents(uint32_t events) const {
+bool fas::Events::containsEvents(uint32_t events) const {
   return ((events_ & events) == events);
 }
 
-bool Events::containsAtLeastOneEvents(uint32_t events) const {
+bool fas::Events::containsAtLeastOneEvents(uint32_t events) const {
   return ((events_ & events) != 0);
 }
 
-fas::EpollEvent Events::epollEvents() {
+fas::EpollEvent fas::Events::epollEvents() {
   fas::EpollEvent events;
   bzero(&events, sizeof(EpollEvent));
   events.data.fd = this->getFd();
@@ -56,7 +54,7 @@ fas::EpollEvent Events::epollEvents() {
   return events;
 }
 
-fas::PollEvent Events::pollEvents() {
+fas::PollEvent fas::Events::pollEvents() {
   fas::PollEvent events;
   bzero(&events, sizeof(PollEvent));
   events.fd = this->getFd();
@@ -64,10 +62,10 @@ fas::PollEvent Events::pollEvents() {
   return events;
 }
 
-std::ostream& operator<<(std::ostream& os, Events& events) {
+std::ostream& fas::operator<<(std::ostream& os, Events& events) {
   os << "fd = " << events.getFd();
   return os;
 }
 
-Events::~Events() {
+fas::Events::~Events() {
 }
