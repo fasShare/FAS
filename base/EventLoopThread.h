@@ -21,8 +21,7 @@ class EventLoop;
  */
 class EventLoopThread : boost::noncopyable {
 public:
-    EventLoopThread();
-    EventLoopThread(const std::string& name);
+    EventLoopThread(const std::string& name = "EventLoopThread");
 
     bool join();
     bool MainThread();

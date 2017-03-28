@@ -62,7 +62,7 @@ public:
   void setHandleError(const events_handle_t& handle_error);
   void setHandleClose(const events_handle_t& handle_close);
 
-  void handleEvent(Events, Timestamp);
+  void handleEvent(const Events&, Timestamp);
 private:
   EventLoop *loop_;
   Events *events_;

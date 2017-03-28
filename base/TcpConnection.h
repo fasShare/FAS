@@ -7,6 +7,7 @@
 #include <Events.h>
 #include <Socket.h>
 #include <NetAddress.h>
+#include <Timestamp.h>
 
 namespace fas {
 
@@ -20,7 +21,10 @@ class buffer;
  */
 class TcpConnection {
 public:
-  TcpConnection(EventLoop *loop, const Events& event);
+  TcpConnection(EventLoop *loop,
+                const Events& event,
+                const NetAddress& peerAddr_,
+                Timestamp now = Timestamp::now());
   ~TcpConnection();
   /*!
    * \brief getLoop
@@ -61,10 +65,10 @@ public:
    * The default events hadnle function.
    * It'll be boost::bind to handle_.
    */
-  void handleRead(Events revents, Timestamp time);
-  void handleWrite(Events revents, Timestamp time);
-  void handleError(Events revents, Timestamp time);
-  void handleClose(Events revents, Timestamp time);
+  void handleRead(const Events& revents, Timestamp time);
+  void handleWrite(const Events& revents, Timestamp time);
+  void handleError(const Events& revents, Timestamp time);
+  void handleClose(const Events& revents, Timestamp time);
 
 private:
   EventLoop *loop_;
@@ -77,6 +81,7 @@ private:
   bool closeing_;
   CloseCallback closeCb_;
   MessageCallback messageCb_;
+  Timestamp acceptTime_;
 };
 
 }

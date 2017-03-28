@@ -8,14 +8,6 @@
 #include <boost/bind.hpp>
 
 fas::EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
-                                         int threadNum) :
-    EventLoopThreadPool(baseloop,
-                        threadNum,
-                        "EventLoopThreadPool") {
-
-}
-
-fas::EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseloop,
                                          int threadNum,
                                          std::string name) :
   threadNum_(threadNum),

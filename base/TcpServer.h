@@ -43,7 +43,7 @@ public:
    * when a new client connect to this TcpServer, it'll be called.
    * We create new TcpConnection in it.
    */
-  void handleReadEvent(Events event, Timestamp time);
+  void handleReadEvent(const Events& event, Timestamp time);
   /*!
    * \brief setMessageCallback
    * \param cb

@@ -54,13 +54,14 @@ bool fas::TcpServer::start() {
   return true;
 }
 
-void fas::TcpServer::handleReadEvent(fas::Events event, fas::Timestamp time) {
+void fas::TcpServer::handleReadEvent(const fas::Events& event, fas::Timestamp time) {
   loop_->assertInOwnerThread();
   boost::ignore_unused(time);
   fas::EventLoop *workloop = threadPool_.getNextEventLoop();
   assert(event.getFd() == server_.getSocket());
 
   fas::NetAddress peerAddr;
+  Timestamp acceptTime = Timestamp::now();
   Socket_t sd = server_.accept(peerAddr, true);
   // FIXME : if sd < 0
   if (sd < 0) {
@@ -70,7 +71,10 @@ void fas::TcpServer::handleReadEvent(fas::Events event, fas::Timestamp time) {
   }
   //conn will be destroy if there are not other shared_ptr
   //increase the refcount of it
-  fas::TcpConnShreadPtr conn = fas::getSharedPtr(new fas::TcpConnection(workloop, fas::Events(sd, kReadEvent)));
+  fas::TcpConnShreadPtr conn = fas::getSharedPtr(new fas::TcpConnection(workloop,
+                                                                        fas::Events(sd, kReadEvent),
+                                                                        peerAddr,
+                                                                        acceptTime));
 
   conn->setOnMessageCallBack(messageCb_);
   conn->setOnCloseCallBack(boost::bind(&TcpServer::removeConnection, this, sd));

@@ -15,14 +15,18 @@
 #include <boost/core/ignore_unused.hpp>
 
 fas::TcpConnection::TcpConnection(EventLoop *loop,
-                            const Events& event) :
+                                  const Events& event,
+                                  const NetAddress& peerAddr,
+                                  Timestamp now) :
   loop_(loop),
   event_(event),
   handle_(NULL),
   readBuffer_(new Buffer(1024)),
   writeBuffer_(new Buffer(1024)),
   connfd_(event.getFd()),
-  closeing_(false) {
+  peerAddr_(peerAddr),
+  closeing_(false),
+  acceptTime_(now) {
   assert(loop_ != NULL);
   handle_ = new Handle(loop_, event_);
   loop_->addHandle(handle_);
@@ -72,7 +76,7 @@ void fas::TcpConnection::sendData(const void *data, size_t len) {
   writeBuffer_->append(data, len);
 }
 
-void fas::TcpConnection::handleRead(fas::Events revents,
+void fas::TcpConnection::handleRead(const fas::Events& revents,
                                       fas::Timestamp time) {
   boost::ignore_unused(time);
   loop_->assertInOwnerThread();
@@ -93,7 +97,7 @@ void fas::TcpConnection::handleRead(fas::Events revents,
   }
 }
 
-void fas::TcpConnection::handleWrite(fas::Events revents, fas::Timestamp time) {
+void fas::TcpConnection::handleWrite(const fas::Events& revents, fas::Timestamp time) {
   LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
@@ -123,13 +127,13 @@ reWrite:
   }
 }
 
-void fas::TcpConnection::handleError(fas::Events revents,
+void fas::TcpConnection::handleError(const fas::Events& revents,
                                        fas::Timestamp time) {
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
 }
 
-void fas::TcpConnection::handleClose(fas::Events revents, fas::Timestamp time) {
+void fas::TcpConnection::handleClose(const fas::Events& revents, fas::Timestamp time) {
   boost::ignore_unused(revents, time);
   assert(!closeing_);
   loop_->delHandle(handle_);
