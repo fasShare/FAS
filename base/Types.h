@@ -23,14 +23,16 @@ class Timestamp;
 class TcpConnection;
 class Buffer;
 
-typedef std::shared_ptr<TcpConnection> TcpConnShreadPtr;
-
 typedef boost::function<void (Events, Timestamp)> events_handle_t;
-
 
 typedef int map_conn_key_t;
 
 typedef boost::function<void (map_conn_key_t)> CloseCallback;
+
+typedef std::shared_ptr<TcpConnection> TcpConnShreadPtr;
+typedef boost::function<void (TcpConnShreadPtr)> OnConnectionCallBack;
+typedef boost::function<void (map_conn_key_t)> OnConnectionRemovedCallBack;
+
 // the data has been read to (buf, len)
 typedef boost::function<void (TcpConnection *,
                               Buffer*,

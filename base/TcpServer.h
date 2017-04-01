@@ -26,7 +26,7 @@ class Handle;
  */
 class TcpServer {
 public:
-  TcpServer(EventLoop *loop, const NetAddress& addr);
+  TcpServer(EventLoop *loop, const NetAddress& addr, uint threadNum = 4);
   ~TcpServer();
 
   EventLoop* getLoop() const;
@@ -43,7 +43,9 @@ public:
    * when a new client connect to this TcpServer, it'll be called.
    * We create new TcpConnection in it.
    */
-  void handleReadEvent(Events event, Timestamp time);
+  void handleReadEvent(const Events& event, Timestamp time);
+  void setOnConnectionCallBack(OnConnectionCallBack onConnectionCb);
+  void setOnConnRemovedCallBack(OnConnectionRemovedCallBack onConnRemovedCb);
   /*!
    * \brief setMessageCallback
    * \param cb
@@ -71,7 +73,8 @@ private:
   EventLoopThreadPool threadPool_;    /*!< New TcpConnection's handle will be added
                                       to EventLoopThread in this Threadpool. */
   std::map<int, std::shared_ptr<TcpConnection> > conns_;  /*!< map of socket and TcpConnection. */
-
+  OnConnectionCallBack onConnectionCb_;
+  OnConnectionRemovedCallBack onConnRemovedCb_;
   MessageCallback messageCb_;   /*!< Callback for TcpConnection. */
 };
 

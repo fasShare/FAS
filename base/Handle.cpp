@@ -73,7 +73,7 @@ fas::uchar fas::Handle::getState() {
   return state_;
 }
 
-void fas::Handle::handleEvent(Events events, Timestamp time) {
+void fas::Handle::handleEvent(const Events& events, Timestamp time) {
   if (checkClose_(events)) {
      if (handle_close_event_) handle_close_event_(events, time);
   }

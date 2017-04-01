@@ -15,14 +15,20 @@
 #include <boost/core/ignore_unused.hpp>
 
 fas::TcpConnection::TcpConnection(EventLoop *loop,
-                            const Events& event) :
+                                  const Events& event,
+                                  const NetAddress& peerAddr,
+                                  Timestamp now) :
   loop_(loop),
   event_(event),
   handle_(NULL),
   readBuffer_(new Buffer(1024)),
   writeBuffer_(new Buffer(1024)),
   connfd_(event.getFd()),
-  closeing_(false) {
+  peerAddr_(peerAddr),
+  shouldBeClosed_(false),
+  closeing_(false),
+  acceptTime_(now),
+  sendAllDataOut_(true) {
   assert(loop_ != NULL);
   handle_ = new Handle(loop_, event_);
   loop_->addHandle(handle_);
@@ -56,6 +62,13 @@ void fas::TcpConnection::setOnMessageCallBack(const fas::MessageCallback& cb) {
   messageCb_ = cb;
 }
 
+bool fas::TcpConnection::messageCallbackVaild() {
+  if (this->messageCb_) {
+    return true;
+  }
+  return false;
+}
+
 void fas::TcpConnection::setOnCloseCallBack(const fas::CloseCallback& cb) {
   closeCb_ = cb;
 }
@@ -72,7 +85,7 @@ void fas::TcpConnection::sendData(const void *data, size_t len) {
   writeBuffer_->append(data, len);
 }
 
-void fas::TcpConnection::handleRead(fas::Events revents,
+void fas::TcpConnection::handleRead(const fas::Events& revents,
                                       fas::Timestamp time) {
   boost::ignore_unused(time);
   loop_->assertInOwnerThread();
@@ -93,7 +106,7 @@ void fas::TcpConnection::handleRead(fas::Events revents,
   }
 }
 
-void fas::TcpConnection::handleWrite(fas::Events revents, fas::Timestamp time) {
+void fas::TcpConnection::handleWrite(const fas::Events& revents, fas::Timestamp time) {
   LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
@@ -111,31 +124,58 @@ reWrite:
     LOGGER_SYSERR << "TcpConnection::handleWrite error" <<  ::strerror(errno) << Log::CLRF;
   } else if (ret == 0) {
     if(!closeing_) {
+      sendAllDataOut_ = true;
       handleClose(revents, time);
     }
   } else {
+    sendAllDataOut_ = false;
     readablesizes -= ret;
     writeBuffer_->retrieve(ret);
     if (readablesizes == 0) {
+      sendAllDataOut_ = true;
+      if (shouldBeClosed_) {
+        handleClose(revents, time);
+      }
       handle_->disableWrite();
       loop_->modHandle(handle_);
     }
   }
 }
 
-void fas::TcpConnection::handleError(fas::Events revents,
+void fas::TcpConnection::handleError(const fas::Events& revents,
                                        fas::Timestamp time) {
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
 }
 
-void fas::TcpConnection::handleClose(fas::Events revents, fas::Timestamp time) {
+/*!
+ * \brief fas::TcpConnection::handleClose
+ * \param revents
+ * \param time
+ * close this TcpConnection immediately.
+ */
+void fas::TcpConnection::handleClose(const fas::Events& revents, fas::Timestamp time) {
   boost::ignore_unused(revents, time);
   assert(!closeing_);
   loop_->delHandle(handle_);
   if(closeCb_) {
     closeing_ = true;
     closeCb_(connfd_.getSocket());
+  }
+}
+/*!
+ * \brief fas::TcpConnection::shutdown
+ * close this TcpConnection after buffer empty.
+ */
+void fas::TcpConnection::shutdown() {
+  if (this->sendAllDataOut_) {
+    loop_->delHandle(handle_);
+    if(closeCb_) {
+      closeing_ = true;
+      closeCb_(connfd_.getSocket());
+    }
+  } else {
+    shouldBeClosed_ = true;
   }
 }
 

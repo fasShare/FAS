@@ -74,7 +74,13 @@ public:
    */
   const char* findCRLF() const;
   const char* findCRLF(const char* start) const;
-
+  /*!
+   * \brief findChars
+   * \param chars
+   * \param chars_len not contains '\0'.
+   * \return if found succeed, ret > 0, or ret == 0
+   */
+  const char* findChars(const char* chars, size_t chars_len) const;
   /*!
    * \brief retrieve
    * \param len

@@ -6,10 +6,6 @@
 
 #include <boost/bind.hpp>
 
-fas::EventLoopThread::EventLoopThread() :
-    EventLoopThread("EventLoopThread") {
-}
-
 fas::EventLoopThread::EventLoopThread(const std::string& name) :
   mutex_(),
   cond_(mutex_),

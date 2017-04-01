@@ -18,8 +18,7 @@ class EventLoop;
  */
 class EventLoopThreadPool : boost::noncopyable {
 public:
-    EventLoopThreadPool(EventLoop *baseloop, int threadNum);
-    EventLoopThreadPool(EventLoop *baseloop, int threadNum, std::string name);
+    EventLoopThreadPool(EventLoop *baseloop, int threadNum, std::string name = "EventLoopThreadPool");
     ~EventLoopThreadPool();
 
     void updateThreadNum(int threadNum);

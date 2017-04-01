@@ -1,0 +1,16 @@
+#ifndef FAS_HTTPREQUEST_H
+#define FAS_HTTPREQUEST_H
+
+namespace fas {
+
+class HttpRequest {
+public:
+    
+private:
+    
+};
+
+}
+
+#endif // FAS_HTTPREQUEST_H
+
