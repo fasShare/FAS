@@ -37,6 +37,7 @@ typedef boost::function<void (map_conn_key_t)> OnConnectionRemovedCallBack;
 typedef boost::function<void (TcpConnection *,
                               Buffer*,
                               Timestamp)> MessageCallback;
+typedef boost::function<void (TcpConnection *)> HasMoreDataCallback;
 typedef boost::function<bool (const Events&)> EventCheckFunc;
 
 template<typename T>

@@ -7,7 +7,7 @@ all:
 	echo $(fas_libs)
 	echo $(fas_test_bin)
 	
-#	$(CC) TcpServerTest.cpp  -I${fas_base} -L${fas_libs} $(cflags) -o $(fas_test_bin)/TcpServerTest $(libs)
+	$(CC) TcpServerTest.cpp  -I${fas_base} -L${fas_libs} $(cflags) -o $(fas_test_bin)/TcpServerTest $(libs)
 	$(CC) HttpServerTest.cpp  -I${fas_base} -I${fas_http} -L${fas_libs} $(cflags) -o $(fas_test_bin)/HttpServerTest $(libs)
 #	$(CC) ThreadLoggerTest.cpp  -I${fas_base} -L${fas_libs} $(cflags) -o $(fas_test_bin)/ThreadLoggerTest $(libs)
 #	$(CC) EventHandleClientTest.cpp  -I${fas_base} -L${fas_libs} $(cflags) -o $(fas_test_bin)/EventHandleClientTest $(libs)

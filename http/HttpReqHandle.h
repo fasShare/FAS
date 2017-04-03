@@ -27,14 +27,26 @@ public:
   bool HandleDelete(TcpConnection *conn, const HttpRequest& req);
   bool HandleOptions(TcpConnection *conn, const HttpRequest& req);
 
-  bool sendBigFile(TcpConnection *conn, const std::string& filename);
-  bool sendLittleFile(TcpConnection *conn, const std::string& filename);
+  void sendMassData(TcpConnection *conn);
 
   bool HandleError(TcpConnection *conn, const HttpRequest& req, const std::string& errorCode);
+
+  struct SendMassDataContext {
+    int fd_;
+    size_t length_;
+    size_t rdstart_;  //The value is the offset of next read.
+    size_t remaind_;
+    const static size_t readEveryTime_;
+  };
+
 private:
   HttpRequest request_;
   HttpResponse response_;
   ServerOptions options_;
+
+  SendMassDataContext massDataC_;
+
+  bool handingMethod_;
 };
 
 }

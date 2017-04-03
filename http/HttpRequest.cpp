@@ -57,6 +57,10 @@ bool fas::http::HttpRequest::analyseHttpRequestBody(Buffer *buffer) {
   return true;
 }
 
+const std::map<std::string, std::string>& fas::http::HttpRequest::getHeaders() const {
+  return headers_;
+}
+
 void fas::http::HttpRequest::setReqestState(ReqState state) {
   this->requestState_ = state;
 }

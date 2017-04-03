@@ -8,8 +8,8 @@ const std::string fas::http::Method::POST = "POST";
 const std::string fas::http::Method::DELETE = "DELETE";
 const std::string fas::http::Method::OPTIONS = "OPTIONS";
 
-fas::http::ServerOptions::ServerOptions() {
-  this->setServerPath("/home/fas/code/C++/");
+fas::http::ServerOptions::ServerOptions() :
+  serverPath_("/home/fas/code/C++/") {
 }
 
 std::string fas::http::ServerOptions::getServerPath() const {

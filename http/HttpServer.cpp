@@ -23,8 +23,8 @@ void fas::http::HttpServer::OnNewConnection(fas::TcpConnShreadPtr conn) {
   std::shared_ptr<HttpReqHandle> reqHandle = std::make_shared<HttpReqHandle>();
 
   conn->setOnMessageCallBack(boost::bind(&HttpReqHandle::OnMessageCallback, reqHandle, _1, _2, _3));
-
-  this->reqHandles_[conn->getConnfd()] = std::shared_ptr<HttpReqHandle>(reqHandle);
+  conn->SetHasMoreDataCallback(boost::bind(&HttpReqHandle::sendMassData, reqHandle, _1));
+  this->reqHandles_[conn->getConnfd()] = reqHandle;
 }
 
 void fas::http::HttpServer::OnConnectionRemoved(fas::map_conn_key_t key) {

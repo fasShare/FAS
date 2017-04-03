@@ -73,15 +73,31 @@ void fas::TcpConnection::setOnCloseCallBack(const fas::CloseCallback& cb) {
   closeCb_ = cb;
 }
 
+void fas::TcpConnection::SetHasMoreDataCallback(HasMoreDataCallback moreDataCb) {
+  moreDataCb_ = moreDataCb;
+}
+
+void fas::TcpConnection::setHasMoreData() {
+  hasMoreData_ = true;
+}
+
+void fas::TcpConnection::unsetHasMoreData() {
+  hasMoreData_ = false;
+}
+
 void fas::TcpConnection::sendString(const std::string& msg) {
   handle_->enableWrite();
   loop_->modHandle(handle_);
-  writeBuffer_->append(msg.c_str(), msg.size());
+  putDataToWriteBuffer(msg.c_str(), msg.size());
 }
 
 void fas::TcpConnection::sendData(const void *data, size_t len) {
   handle_->enableWrite();
   loop_->modHandle(handle_);
+  putDataToWriteBuffer(data, len);
+}
+
+void fas::TcpConnection::putDataToWriteBuffer(const void *data, size_t len) {
   writeBuffer_->append(data, len);
 }
 
@@ -131,6 +147,14 @@ reWrite:
     sendAllDataOut_ = false;
     readablesizes -= ret;
     writeBuffer_->retrieve(ret);
+
+    //It should be only used when you send mass data.
+    if (hasMoreData_ == true) {
+      assert(moreDataCb_);
+      moreDataCb_(this);
+      readablesizes = writeBuffer_->readableBytes();
+    }
+
     if (readablesizes == 0) {
       sendAllDataOut_ = true;
       if (shouldBeClosed_) {
@@ -140,6 +164,7 @@ reWrite:
       loop_->modHandle(handle_);
     }
   }
+  LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
 }
 
 void fas::TcpConnection::handleError(const fas::Events& revents,
