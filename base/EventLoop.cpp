@@ -238,7 +238,7 @@ bool fas::EventLoop::loop() {
   return true;
 }
 
-fas::EventLoop::~EventLoop() {  
+fas::EventLoop::~EventLoop() {
   delete wakeUpHandle_;
   wakeUpHandle_ = nullptr;
   ::close(wakeUpFd_);

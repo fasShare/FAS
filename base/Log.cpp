@@ -72,6 +72,7 @@ fas::Log& fas::Log::fflush() {
   return *this;
 }
 
+
 fas::Log::LogLevel fas::Log::getLogLevel() {
   return Log::LogLevel::TRACE;
 }

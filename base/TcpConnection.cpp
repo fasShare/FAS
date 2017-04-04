@@ -173,6 +173,7 @@ void fas::TcpConnection::handleError(const fas::Events& revents,
   loop_->assertInOwnerThread();
 }
 
+
 /*!
  * \brief fas::TcpConnection::handleClose
  * \param revents

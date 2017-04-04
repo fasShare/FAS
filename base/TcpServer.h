@@ -46,6 +46,7 @@ public:
   void handleReadEvent(const Events& event, Timestamp time);
   void setOnConnectionCallBack(OnConnectionCallBack onConnectionCb);
   void setOnConnRemovedCallBack(OnConnectionRemovedCallBack onConnRemovedCb);
+
   /*!
    * \brief setMessageCallback
    * \param cb
