@@ -98,7 +98,7 @@ void fas::Socket::close() {
 }
 
 fas::Socket::~Socket() {
-  LOGGER_TRACE << "socket close!" << Log::CLRF;
+  LOGGER_TRACE << "tid : " << gettid() <<  "socket close!" << Log::CLRF;
   //Don't close socket_.
 }
 

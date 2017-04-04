@@ -123,7 +123,7 @@ void fas::TcpConnection::handleRead(const fas::Events& revents,
 }
 
 void fas::TcpConnection::handleWrite(const fas::Events& revents, fas::Timestamp time) {
-  LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
+//  LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
 
@@ -164,7 +164,7 @@ reWrite:
       loop_->modHandle(handle_);
     }
   }
-  LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
+//  LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
 }
 
 void fas::TcpConnection::handleError(const fas::Events& revents,
@@ -206,6 +206,8 @@ void fas::TcpConnection::shutdown() {
 
 fas::TcpConnection::~TcpConnection() {
   LOGGER_TRACE << "TcpConnection destroy!" << Log::CLRF;
-  connfd_.close();
+  if (handle_->getState() != Handle::STATE_DEL) {
+    loop_->delHandle(handle_);
+  }
   delete readBuffer_;
 }

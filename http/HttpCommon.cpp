@@ -49,6 +49,7 @@ fas::http::ContentTypes::ContentTypes() {
     {".jpg", 	"image/jpeg"},
     {".ico", 	"application/x-ico"},
     {".htm", 	"text/html"},
+    {".html", 	"text/html"},
     {".exe", 	"pplication/x-msdownload"},
     {".dot", 	"application/msword"},
     {".css", 	"text/css"},

@@ -11,7 +11,7 @@
 fas::http::HttpServer::HttpServer(fas::EventLoop *loop,
                             const fas::NetAddress& addr) :
   loop_(loop),
-  tcpSer_(new fas::TcpServer(loop_, addr)) {
+  tcpSer_(new fas::TcpServer(loop_, addr, 0)) {
 
   tcpSer_->setOnConnectionCallBack(boost::bind(&HttpServer::OnNewConnection, this, _1));
   tcpSer_->setOnConnRemovedCallBack(boost::bind(&HttpServer::OnConnectionRemoved, this, _1));
@@ -28,7 +28,7 @@ void fas::http::HttpServer::OnNewConnection(fas::TcpConnShreadPtr conn) {
 }
 
 void fas::http::HttpServer::OnConnectionRemoved(fas::map_conn_key_t key) {
-  LOGGER_TRACE << "fas::http::HttpServer::OnConnectionRemoved" << fas::Log::CLRF;
+  //LOGGER_TRACE << "fas::http::HttpServer::OnConnectionRemoved" << fas::Log::CLRF;
   loop_->assertInOwnerThread();
   int ret = this->reqHandles_.erase(key);
   assert(ret == 1);

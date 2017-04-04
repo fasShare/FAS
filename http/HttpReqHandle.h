@@ -31,7 +31,24 @@ public:
 
   bool HandleError(TcpConnection *conn, const HttpRequest& req, const std::string& errorCode);
 
-  struct SendMassDataContext {
+  class SendMassDataContext {
+  public:
+    SendMassDataContext() = default;
+    SendMassDataContext(int fd, int length, int rdstart);
+
+    void ContextReset(int fd, int length, int rdstart);
+
+    void addSizeToRdstartAndUpdateRemind(ssize_t size);
+
+    int getFd() const;
+    size_t getLength() const;
+    size_t getRdstart() const;
+    size_t getRemaind() const;
+    size_t getReadEveryTime() const;
+
+    void ContextClear();
+    void closeFd();
+  private:
     int fd_;
     size_t length_;
     size_t rdstart_;  //The value is the offset of next read.

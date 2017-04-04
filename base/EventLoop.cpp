@@ -213,6 +213,8 @@ bool fas::EventLoop::loop() {
     updates_.clear();
     revents_.clear();
 
+    LOGGER_DEBUG << "tid : " << gettid() <<  " handles : " << handles_.size() << fas::Log::CLRF;
+
     looptime = poll_->loop_(revents_, pollDelayTime_);
     for(std::vector<Events>::iterator iter = revents_.begin();
         iter != revents_.end(); iter++) {
@@ -236,7 +238,7 @@ bool fas::EventLoop::loop() {
   return true;
 }
 
-fas::EventLoop::~EventLoop() {
+fas::EventLoop::~EventLoop() {  
   delete wakeUpHandle_;
   wakeUpHandle_ = nullptr;
   ::close(wakeUpFd_);
