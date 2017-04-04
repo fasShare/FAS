@@ -13,8 +13,7 @@ namespace fas {
  */
 class NetAddress {
 public:
-  NetAddress(ushort sa_family, int sa_port, const char *sa_ip);
-  NetAddress() = default;
+  NetAddress(ushort sa_family = AF_INET, int sa_port = 8899, const char *sa_ip = "127.0.0.1");
   struct sockaddr *addrPtr();
   const struct sockaddr *addrPtr() const;
   socklen_t addrLen() const;

@@ -7,7 +7,7 @@
 
 const char *fas::Log::CLRF = "\r\n";
 fas::Log::Log() :
-  runTimeLevel_(Log::LogLevel()),
+  runTimeLevel_(Log::getLogLevel()),
   file_(""),
   line_(INT_MAX),
   func_(""),
@@ -17,7 +17,7 @@ fas::Log::Log() :
 }
 
 fas::Log::Log(std::string file, int line) :
-  runTimeLevel_(Log::LogLevel()),
+  runTimeLevel_(Log::getLogLevel()),
   file_(file),
   line_(line),
   func_(""),
@@ -50,7 +50,7 @@ fas::Log::Log(std::string file, int line, Log::LogLevel level, std::string func)
 }
 
 fas::Log::Log(std::string file, int line, bool toAbort) :
-  runTimeLevel_(Log::LogLevel()),
+  runTimeLevel_(Log::getLogLevel()),
   file_(file),
   line_(line),
   func_(""),
@@ -64,14 +64,16 @@ fas::Log& fas::Log::fflush() {
   if (!output_) {
     assert(false);
   }
-  if (runTimeLevel_ >= Log::LogLevel()) {
+
+  if (runTimeLevel_ >= Log::getLogLevel()) {
     output_(buffer_.str().c_str(), buffer_.str().size());
   }
   buffer_.str("");
   return *this;
 }
 
-fas::Log::LogLevel fas::Log::logLevel() {
+
+fas::Log::LogLevel fas::Log::getLogLevel() {
   return Log::LogLevel::TRACE;
 }
 
@@ -103,31 +105,4 @@ fas::Log& fas::Log::LOG() {
   return *this;
 }
 
-void fas::Logger(std::string file, int line, std::string msg) {
-  Log log;
-  log << file << " " << line << " " << msg << Log::CLRF;
-  log.fflush();
-}
-
-void fas::Logger(std::string file, int line, Log::LogLevel level, std::string msg) {
-  Log log;
-  log << file << " " << line << " " <<  level << " " << msg << Log::CLRF;
-  log.fflush();
-}
-
-void fas::Logger(std::string file, int line, Log::LogLevel level, std::string func, std::string msg) {
-  Log log;
-  log << file << " " << line << " " <<  level << " " << func << " " << msg << Log::CLRF;
-  log.fflush();
-}
-
-void fas::Logger(std::string file, int line, bool toAbort, std::string msg) {
-  Log log;
-  log << file << " " << line << " " << msg << Log::CLRF;
-  log.fflush();
-
-  if (toAbort) {
-    ::abort();
-  }
-}
 

@@ -213,9 +213,9 @@ bool fas::EventLoop::loop() {
     updates_.clear();
     revents_.clear();
 
-    //looptime = poll_->loop_(revents_, pollDelayTime_);
-    looptime = poll_->loop_(revents_, pollDelayTime_);
+    LOGGER_DEBUG << "tid : " << gettid() <<  " handles : " << handles_.size() << fas::Log::CLRF;
 
+    looptime = poll_->loop_(revents_, pollDelayTime_);
     for(std::vector<Events>::iterator iter = revents_.begin();
         iter != revents_.end(); iter++) {
       //handle will decreament reference after for end!

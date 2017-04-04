@@ -47,7 +47,12 @@ public:
   void closeAndClearTcpConnection();
 
   void setOnMessageCallBack(const MessageCallback& cb);
+  bool messageCallbackVaild();
   void setOnCloseCallBack(const CloseCallback& cb);
+  void SetHasMoreDataCallback(HasMoreDataCallback moreDataCb);
+
+  void setHasMoreData();
+  void unsetHasMoreData();
   /*!
    * \brief sendString
    * \param msg
@@ -57,6 +62,7 @@ public:
    */
   void sendString(const std::string& msg);
   void sendData(const void *data, size_t len);
+  void putDataToWriteBuffer(const void *data, size_t len);
   /*!
    * \brief handleRead
    * \param revents
@@ -70,6 +76,7 @@ public:
   void handleError(const Events& revents, Timestamp time);
   void handleClose(const Events& revents, Timestamp time);
 
+  void shutdown();
 private:
   EventLoop *loop_;
   Events event_;        /*!< events of connfd_ */
@@ -78,10 +85,17 @@ private:
   Buffer *writeBuffer_;
   Socket connfd_;      /*!< connected socket. */
   NetAddress peerAddr_;
+  bool shouldBeClosed_;
   bool closeing_;
   CloseCallback closeCb_;
   MessageCallback messageCb_;
   Timestamp acceptTime_;
+  bool sendAllDataOut_;
+
+  //when you want to write mass data to TcpConnection,
+  //to send those data in an optimal way you can use this flag and set a hasMoreDataCallback.
+  bool hasMoreData_;
+  HasMoreDataCallback moreDataCb_;
 };
 
 }

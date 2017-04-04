@@ -84,8 +84,8 @@ fas::Timestamp fas::Epoll::pollerLoop(std::vector<Events> &events, int timeout) 
   revents_.clear();
   if (ret == maxNum_) {
     maxNum_ += addStep_;
+    revents_.resize(maxNum_);
   }
-  revents_.resize(maxNum_);
   return Timestamp::now();
 }
 

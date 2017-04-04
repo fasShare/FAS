@@ -133,7 +133,7 @@ bool fas::Handle::defaultCheckClose(const Events& event) {
 
 
 fas::Handle::~Handle() {
-  assert(state_ == STATE_DEL);
+  ::close(events_->getFd());
   if (events_ != nullptr) {
     delete events_;
     events_ = nullptr;

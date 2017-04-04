@@ -15,14 +15,15 @@
 #include <boost/core/ignore_unused.hpp>
 
 fas::TcpServer::TcpServer(fas::EventLoop* loop,
-                     const fas::NetAddress& addr) :
+                          const NetAddress& addr,
+                          uint threadNum) :
   server_(AF_INET, SOCK_STREAM, 0),
   loop_(loop),
   events_(server_.getSocket(), kReadEvent),
   handle_(NULL),
   addr_(addr),
   listenBacklog_(50),
-  threadPool_(loop_, 4),
+  threadPool_(loop_, threadNum),
   conns_() {
   assert(loop_ != NULL);
   server_.setNoBlocking();
@@ -41,6 +42,7 @@ fas::EventLoop* fas::TcpServer::getLoop() const{
 fas::TcpConnShreadPtr fas::TcpServer::getConn(fas::map_conn_key_t key) const {
   return conns_.find(key)->second;
 }
+
 fas::TcpConnShreadPtr fas::TcpServer::getConn(fas::map_conn_key_t key) {
   return conns_.find(key)->second;
 }
@@ -76,13 +78,25 @@ void fas::TcpServer::handleReadEvent(const fas::Events& event, fas::Timestamp ti
                                                                         peerAddr,
                                                                         acceptTime));
 
-  conn->setOnMessageCallBack(messageCb_);
   conn->setOnCloseCallBack(boost::bind(&TcpServer::removeConnection, this, sd));
+  if (this->onConnectionCb_) {
+  // conn's messagecallback should be seted.
+    this->onConnectionCb_(conn);
+  }
 
+  if (!conn->messageCallbackVaild()) {
+    conn->setOnMessageCallBack(messageCb_);
+  }
   conns_[sd] = conn;
   workloop->wakeUp();
+}
 
-  //FIXME : use Log output debug msg.
+void fas::TcpServer::setOnConnectionCallBack(OnConnectionCallBack onConnectionCb) {
+  this->onConnectionCb_ = onConnectionCb;
+}
+
+void fas::TcpServer::setOnConnRemovedCallBack(OnConnectionRemovedCallBack onConnRemovedCb) {
+  this->onConnRemovedCb_ = onConnRemovedCb;
 }
 
 void fas::TcpServer::setMessageCallback(const fas::MessageCallback& cb) {
@@ -96,6 +110,9 @@ void fas::TcpServer::removeConnection(fas::map_conn_key_t key) {
 void fas::TcpServer::removeConnectionInLoop(fas::map_conn_key_t key) {
   loop_->assertInOwnerThread();
   //must be have this statement.
+  if (this->onConnRemovedCb_) {
+    this->onConnRemovedCb_(key);
+  }
   fas::TcpConnShreadPtr conn = conns_.find(key)->second;
   size_t n = conns_.erase(key);
   boost::ignore_unused(n);

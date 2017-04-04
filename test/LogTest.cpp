@@ -2,7 +2,8 @@
 
 
 int main() {
-  fas::Log().LOG() << "FAS" << fas::Log::CLRF;
+
+  fas::Log().LOG() << "FAS " << fas::Log::LogLevel::DEBUG  << fas::Log::CLRF;
 
   LOGGER_DEBUG << "Debug" << 0 << fas::Log::CLRF;
 
