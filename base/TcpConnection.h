@@ -26,6 +26,7 @@ public:
                 const NetAddress& peerAddr_,
                 Timestamp now = Timestamp::now());
   ~TcpConnection();
+
   /*!
    * \brief getLoop
    * \return EventLoop*

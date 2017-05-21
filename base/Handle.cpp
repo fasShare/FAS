@@ -133,10 +133,11 @@ bool fas::Handle::defaultCheckClose(const Events& event) {
 
 
 fas::Handle::~Handle() {
+  state_ = STATE_DEL;
   ::close(events_->getFd());
   if (events_ != nullptr) {
     delete events_;
     events_ = nullptr;
   }
-  LOGGER_TRACE << "handle Destroyed!" << Log::CLRF;
+  LOGGER_TRACE << "tid: " << gettid() << " handle Destroyed!" << Log::CLRF;
 }

@@ -43,6 +43,7 @@ public:
   EventLoop();
   ~EventLoop();
 
+  int getTid() const;
   /*!
    * \brief getCount
    * \return int

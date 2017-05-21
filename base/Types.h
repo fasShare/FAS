@@ -27,11 +27,16 @@ typedef boost::function<void (Events, Timestamp)> events_handle_t;
 
 typedef int map_conn_key_t;
 
-typedef boost::function<void (map_conn_key_t)> CloseCallback;
 
+
+
+
+typedef TcpConnection *TcpConnectionPtr;
 typedef std::shared_ptr<TcpConnection> TcpConnShreadPtr;
+typedef std::pair<int, TcpConnectionPtr> connkey_t;
 typedef boost::function<void (TcpConnShreadPtr)> OnConnectionCallBack;
-typedef boost::function<void (map_conn_key_t)> OnConnectionRemovedCallBack;
+typedef boost::function<void (connkey_t)> OnConnectionRemovedCallBack;
+typedef boost::function<void ()> CloseCallback;
 
 // the data has been read to (buf, len)
 typedef boost::function<void (TcpConnection *,

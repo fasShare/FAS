@@ -31,8 +31,8 @@ public:
 
   EventLoop* getLoop() const;
 
-  TcpConnShreadPtr getConn(map_conn_key_t key) const;
-  TcpConnShreadPtr getConn(map_conn_key_t key);
+  TcpConnShreadPtr getConn(connkey_t key) const;
+  TcpConnShreadPtr getConn(connkey_t key);
 
   bool start();
   /*!
@@ -46,7 +46,6 @@ public:
   void handleReadEvent(const Events& event, Timestamp time);
   void setOnConnectionCallBack(OnConnectionCallBack onConnectionCb);
   void setOnConnRemovedCallBack(OnConnectionRemovedCallBack onConnRemovedCb);
-
   /*!
    * \brief setMessageCallback
    * \param cb
@@ -62,8 +61,8 @@ public:
    * \see removeConnectionInLoop
    * When TcpConnection's will be closed this function will be called.
    */
-  void removeConnection(map_conn_key_t conn);
-  void removeConnectionInLoop(map_conn_key_t conn);
+  void removeConnection(connkey_t conn);
+  void removeConnectionInLoop(connkey_t conn);
 private:
   Socket server_;                     /*!< listen and accept socket. */
   EventLoop *loop_;                   /*!< In loop_ polling server_'s read and write events. */
@@ -73,7 +72,7 @@ private:
   const uint listenBacklog_;
   EventLoopThreadPool threadPool_;    /*!< New TcpConnection's handle will be added
                                       to EventLoopThread in this Threadpool. */
-  std::map<int, std::shared_ptr<TcpConnection> > conns_;  /*!< map of socket and TcpConnection. */
+  std::map<connkey_t, std::shared_ptr<TcpConnection> > conns_;  /*!< map of socket and TcpConnection. */
   OnConnectionCallBack onConnectionCb_;
   OnConnectionRemovedCallBack onConnRemovedCb_;
   MessageCallback messageCb_;   /*!< Callback for TcpConnection. */

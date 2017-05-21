@@ -39,11 +39,11 @@ fas::EventLoop* fas::TcpServer::getLoop() const{
   return loop_;
 }
 
-fas::TcpConnShreadPtr fas::TcpServer::getConn(fas::map_conn_key_t key) const {
+fas::TcpConnShreadPtr fas::TcpServer::getConn(fas::connkey_t key) const {
   return conns_.find(key)->second;
 }
 
-fas::TcpConnShreadPtr fas::TcpServer::getConn(fas::map_conn_key_t key) {
+fas::TcpConnShreadPtr fas::TcpServer::getConn(fas::connkey_t key) {
   return conns_.find(key)->second;
 }
 
@@ -57,9 +57,14 @@ bool fas::TcpServer::start() {
 }
 
 void fas::TcpServer::handleReadEvent(const fas::Events& event, fas::Timestamp time) {
+  LOGGER_TRACE << " start !" << Log::CLRF;
   loop_->assertInOwnerThread();
   boost::ignore_unused(time);
-  fas::EventLoop *workloop = threadPool_.getNextEventLoop();
+  fas::EventLoop *workloop = loop_;
+  if (this->threadPool_.getThreadNum() > 0) {
+    workloop = threadPool_.getNextEventLoop();
+  }
+
   assert(event.getFd() == server_.getSocket());
 
   fas::NetAddress peerAddr;
@@ -73,22 +78,26 @@ void fas::TcpServer::handleReadEvent(const fas::Events& event, fas::Timestamp ti
   }
   //conn will be destroy if there are not other shared_ptr
   //increase the refcount of it
-  fas::TcpConnShreadPtr conn = fas::getSharedPtr(new fas::TcpConnection(workloop,
-                                                                        fas::Events(sd, kReadEvent),
-                                                                        peerAddr,
-                                                                        acceptTime));
+  fas::TcpConnectionPtr conn = new fas::TcpConnection(workloop,
+                                                    fas::Events(sd, kReadEvent),
+                                                    peerAddr,
+                                                    acceptTime);
+  LOGGER_DEBUG << "tid : " << gettid() <<  " TID : " << workloop->getTid() << " loop num : " << workloop->getCount()<< fas::Log::CLRF;
 
-  conn->setOnCloseCallBack(boost::bind(&TcpServer::removeConnection, this, sd));
+  fas::TcpConnShreadPtr sconn(conn);
+  conns_[fas::connkey_t(sd, conn)] = sconn;
+  conn->setOnCloseCallBack(boost::bind(&TcpServer::removeConnection, this, fas::connkey_t(sd, conn)));
   if (this->onConnectionCb_) {
   // conn's messagecallback should be seted.
-    this->onConnectionCb_(conn);
+    this->onConnectionCb_(sconn);
   }
 
   if (!conn->messageCallbackVaild()) {
     conn->setOnMessageCallBack(messageCb_);
   }
-  conns_[sd] = conn;
+
   workloop->wakeUp();
+  LOGGER_TRACE << " end !" << Log::CLRF;
 }
 
 void fas::TcpServer::setOnConnectionCallBack(OnConnectionCallBack onConnectionCb) {
@@ -96,6 +105,7 @@ void fas::TcpServer::setOnConnectionCallBack(OnConnectionCallBack onConnectionCb
 }
 
 void fas::TcpServer::setOnConnRemovedCallBack(OnConnectionRemovedCallBack onConnRemovedCb) {
+  LOGGER_TRACE << Log::CLRF;
   this->onConnRemovedCb_ = onConnRemovedCb;
 }
 
@@ -103,23 +113,32 @@ void fas::TcpServer::setMessageCallback(const fas::MessageCallback& cb) {
   messageCb_  = cb;
 }
 
-void fas::TcpServer::removeConnection(fas::map_conn_key_t key) {
+void fas::TcpServer::removeConnection(fas::connkey_t key) {
+  LOGGER_TRACE << Log::CLRF;
   loop_->runInLoop(boost::bind(&TcpServer::removeConnectionInLoop, this, key));
+  LOGGER_TRACE << " out " <<Log::CLRF;
 }
 
-void fas::TcpServer::removeConnectionInLoop(fas::map_conn_key_t key) {
+void fas::TcpServer::removeConnectionInLoop(fas::connkey_t key) {
+  LOGGER_TRACE << Log::CLRF;
   loop_->assertInOwnerThread();
   //must be have this statement.
   if (this->onConnRemovedCb_) {
     this->onConnRemovedCb_(key);
+  }
+  auto iter = conns_.find(key);
+  if (iter == conns_.end()) {
+    return;
   }
   fas::TcpConnShreadPtr conn = conns_.find(key)->second;
   size_t n = conns_.erase(key);
   boost::ignore_unused(n);
   assert(n == 1);
   fas::EventLoop* ioLoop = conn->getLoop();
+  LOGGER_TRACE << "ioLoop->queueInLoop" << Log::CLRF;
   ioLoop->queueInLoop(
       boost::bind(&TcpConnection::closeAndClearTcpConnection, conn));
+  LOGGER_TRACE << "after ioLoop->queueInLoop" << Log::CLRF;
 }
 
 

@@ -57,7 +57,6 @@ const char* fas::Buffer::findCRLF(const char* start) const {
   return crlf == beginWrite() ? NULL : crlf;
 }
 
-
 const char* fas::Buffer::findChars(const char* chars, size_t chars_len) const {
   const char* pos = std::search(peek(), beginWrite(), chars, chars+chars_len);
   return pos == beginWrite() ? NULL : pos;

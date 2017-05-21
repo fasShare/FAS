@@ -31,12 +31,15 @@ fas::TcpConnection::TcpConnection(EventLoop *loop,
   sendAllDataOut_(true) {
   assert(loop_ != NULL);
   handle_ = new Handle(loop_, event_);
-  loop_->addHandle(handle_);
 
   handle_->setHandleRead(boost::bind(&TcpConnection::handleRead, this, _1, _2));
   handle_->setHandleWrite(boost::bind(&TcpConnection::handleWrite, this, _1, _2));
   handle_->setHandleError(boost::bind(&TcpConnection::handleError, this, _1, _2));
   handle_->setHandleClose(boost::bind(&TcpConnection::handleClose, this, _1, _2));
+
+  loop_->addHandle(handle_);
+
+  LOGGER_DEBUG << "tid : " << gettid() <<  " TID : " << loop_->getTid() << fas::Log::CLRF;
 }
 
 fas::EventLoop* fas::TcpConnection::getLoop() {
@@ -53,6 +56,7 @@ void fas::TcpConnection::setPeerAddr(const fas::NetAddress& addr) {
 
 void fas::TcpConnection::closeAndClearTcpConnection() {
   //Add this function to QueueInLoop can ensure handle_ destroy before TcpConnection
+  LOGGER_TRACE << Log::CLRF;
   loop_->assertInOwnerThread();
   assert(closeing_);
   // FIXME : Other clear.
@@ -103,6 +107,7 @@ void fas::TcpConnection::putDataToWriteBuffer(const void *data, size_t len) {
 
 void fas::TcpConnection::handleRead(const fas::Events& revents,
                                       fas::Timestamp time) {
+  LOGGER_TRACE <<"tid : " << gettid() << " loop tid : " << loop_->getTid() << Log::CLRF;
   boost::ignore_unused(time);
   loop_->assertInOwnerThread();
   assert(revents.getFd() == connfd_.getSocket());
@@ -123,7 +128,7 @@ void fas::TcpConnection::handleRead(const fas::Events& revents,
 }
 
 void fas::TcpConnection::handleWrite(const fas::Events& revents, fas::Timestamp time) {
-//  LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
+  LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
 
@@ -149,8 +154,7 @@ reWrite:
     writeBuffer_->retrieve(ret);
 
     //It should be only used when you send mass data.
-    if (hasMoreData_ == true) {
-      assert(moreDataCb_);
+    if ((hasMoreData_ == true) && (moreDataCb_)) {
       moreDataCb_(this);
       readablesizes = writeBuffer_->readableBytes();
     }
@@ -159,9 +163,10 @@ reWrite:
       sendAllDataOut_ = true;
       if (shouldBeClosed_) {
         handleClose(revents, time);
+      } else {
+        handle_->disableWrite();
+        loop_->modHandle(handle_);
       }
-      handle_->disableWrite();
-      loop_->modHandle(handle_);
     }
   }
 //  LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
@@ -169,10 +174,10 @@ reWrite:
 
 void fas::TcpConnection::handleError(const fas::Events& revents,
                                        fas::Timestamp time) {
+  LOGGER_TRACE << Log::CLRF;
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
 }
-
 
 /*!
  * \brief fas::TcpConnection::handleClose
@@ -181,13 +186,16 @@ void fas::TcpConnection::handleError(const fas::Events& revents,
  * close this TcpConnection immediately.
  */
 void fas::TcpConnection::handleClose(const fas::Events& revents, fas::Timestamp time) {
+  LOGGER_TRACE << Log::CLRF;
   boost::ignore_unused(revents, time);
   assert(!closeing_);
   loop_->delHandle(handle_);
+  handle_ = nullptr;
   if(closeCb_) {
     closeing_ = true;
-    closeCb_(connfd_.getSocket());
+    closeCb_();
   }
+  LOGGER_TRACE << " out" << Log::CLRF;
 }
 /*!
  * \brief fas::TcpConnection::shutdown
@@ -198,7 +206,7 @@ void fas::TcpConnection::shutdown() {
     loop_->delHandle(handle_);
     if(closeCb_) {
       closeing_ = true;
-      closeCb_(connfd_.getSocket());
+      closeCb_();
     }
   } else {
     shouldBeClosed_ = true;
@@ -206,9 +214,12 @@ void fas::TcpConnection::shutdown() {
 }
 
 fas::TcpConnection::~TcpConnection() {
-  LOGGER_TRACE << "TcpConnection destroy!" << Log::CLRF;
-  if (handle_->getState() != Handle::STATE_DEL) {
-    loop_->delHandle(handle_);
+  LOGGER_TRACE << "tid: " << gettid() << " TcpConnection destroy!" << Log::CLRF;
+  if (handle_ != nullptr) {
+      loop_->delHandle(handle_);
   }
   delete readBuffer_;
+  readBuffer_ = nullptr;
+  delete writeBuffer_;
+  writeBuffer_ = nullptr;
 }

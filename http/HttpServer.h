@@ -22,13 +22,13 @@ public:
   HttpServer(EventLoop *loop, const NetAddress& addr);
 
   void OnNewConnection(fas::TcpConnShreadPtr conn);
-  void OnConnectionRemoved(fas::map_conn_key_t conn);
+  void OnConnectionRemoved(fas::connkey_t conn);
 
   bool start();
 private:
   EventLoop *loop_;
   TcpServer *tcpSer_;
-  std::map<map_conn_key_t, std::shared_ptr<HttpReqHandle>> reqHandles_;
+  std::map<connkey_t, std::shared_ptr<HttpReqHandle>> reqHandles_;
 };
 
 }

@@ -36,7 +36,7 @@ bool fas::ThreadPool::start() {
     threads_.push_back(std::make_shared<fas::Thread>(threadFunc_));
   }
   int count = 0;
-  for(auto iter = threads_.begin(); iter < threads_.end(); iter++) {
+  for(auto iter = threads_.begin(); iter != threads_.end(); iter++) {
     if ((*iter)->start()) {
       count++;
     } else {
