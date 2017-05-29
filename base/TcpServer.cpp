@@ -78,22 +78,24 @@ void fas::TcpServer::handleReadEvent(const fas::Events& event, fas::Timestamp ti
   }
   //conn will be destroy if there are not other shared_ptr
   //increase the refcount of it
-  fas::TcpConnectionPtr conn = new fas::TcpConnection(workloop,
-                                                    fas::Events(sd, kReadEvent),
-                                                    peerAddr,
-                                                    acceptTime);
-  LOGGER_DEBUG << "tid : " << gettid() <<  " TID : " << workloop->getTid() << " loop num : " << workloop->getCount()<< fas::Log::CLRF;
+//  fas::TcpConnectionPtr conn = new fas::TcpConnection(workloop,
+//                                                    fas::Events(sd, kReadEvent),
+//                                                    peerAddr,
+//                                                    acceptTime);
 
-  fas::TcpConnShreadPtr sconn(conn);
-  conns_[fas::connkey_t(sd, conn)] = sconn;
-  conn->setOnCloseCallBack(boost::bind(&TcpServer::removeConnection, this, fas::connkey_t(sd, conn)));
+  fas::TcpConnShreadPtr sconn(new fas::TcpConnection(workloop,
+                                                     fas::Events(sd, kReadEvent),
+                                                     peerAddr,
+                                                     acceptTime));
+  conns_[fas::connkey_t(sd, sconn.get())] = sconn;
+  sconn->setOnCloseCallBack(boost::bind(&TcpServer::removeConnection, this, fas::connkey_t(sd, sconn.get())));
   if (this->onConnectionCb_) {
   // conn's messagecallback should be seted.
     this->onConnectionCb_(sconn);
   }
 
-  if (!conn->messageCallbackVaild()) {
-    conn->setOnMessageCallBack(messageCb_);
+  if (!sconn->messageCallbackVaild()) {
+    sconn->setOnMessageCallBack(messageCb_);
   }
 
   workloop->wakeUp();

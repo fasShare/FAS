@@ -22,7 +22,7 @@ public:
   HttpServer(EventLoop *loop, const NetAddress& addr);
 
   void OnNewConnection(fas::TcpConnShreadPtr conn);
-  void OnConnectionRemoved(fas::connkey_t conn);
+  void OnConnectionRemoved(fas::connkey_t key);
 
   bool start();
 private:

@@ -6,7 +6,7 @@
 #include <boost/core/ignore_unused.hpp>
 
 fas::http::HttpRequest::HttpRequest() :
-  requestState_(ReqState::BAD) {
+  requestState_(ReqState::INCOMPLETE) {
 }
 
 bool fas::http::HttpRequest::analyseHttpRequestHeader(Buffer *buffer) {

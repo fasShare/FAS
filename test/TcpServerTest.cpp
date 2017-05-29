@@ -30,7 +30,7 @@
 using namespace std;
 using namespace fas;
 
-void TcpConnMessageCallback(TcpConnection *conn, Buffer *buffer, \
+void ConnMessageCallback(fas::TcpConnShreadPtr conn, Buffer *buffer, \
                             Timestamp time) {
   /*!
    * \brief str
@@ -44,6 +44,8 @@ void TcpConnMessageCallback(TcpConnection *conn, Buffer *buffer, \
    * 在把收到的字符串发回去。FAS框架会先把你发送的消息存储的发送buffer里面，等到套接字可读时发送出去。
    */
   conn->sendData(str.data(), str.length());
+
+  conn->shutdown();
 }
 
 int main()
@@ -55,7 +57,7 @@ int main()
     TcpServer *ser = new TcpServer(loop, NetAddress(AF_INET, 8899, "127.0.0.1"));
     //当有客户段发来消息时，调用的函数，本函数写你处理消息的逻辑，消息被服务器框架存储在buffer里面。
     //这个buffer，是可以根据内容自动扩充空间的。
-    ser->setMessageCallback(boost::bind(TcpConnMessageCallback, _1, _2, _3));
+    ser->setMessageCallback(boost::bind(ConnMessageCallback, _1, _2, _3));
 
     ser->start();
     //最终程序会在这个loop函数里面进行各种事件的监听。

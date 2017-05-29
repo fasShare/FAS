@@ -5,6 +5,7 @@
 
 
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace fas {
 
@@ -32,17 +33,21 @@ typedef int map_conn_key_t;
 
 
 typedef TcpConnection *TcpConnectionPtr;
-typedef std::shared_ptr<TcpConnection> TcpConnShreadPtr;
+typedef boost::shared_ptr<TcpConnection> TcpConnShreadPtr;
 typedef std::pair<int, TcpConnectionPtr> connkey_t;
 typedef boost::function<void (TcpConnShreadPtr)> OnConnectionCallBack;
 typedef boost::function<void (connkey_t)> OnConnectionRemovedCallBack;
 typedef boost::function<void ()> CloseCallback;
 
 // the data has been read to (buf, len)
-typedef boost::function<void (TcpConnection *,
+typedef boost::function<void (TcpConnShreadPtr,
                               Buffer*,
                               Timestamp)> MessageCallback;
-typedef boost::function<void (TcpConnection *)> HasMoreDataCallback;
+//typedef boost::function<void (Buffer*,
+//                              Timestamp)>  TcpConnMessageCallback;
+
+typedef MessageCallback TcpConnMessageCallback;
+typedef boost::function<void (TcpConnShreadPtr)> HasMoreDataCallback;
 typedef boost::function<bool (const Events&)> EventCheckFunc;
 
 template<typename T>

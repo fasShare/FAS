@@ -1,13 +1,13 @@
 #ifndef FAS_TCPCONNECTION_H
 #define FAS_TCPCONNECTION_H
-#include <memory>
-
-
 #include <Types.h>
 #include <Events.h>
 #include <Socket.h>
 #include <NetAddress.h>
 #include <Timestamp.h>
+
+
+#include <boost/enable_shared_from_this.hpp>
 
 namespace fas {
 
@@ -19,7 +19,7 @@ class buffer;
  * The TcpConnection class was created by TcpServer.
  * It's connfd_ connected to the client.
  */
-class TcpConnection {
+class TcpConnection : public boost::enable_shared_from_this<TcpConnection>{
 public:
   TcpConnection(EventLoop *loop,
                 const Events& event,
@@ -47,7 +47,7 @@ public:
    */
   void closeAndClearTcpConnection();
 
-  void setOnMessageCallBack(const MessageCallback& cb);
+  void setOnMessageCallBack(const TcpConnMessageCallback& cb);
   bool messageCallbackVaild();
   void setOnCloseCallBack(const CloseCallback& cb);
   void SetHasMoreDataCallback(HasMoreDataCallback moreDataCb);
@@ -78,6 +78,7 @@ public:
   void handleClose(const Events& revents, Timestamp time);
 
   void shutdown();
+  friend void shutdownFromThis(fas::TcpConnShreadPtr conn);
 private:
   EventLoop *loop_;
   Events event_;        /*!< events of connfd_ */
@@ -89,7 +90,7 @@ private:
   bool shouldBeClosed_;
   bool closeing_;
   CloseCallback closeCb_;
-  MessageCallback messageCb_;
+  TcpConnMessageCallback messageCb_;
   Timestamp acceptTime_;
   bool sendAllDataOut_;
 
@@ -98,7 +99,7 @@ private:
   bool hasMoreData_;
   HasMoreDataCallback moreDataCb_;
 };
-
+void shutdownFromThis(TcpConnShreadPtr conn);
 }
 #endif // FAS_TCPCONNECTION_H
 

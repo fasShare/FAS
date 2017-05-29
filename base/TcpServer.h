@@ -72,7 +72,7 @@ private:
   const uint listenBacklog_;
   EventLoopThreadPool threadPool_;    /*!< New TcpConnection's handle will be added
                                       to EventLoopThread in this Threadpool. */
-  std::map<connkey_t, std::shared_ptr<TcpConnection> > conns_;  /*!< map of socket and TcpConnection. */
+  std::map<connkey_t, boost::shared_ptr<TcpConnection> > conns_;  /*!< map of socket and TcpConnection. */
   OnConnectionCallBack onConnectionCb_;
   OnConnectionRemovedCallBack onConnRemovedCb_;
   MessageCallback messageCb_;   /*!< Callback for TcpConnection. */

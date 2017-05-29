@@ -7,7 +7,6 @@
 #include <Buffer.h>
 
 
-#include <memory>
 #include <errno.h>
 
 
@@ -62,7 +61,7 @@ void fas::TcpConnection::closeAndClearTcpConnection() {
   // FIXME : Other clear.
 }
 
-void fas::TcpConnection::setOnMessageCallBack(const fas::MessageCallback& cb) {
+void fas::TcpConnection::setOnMessageCallBack(const fas::TcpConnMessageCallback& cb) {
   messageCb_ = cb;
 }
 
@@ -122,7 +121,8 @@ void fas::TcpConnection::handleRead(const fas::Events& revents,
   } else {
     if (messageCb_) {
       // FIXME : replace this with share_ptr
-      messageCb_(this, readBuffer_, time);
+      //messageCb_(shared_from_this(), readBuffer_, time);
+      messageCb_(shared_from_this(), readBuffer_, time);
     }
   }
 }
@@ -155,7 +155,7 @@ reWrite:
 
     //It should be only used when you send mass data.
     if ((hasMoreData_ == true) && (moreDataCb_)) {
-      moreDataCb_(this);
+      moreDataCb_(shared_from_this());
       readablesizes = writeBuffer_->readableBytes();
     }
 
@@ -202,24 +202,32 @@ void fas::TcpConnection::handleClose(const fas::Events& revents, fas::Timestamp 
  * close this TcpConnection after buffer empty.
  */
 void fas::TcpConnection::shutdown() {
-  if (this->sendAllDataOut_) {
-    loop_->delHandle(handle_);
-    if(closeCb_) {
-      closeing_ = true;
-      closeCb_();
+  loop_->queueInLoop(boost::bind(shutdownFromThis, shared_from_this()));
+}
+
+void fas::shutdownFromThis(fas::TcpConnShreadPtr conn) {
+  if (conn->closeing_) {
+    return;
+  }
+  if (conn->sendAllDataOut_) {
+    conn->getLoop()->delHandle(conn->handle_);
+    if(conn->closeCb_) {
+      conn->closeing_ = true;
+      conn->closeCb_();
     }
   } else {
-    shouldBeClosed_ = true;
+    conn->shouldBeClosed_ = true;
   }
 }
 
 fas::TcpConnection::~TcpConnection() {
-  LOGGER_TRACE << "tid: " << gettid() << " TcpConnection destroy!" << Log::CLRF;
-  if (handle_ != nullptr) {
+  // don't use handle_ != nullptr replace with !closeing, think the reason, please!
+  if (!closeing_) {
       loop_->delHandle(handle_);
   }
   delete readBuffer_;
   readBuffer_ = nullptr;
   delete writeBuffer_;
   writeBuffer_ = nullptr;
+  LOGGER_TRACE << "tid: " << gettid() << " TcpConnection destroy!" << Log::CLRF;
 }
