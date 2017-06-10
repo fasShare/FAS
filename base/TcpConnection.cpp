@@ -101,15 +101,20 @@ void fas::TcpConnection::sendData(const void *data, size_t len) {
 }
 
 void fas::TcpConnection::putDataToWriteBuffer(const void *data, size_t len) {
+  this->sendAllDataOut_ = false;
   writeBuffer_->append(data, len);
 }
 
 void fas::TcpConnection::handleRead(const fas::Events& revents,
                                       fas::Timestamp time) {
-  LOGGER_TRACE <<"tid : " << gettid() << " loop tid : " << loop_->getTid() << Log::CLRF;
   boost::ignore_unused(time);
   loop_->assertInOwnerThread();
-  assert(revents.getFd() == connfd_.getSocket());
+  if (revents.getFd() != connfd_.getSocket()) {
+    LOGGER_ERROR << revents.getFd() << " != " << connfd_.getSocket() << fas::Log::CLRF;
+    if(!closeing_) {
+      handleClose(revents, time);
+    }
+  }
   int err = 0;
   ssize_t ret = readBuffer_->readFd(revents.getFd(), &err);
   if (ret == 0) {
@@ -120,15 +125,12 @@ void fas::TcpConnection::handleRead(const fas::Events& revents,
     LOGGER_DEBUG << "readBuffer_.readFd return " << ::strerror(err) << Log::CLRF;
   } else {
     if (messageCb_) {
-      // FIXME : replace this with share_ptr
-      //messageCb_(shared_from_this(), readBuffer_, time);
       messageCb_(shared_from_this(), readBuffer_, time);
     }
   }
 }
 
 void fas::TcpConnection::handleWrite(const fas::Events& revents, fas::Timestamp time) {
-  LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
 
@@ -149,7 +151,6 @@ reWrite:
       handleClose(revents, time);
     }
   } else {
-    sendAllDataOut_ = false;
     readablesizes -= ret;
     writeBuffer_->retrieve(ret);
 
@@ -169,7 +170,6 @@ reWrite:
       }
     }
   }
-//  LOGGER_TRACE << "TcpConnection::handleWrite" << fas::Log::CLRF;
 }
 
 void fas::TcpConnection::handleError(const fas::Events& revents,
@@ -188,7 +188,9 @@ void fas::TcpConnection::handleError(const fas::Events& revents,
 void fas::TcpConnection::handleClose(const fas::Events& revents, fas::Timestamp time) {
   LOGGER_TRACE << Log::CLRF;
   boost::ignore_unused(revents, time);
-  assert(!closeing_);
+  if (closeing_) {
+    return;
+  }
   loop_->delHandle(handle_);
   handle_ = nullptr;
   if(closeCb_) {
