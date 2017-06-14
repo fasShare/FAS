@@ -4,12 +4,11 @@
 #include <memory>
 
 #include <HttpReqHandle.h>
-#include <Types.h>
+#include <TcpServer.h>
 
 namespace fas {
 
 class EventLoop;
-class TcpServer;
 class NetAddress;
 
 //using fas::map_conn_key_t;
@@ -21,14 +20,14 @@ class HttpServer {
 public:
   HttpServer(EventLoop *loop, const NetAddress& addr);
 
-  void OnNewConnection(fas::TcpConnShreadPtr conn);
-  void OnConnectionRemoved(fas::connkey_t key);
+  void OnNewConnection(HttpReqHandle::TcpConnShreadPtr conn);
+  void OnConnectionRemoved(TcpServer::connkey_t key);
 
   bool start();
 private:
   EventLoop *loop_;
   TcpServer *tcpSer_;
-  std::map<connkey_t, std::shared_ptr<HttpReqHandle>> reqHandles_;
+  std::map<TcpServer::connkey_t, std::shared_ptr<HttpReqHandle>> reqHandles_;
 };
 
 }

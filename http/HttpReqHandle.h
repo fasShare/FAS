@@ -3,6 +3,7 @@
 #include <string>
 
 
+#include <TcpConnection.h>
 #include <HttpResponse.h>
 #include <HttpRequest.h>
 #include <HttpCommon.h>
@@ -13,6 +14,7 @@ namespace http {
 
 class HttpReqHandle {
 public:
+using TcpConnShreadPtr = fas::TcpConnection::TcpConnShreadPtr;
   HttpReqHandle();
   ~HttpReqHandle();
 

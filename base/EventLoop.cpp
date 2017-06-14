@@ -3,10 +3,12 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/eventfd.h>
-
+#include <new>
 
 #include <Log.h>
 #include <Poller.h>
+#include <Poll.h>
+#include <Epoll.h>
 #include <Socket.h>
 #include <EventLoop.h>
 #include <Timestamp.h>
@@ -15,6 +17,7 @@
 #include <Events.h>
 #include <MutexLocker.h>
 #include <TimersScheduler.h>
+#include <Environment.h>
 
 
 #include <boost/bind.hpp>
@@ -23,8 +26,8 @@
 std::atomic<int> fas::EventLoop::count_(0);
 
 fas::EventLoop::EventLoop() :
-  poll_(new Poller),
-  pollDelayTime_(10000),
+  poll_(nullptr),
+  pollDelayTime_(200),
   revents_(),
   handles_(),
   updates_(),
@@ -38,9 +41,20 @@ fas::EventLoop::EventLoop() :
   timerScheduler_(new TimersScheduler(this)),
   quit_(false) {
 
-  //poll_.reset(new Poller);
-  assert(poll_);
+  if (GET_FAS_INFO()->getPollerType() == "poll") {
+    poll_ = new (std::nothrow) Poll();
+  } else {
+    poll_ = new (std::nothrow) Epoll();
+  }
+  if (!poll_) {
+    LOGGER_SYSERR << "New Poller error!" << fas::Log::CLRF;
+  }
+
   count_++;
+
+  int time_out = GET_FAS_INFO()->getPollerTimeout();
+
+  pollDelayTime_ = time_out > 0 ? time_out : pollDelayTime_;
 
   wakeUpHandle_->setHandleRead(boost::bind(&EventLoop::handWakeUp, this, _1, _2));
   addHandle(wakeUpHandle_);
@@ -65,24 +79,51 @@ bool fas::EventLoop::addHandle(HandlePtr handle) {
   assert(handle->getState() == Handle::state::STATE_NEW);
   MutexLocker lock(mutex_);(void)lock;
   handle->setState(Handle::state::STATE_ADD);
-  return updateHandle(std::shared_ptr<Handle>(handle));
+  return updateHandle(boost::shared_ptr<Handle>(handle));
 }
 
-//FIXME : mod by fd
+bool fas::EventLoop::addSHandle(SHandlePtr handle) {
+  assert(handle->getState() == Handle::state::STATE_NEW);
+  MutexLocker lock(mutex_);(void)lock;
+  handle->setState(Handle::state::STATE_ADD);
+  return updateHandle(handle);
+}
+
 bool fas::EventLoop::modHandle(HandlePtr handle) {
-    MutexLocker lock(mutex_);(void)lock;
-    if (handles_.find(handle->fd()) == handles_.end()) {
-      return false;
-    }
-    SHandlePtr mod = handles_.find(handle->fd())->second;
-    mod->setState(Handle::state::STATE_MOD);
-    return updateHandle(mod);
+  MutexLocker lock(mutex_);(void)lock;
+  if (handles_.find(handle->fd()) == handles_.end()) {
+    return false;
+  }
+  SHandlePtr mod = handles_.find(handle->fd())->second;
+  mod->setState(Handle::state::STATE_MOD);
+  return updateHandle(mod);
 }
 
-// FIXME : del by fd
+bool fas::EventLoop::modSHandle(SHandlePtr handle) {
+  MutexLocker lock(mutex_);(void)lock;
+  if (handles_.find(handle->fd()) == handles_.end()) {
+    LOGGER_ERROR << "handles_.find(handle->fd()) == handles_.end()" << Log::CLRF;
+    return false;
+  }
+  SHandlePtr mod = handles_.find(handle->fd())->second;
+  mod->setState(Handle::state::STATE_MOD);
+  return updateHandle(mod);
+}
+
 bool fas::EventLoop::delHandle(HandlePtr handle) {
   MutexLocker lock(mutex_);(void)lock;
   if (handles_.find(handle->fd()) == handles_.end()) {
+    return false;
+  }
+  SHandlePtr del = handles_.find(handle->fd())->second;
+  del->setState(Handle::state::STATE_DEL);
+  return updateHandle(del);
+}
+
+bool fas::EventLoop::delSHandle(SHandlePtr handle) {
+  MutexLocker lock(mutex_);(void)lock;
+  if (handles_.find(handle->fd()) == handles_.end()) {
+    LOGGER_ERROR << "handles_.find(handle->fd()) == handles_.end()" << Log::CLRF;
     return false;
   }
   SHandlePtr del = handles_.find(handle->fd())->second;
@@ -107,15 +148,15 @@ bool fas::EventLoop::updateHandles() {
     Events* event = handle->getEvent();
 
     if (handle->getState() == Handle::state::STATE_ADD) {
-      poll_->events_add_(event);
+      poll_->EventsAdd(event);
       handle->setState(Handle::state::STATE_LOOP);
       handles_[cur->first] = handle;
     } else if (handle->getState() == Handle::state::STATE_MOD) {
-      poll_->events_mod_(event);
+      poll_->EventsMod(event);
       handle->setState(Handle::state::STATE_LOOP);
       handles_[cur->first] = handle;
     }else if (handle->getState() == Handle::state::STATE_DEL) {
-      poll_->events_del_(event);
+      poll_->EventsDel(event);
       int n = handles_.erase(handle->fd());
       assert(n == 1);
     } else {
@@ -138,8 +179,7 @@ void fas::EventLoop::wakeUp() {
   uint64_t one = 1;
   ssize_t n = ::write(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one) {
-    // FIXME : use Log
-    LOGGER_TRACE << "EventLoop::wakeup() writes " << n << " bytes instead of 8" << Log::CLRF;
+    LOGGER_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8" << Log::CLRF;
   }
 
 }
@@ -149,8 +189,7 @@ void fas::EventLoop::handWakeUp(Events event, Timestamp time) {
   uint64_t one = 1;
   ssize_t n = ::read(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one){
-    // FIXME : use Log
-    LOGGER_TRACE << "EventLoop::handleRead() reads " << n << " bytes instead of 8" << Log::CLRF;
+    LOGGER_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8" << Log::CLRF;
   }
 }
 
@@ -219,13 +258,9 @@ bool fas::EventLoop::loop() {
 
     revents_.clear();
 
-    LOGGER_DEBUG << "tid : " << gettid() <<  " TID : " << getTid() << " loop num : " << this->getCount() << " handles : " << handles_.size() << fas::Log::CLRF;
-
-    looptime = poll_->loop_(revents_, pollDelayTime_);
-    LOGGER_DEBUG << "after poll looping!" << fas::Log::CLRF;
+    looptime = poll_->Loop(revents_, pollDelayTime_);
     for(std::vector<Events>::iterator iter = revents_.begin();
         iter != revents_.end(); iter++) {
-      LOGGER_DEBUG << "loop handing!" << fas::Log::CLRF;
       //handle will decreament reference after for end!
       std::map<int, SHandlePtr>::iterator finditer = handles_.find((*iter).getFd());
       if (finditer == handles_.end()) {
@@ -233,18 +268,15 @@ bool fas::EventLoop::loop() {
       }
       SHandlePtr handle = finditer->second;
       if (handle->getState() != Handle::state::STATE_LOOP) {
-        LOGGER_DEBUG << "After Loop have handle with state STATE_LOOP! it is unnormal!" << Log::CLRF;
+        LOGGER_DEBUG << "handle'state != STATE_LOOP!" << Log::CLRF;
         continue;
       }
       //handle revents
-      LOGGER_DEBUG << "before handle event!" << fas::Log::CLRF;
       handle->handleEvent(*iter, looptime);
-      LOGGER_DEBUG << "after handle event!" << fas::Log::CLRF;
     } //for
 
     assert(!runningFunctors_);
     runFunctors();
-    LOGGER_DEBUG << "will start next polling!" << fas::Log::CLRF;
   } //while
   return true;
 }

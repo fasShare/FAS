@@ -1,3 +1,5 @@
+#include <strings.h>
+
 #include <Events.h>
 
 fas::Events::Events(const int fd, uint32_t events) :
@@ -9,11 +11,12 @@ fas::Events::Events(const Events& events) :
   Events(events.fd_, events.events_) {
 }
 
-fas::Events::Events(const EpollEvent& events) :
+//下面这两个构造主要用与polling返回时
+fas::Events::Events(const struct epoll_event& events) :
   Events(events.data.fd, events.events){
 }
 
-fas::Events::Events(const PollEvent& events) :
+fas::Events::Events(const struct pollfd& events) :
  Events(events.fd, events.revents) {
 
 }
@@ -46,17 +49,17 @@ bool fas::Events::containsAtLeastOneEvents(uint32_t events) const {
   return ((events_ & events) != 0);
 }
 
-fas::EpollEvent fas::Events::epollEvents() {
-  fas::EpollEvent events;
-  bzero(&events, sizeof(EpollEvent));
+struct epoll_event fas::Events::epollEvents() {
+  struct epoll_event events;
+  bzero(&events, sizeof(struct epoll_event));
   events.data.fd = this->getFd();
   events.events = this->getEvents();
   return events;
 }
 
-fas::PollEvent fas::Events::pollEvents() {
-  fas::PollEvent events;
-  bzero(&events, sizeof(PollEvent));
+struct pollfd fas::Events::pollEvents() {
+  struct pollfd events;
+  bzero(&events, sizeof(struct pollfd));
   events.fd = this->getFd();
   events.events = this->getEvents();
   return events;

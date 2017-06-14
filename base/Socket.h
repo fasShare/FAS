@@ -4,10 +4,6 @@
 #include <sys/socket.h>
 #include <fcntl.h>
 
-
-
-#include <Types.h>
-
 namespace fas {
 
 class NetAddress;
@@ -24,10 +20,10 @@ public:
   };
 
   Socket(int domain, int type, int protocol);
-  Socket(Socket_t sd);
+  Socket(int sd);
   ~Socket();
 
-  Socket_t getSocket() const;
+  int getSocket() const;
 
   bool setNoBlocking();
   bool setExecClose();
@@ -35,14 +31,14 @@ public:
   bool bind(const NetAddress& addr);
   bool listen(int backlog);
   bool connect(const NetAddress& addr);
-  Socket_t accept(NetAddress& addr, bool noblockingexec);
+  int accept(NetAddress& addr, bool noblockingexec);
   void close();
 private:
-  Socket_t socket_;
-  uchar state_;
+  int socket_;
+  u_int8_t state_;
 };
 
-bool SetNoBlockingOrExec(Socket_t sd);
+bool SetNoBlockingOrExec(int sd);
 
 }
 #endif // FAS_SOCKET_H

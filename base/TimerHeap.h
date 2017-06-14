@@ -3,9 +3,10 @@
 #include <set>
 #include <utility>
 #include <vector>
+#include <Timestamp.h>
 
 
-#include <Types.h>
+#include <boost/shared_ptr.hpp>
 
 namespace fas {
 
@@ -16,8 +17,10 @@ class Timer;
  */
 class TimerHeap {
 public:
-  typedef std::set<std::pair<Timestamp, Timer*>>::iterator TimerHeapIter;
-  typedef std::pair<TimerHeapIter, bool> TimerHeapSetRetType;
+typedef int timerfd_t;
+typedef boost::shared_ptr<Timer> TimerPtr;
+typedef std::set<std::pair<Timestamp, Timer*>>::iterator TimerHeapIter;
+typedef std::pair<TimerHeapIter, bool> TimerHeapSetRetType;
   TimerHeap();
   ~TimerHeap();
 

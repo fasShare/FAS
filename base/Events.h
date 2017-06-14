@@ -1,10 +1,8 @@
 #ifndef FAS_EVENTS_H
 #define FAS_EVENTS_H
 #include <iostream>
-
-
-#include <Types.h>
-
+#include <sys/epoll.h>
+#include <sys/poll.h>
 
 #include <boost/static_assert.hpp>
 
@@ -16,9 +14,9 @@ BOOST_STATIC_ASSERT_MSG(EPOLLPRI == POLLPRI, "EPOLLPRI != POLLPRI");
 BOOST_STATIC_ASSERT_MSG(EPOLLERR == POLLERR, "EPOLLERR != POLLERR");
 BOOST_STATIC_ASSERT_MSG(EPOLLRDHUP == POLLRDHUP, "EPOLLRDHUP != POLLRDHUP");
 
-const events_t kNoneEvent = 0;
-const events_t kReadEvent = POLLIN | POLLPRI;
-const events_t kWriteEvent = POLLOUT;
+const uint32_t kNoneEvent = 0;
+const uint32_t kReadEvent = POLLIN | POLLPRI;
+const uint32_t kWriteEvent = POLLOUT;
 
 /*!
  * \brief The Events class
@@ -33,13 +31,13 @@ public:
    * \param events
    * only used after epoll_wait() return.
    */
-  Events(const EpollEvent& events);
+  Events(const struct epoll_event& events);
   /*!
    * \brief Events
    * \param events
    * only used after poll() return.
    */
-  Events(const PollEvent& events);
+  Events(const struct pollfd& events);
    ~Events();
 
   /*!
@@ -87,14 +85,14 @@ public:
    * \return struct epoll_event
    * Translate this Events object into struct epoll_event object which can be used to epoll.
    */
-  EpollEvent epollEvents();
+  struct epoll_event epollEvents();
 
   /*!
    * \brief pollEvents
    * \return struct epollfd
    * Translate this Events object into struct epollfd object which can be used to poll.
    */
-  PollEvent pollEvents();
+  struct pollfd pollEvents();
 
 private:
   int fd_;           /*!< descriptor */

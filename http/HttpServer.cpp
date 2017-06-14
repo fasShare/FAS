@@ -17,7 +17,7 @@ fas::http::HttpServer::HttpServer(fas::EventLoop *loop,
   tcpSer_->setOnConnRemovedCallBack(boost::bind(&HttpServer::OnConnectionRemoved, this, _1));
 }
 
-void fas::http::HttpServer::OnNewConnection(fas::TcpConnShreadPtr conn) {
+void fas::http::HttpServer::OnNewConnection(fas::TcpServer::TcpConnShreadPtr conn) {
   LOGGER_TRACE << "fas::http::HttpServer::OnNewConnection" << fas::Log::CLRF;
   // req must not be shared_ptr, or conn will be referenced by itself.
   // you can analyse it by youself seriously.
@@ -25,10 +25,10 @@ void fas::http::HttpServer::OnNewConnection(fas::TcpConnShreadPtr conn) {
 
   conn->setOnMessageCallBack(boost::bind(&HttpReqHandle::OnMessageCallback, reqHandle, _1, _2, _3));
   conn->SetHasMoreDataCallback(boost::bind(&HttpReqHandle::sendMassData, reqHandle, _1));
-  this->reqHandles_[connkey_t(conn->getConnfd(), conn.get())] = reqHandle;
+  this->reqHandles_[fas::TcpServer::connkey_t(conn->getConnfd(), conn.get())] = reqHandle;
 }
 
-void fas::http::HttpServer::OnConnectionRemoved(fas::connkey_t key) {
+void fas::http::HttpServer::OnConnectionRemoved(fas::TcpServer::connkey_t key) {
   LOGGER_TRACE << "fas::http::HttpServer::OnConnectionRemoved" << fas::Log::CLRF;
   loop_->assertInOwnerThread();
   if (this->reqHandles_.find(key) == this->reqHandles_.end()) {

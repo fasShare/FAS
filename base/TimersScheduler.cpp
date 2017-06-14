@@ -35,7 +35,7 @@ fas::TimersScheduler::TimersScheduler(fas::EventLoop *loop) :
   loop_->addHandle(handle_);
 }
 
-fas::timerfd_t fas::TimersScheduler::getTimerfd() const {
+fas::TimerHeap::timerfd_t fas::TimersScheduler::getTimerfd() const {
   return timerfd_;
 }
 

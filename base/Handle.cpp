@@ -49,27 +49,27 @@ void fas::Handle::disableRead() {
   events_->deleteEvent(kReadEvent);
 }
 
-void fas::Handle::setHandleRead(const events_handle_t& handle_read) {
+void fas::Handle::setHandleRead(const EventHandleFunc& handle_read) {
   handle_read_event_ = handle_read;
 }
 
-void fas::Handle::setHandleWrite(const events_handle_t& handle_write) {
+void fas::Handle::setHandleWrite(const EventHandleFunc& handle_write) {
   handle_write_event_ = handle_write;
 }
 
-void fas::Handle::setHandleError(const events_handle_t& handle_error) {
+void fas::Handle::setHandleError(const EventHandleFunc& handle_error) {
   handle_error_event_ = handle_error;
 }
 
-void fas::Handle::setHandleClose(const events_handle_t& handle_close) {
+void fas::Handle::setHandleClose(const EventHandleFunc& handle_close) {
   handle_close_event_ = handle_close;
 }
 
 
-void fas::Handle::setState(uchar state) {
+void fas::Handle::setState(uint8_t state) {
   state_ = state;
 }
-fas::uchar fas::Handle::getState() {
+uint8_t fas::Handle::getState() {
   return state_;
 }
 

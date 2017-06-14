@@ -4,7 +4,7 @@
 #include <vector>
 
 
-#include <Types.h>
+#include <Poller.h>
 
 
 #include <boost/noncopyable.hpp>
@@ -18,21 +18,24 @@ class Events;
  * \brief The Epoll class
  * Encapsulation of epoll_ctl, epoll_create, epoll_wait
  */
-class Epoll : boost::noncopyable {
+class Epoll : public Poller {
 public:
+typedef struct epoll_event  EpollEvent;
+typedef struct pollfd  PollEvent;
+
   Epoll();
   ~Epoll();
 
-  bool pollerEventsAdd(Events* events);
-  bool pollerEventsMod(Events* events);
-  bool pollerEventsDel(Events* events);
-  Timestamp pollerLoop(std::vector<Events> &events, int timeout);
+  bool EventsAdd(Events* events);
+  bool EventsMod(Events* events);
+  bool EventsDel(Events* events);
+  Timestamp Loop(std::vector<Events> &events, int timeout);
 
 private:
   bool eventCtl(int op, int fd, EpollEvent* event);
-  bool eventAdd(Socket_t fd, EpollEvent* event);
-  bool eventDel(Socket_t fd, EpollEvent* event);
-  bool eventMod(Socket_t fd, EpollEvent* event);
+  bool eventAdd(int fd, EpollEvent* event);
+  bool eventDel(int fd, EpollEvent* event);
+  bool eventMod(int fd, EpollEvent* event);
   int loopWait(EpollEvent* events, int maxevents, int timeout);
 
   int epoll_fd_;

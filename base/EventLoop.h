@@ -6,8 +6,9 @@
 #include <memory>
 #include <atomic>
 
-#include <Types.h>
+
 #include <Mutex.h>
+#include <Timestamp.h>
 #include <Condition.h>
 
 #include <boost/scoped_ptr.hpp>
@@ -21,7 +22,7 @@ class Handle;
 class MutexLocker;
 class Poller;
 class TimersScheduler;
-class timer;
+class Timer;
 /*!
  * \brief The EventLoop class
  * The EventLoop class is core class of fas.
@@ -36,7 +37,7 @@ class timer;
 class EventLoop : boost::noncopyable {
 public:
 
-  typedef std::shared_ptr<Handle> SHandlePtr;
+  typedef boost::shared_ptr<Handle> SHandlePtr;
   typedef Handle* HandlePtr;
   typedef boost::function<void ()> Functor;
 
@@ -59,6 +60,7 @@ public:
    * If the handle exist, this function will assert(false).
    */
   bool addHandle(HandlePtr handle);
+  bool addSHandle(SHandlePtr handle);
   /*!
    * \brief modHandle
    * \param handle
@@ -67,6 +69,7 @@ public:
    * If the handle not exist, this function will return false and no action.
    */
   bool modHandle(HandlePtr handle);
+  bool modSHandle(SHandlePtr handle);
   /*!
    * \brief delHandle
    * \param handle
@@ -75,6 +78,7 @@ public:
    * If the handle not exist, this function will return false and no action.
    */
   bool delHandle(HandlePtr handle);
+  bool delSHandle(SHandlePtr handle);
   /*!
    * \brief addTimer
    * \param timer
@@ -140,18 +144,18 @@ private:
   bool updateHandles();
   void runFunctors();
 
-  void handWakeUp(Events event, Timestamp time);
+  void handWakeUp(Events event, fas::Timestamp time);
 
-  static const int kInitMaxHandle_ = 10;   /*!< EventLoop's handle num can more than kInitMaxHandle_ */
+  static const int kInitMaxHandle_ = 10;
   static std::atomic<int> count_;
-  boost::scoped_ptr<Poller> poll_;         /*!< poller shared_ptr will be auto released. */
+  Poller *poll_;
   int pollDelayTime_;
   std::vector<Events> revents_;            /*!< recv the revents was return by poller. */
   std::map<int, SHandlePtr> handles_;      /*!< Handles was added to this EventLoop. */
   std::map<int, SHandlePtr> updates_;      /*!< Handles will be addef to handles_. */
   Mutex mutex_;
   Condition cond_;
-  pid_t tid_;                              /*!< The pid of the Thread which own this EventLoop. */
+  pid_t tid_;                     /*!< The pid of the Thread which own this EventLoop. */
 
   int wakeUpFd_;          /*!< eventfd */
   Handle *wakeUpHandle_;  /*!< The handle of wakeUpFd_. */

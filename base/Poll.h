@@ -3,27 +3,26 @@
 #include <sys/poll.h>
 
 
-#include <Types.h>
-#include <Poll.h>
+#include <Poller.h>
 
 
 #include <boost/noncopyable.hpp>
 
 namespace fas {
 
-class Poll : boost::noncopyable {
+class Poll : public Poller {
 public:
   Poll();
 
-  bool pollerEventsAdd(Events* events);
-  bool pollerEventsMod(Events* events);
-  bool pollerEventsDel(Events* events);
-  Timestamp pollerLoop(std::vector<Events> &events, int timeout);
+  bool EventsAdd(Events* events);
+  bool EventsMod(Events* events);
+  bool EventsDel(Events* events);
+  Timestamp Loop(std::vector<Events> &events, int timeout);
 
 private:
-  std::vector<PollEvent>::iterator getEventPos(const PollEvent& event);
+  std::vector<struct pollfd>::iterator getEventPos(const struct pollfd& event);
   static size_t kMaxPollNum_;
-  std::vector<PollEvent> revents_;
+  std::vector<struct pollfd> revents_;
 };
 
 }

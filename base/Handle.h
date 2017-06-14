@@ -3,9 +3,6 @@
 #include <iostream>
 
 
-#include <Types.h>
-
-
 #include <boost/function.hpp>
 
 namespace fas {
@@ -22,6 +19,8 @@ class Timestamp;
  */
 class Handle {
 public:
+typedef boost::function<bool (const Events& event)> EventCheckFunc;
+typedef boost::function<void (const fas::Events&, Timestamp)> EventHandleFunc;
   enum state {
     STATE_ADD = 1,
     STATE_MOD,
@@ -44,8 +43,8 @@ public:
   void enableRead();
   void disableRead();
 
-  void setState(uchar state);
-  uchar getState();
+  void setState(uint8_t state);
+  uint8_t getState();
 
   void setCheckRead(const EventCheckFunc& checkRead);
   void setCheckWrite(const EventCheckFunc& checkWrite);
@@ -57,16 +56,16 @@ public:
   bool defaultCheckError(const Events& event);
   bool defaultCheckClose(const Events& event);
 
-  void setHandleRead(const events_handle_t& handle_read);
-  void setHandleWrite(const events_handle_t& handle_write);
-  void setHandleError(const events_handle_t& handle_error);
-  void setHandleClose(const events_handle_t& handle_close);
+  void setHandleRead(const EventHandleFunc& handle_read);
+  void setHandleWrite(const EventHandleFunc& handle_write);
+  void setHandleError(const EventHandleFunc& handle_error);
+  void setHandleClose(const EventHandleFunc& handle_close);
 
   void handleEvent(const Events&, Timestamp);
 private:
   EventLoop *loop_;
   Events *events_;
-  uchar state_;
+  unsigned char state_;
 
   EventCheckFunc checkRead_;
   EventCheckFunc checkWrite_;

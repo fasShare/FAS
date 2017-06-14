@@ -3,14 +3,17 @@
 #include <memory>
 #include <map>
 #include <vector>
+#include <queue>
 
 
 #include <Socket.h>
-#include <Types.h>
 #include <Events.h>
 #include <NetAddress.h>
 #include <EventLoopThreadPool.h>
+#include <ThreadPool.h>
 #include <TcpConnection.h>
+#include <Mutex.h>
+#include <MutexLocker.h>
 
 namespace fas {
 
@@ -26,13 +29,27 @@ class Handle;
  */
 class TcpServer {
 public:
-  TcpServer(EventLoop *loop, const NetAddress& addr, uint threadNum = 4);
+using TcpConnShreadPtr = TcpConnection::TcpConnShreadPtr;
+using TcpConnectionPtr = TcpConnection::TcpConnectionPtr;
+using TcpConnMessageCallback = TcpConnection::TcpConnMessageCallback;
+typedef std::pair<int, TcpConnectionPtr> connkey_t;
+
+typedef boost::function<void (TcpConnShreadPtr)> OnConnectionCallBack;
+typedef boost::function<void (connkey_t)> OnConnectionRemovedCallBack;
+
+  TcpServer(EventLoop *loop, const NetAddress& addr, int threadNum = 4);
   ~TcpServer();
 
   EventLoop* getLoop() const;
 
   TcpConnShreadPtr getConn(connkey_t key) const;
   TcpConnShreadPtr getConn(connkey_t key);
+
+  void EnterQueue(boost::shared_ptr<Handle>& handle);
+
+  bool pushHandleToQueue(boost::shared_ptr<Handle>& handle);
+  bool getHandleFromQueue(boost::shared_ptr<Handle>& handle);
+  bool removeHandleFromQueue(boost::shared_ptr<Handle>& handle);
 
   bool start();
   /*!
@@ -43,7 +60,7 @@ public:
    * when a new client connect to this TcpServer, it'll be called.
    * We create new TcpConnection in it.
    */
-  void handleReadEvent(const Events& event, Timestamp time);
+  void defHandleAccept(const Events& event, Timestamp time);
   void setOnConnectionCallBack(OnConnectionCallBack onConnectionCb);
   void setOnConnRemovedCallBack(OnConnectionRemovedCallBack onConnRemovedCb);
   /*!
@@ -54,7 +71,7 @@ public:
    * The MessageCallback will be called when TcpConnection's connected socket can be read, there are
    * a message come.
    */
-  void setMessageCallback(const MessageCallback& cb);
+  void setMessageCallback(const TcpConnMessageCallback& cb);
   /*!
    * \brief removeConnection
    * \param conn
@@ -64,18 +81,22 @@ public:
   void removeConnection(connkey_t conn);
   void removeConnectionInLoop(connkey_t conn);
 private:
-  Socket server_;                     /*!< listen and accept socket. */
-  EventLoop *loop_;                   /*!< In loop_ polling server_'s read and write events. */
+  Socket server_;
+  EventLoop *loop_;
+  int threadNum_;
   Events events_;
-  Handle *handle_;                    /*!< Handle of Socket. */
+  Handle *handle_;
   NetAddress addr_;
   const uint listenBacklog_;
-  EventLoopThreadPool threadPool_;    /*!< New TcpConnection's handle will be added
-                                      to EventLoopThread in this Threadpool. */
-  std::map<connkey_t, boost::shared_ptr<TcpConnection> > conns_;  /*!< map of socket and TcpConnection. */
+  EventLoopThreadPool *loopThreadPool_;
+  std::map<connkey_t, boost::shared_ptr<TcpConnection> > conns_;
   OnConnectionCallBack onConnectionCb_;
   OnConnectionRemovedCallBack onConnRemovedCb_;
-  MessageCallback messageCb_;   /*!< Callback for TcpConnection. */
+  TcpConnMessageCallback messageCb_;
+
+  ThreadPool *threadPool_;
+  std::queue<boost::shared_ptr<Handle>> *handleQueue_;
+  std::map<int, boost::shared_ptr<Handle>> *handleMap_;
 };
 
 }

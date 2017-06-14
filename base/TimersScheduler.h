@@ -3,9 +3,9 @@
 #include <sys/timerfd.h>
 
 
-#include <Types.h>
 #include <TimerHeap.h>
 #include <Timestamp.h>
+#include <Events.h>
 
 namespace fas {
 
@@ -25,7 +25,7 @@ public:
   TimersScheduler(EventLoop *loop);
   ~TimersScheduler();
 
-  timerfd_t getTimerfd() const;
+  TimerHeap::timerfd_t getTimerfd() const;
 
   bool addTimer(Timer *);
   void delTimer(Timer *);
@@ -43,7 +43,7 @@ private:
    */
   bool resetTimer(Timestamp earlist);
 
-  timerfd_t timerfd_;
+  TimerHeap::timerfd_t timerfd_;
   EventLoop *loop_;
   Handle *handle_;
   TimerHeap timerheap_;

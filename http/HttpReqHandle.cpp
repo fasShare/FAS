@@ -143,7 +143,7 @@ bool fas::http::HttpReqHandle::HandleOptions(TcpConnShreadPtr conn, const HttpRe
 
 void fas::http::HttpReqHandle::sendMassData(TcpConnShreadPtr conn) {
   assert(massDataC_.getFd() > 0);
-  uchar buf[massDataC_.getReadEveryTime() + 1];
+  uint8_t buf[massDataC_.getReadEveryTime() + 1];
 
   if (lseek(massDataC_.getFd(), massDataC_.getRdstart(), SEEK_SET) == static_cast<off_t>(-1)) {
     massDataC_.closeFd();

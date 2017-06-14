@@ -23,7 +23,7 @@ fas::Epoll::Epoll() :
   revents_.resize(maxNum_);
 }
 
-bool fas::Epoll::eventCtl(int op, Socket_t sd, EpollEvent* event) {
+bool fas::Epoll::eventCtl(int op, int sd, EpollEvent* event) {
   assert(epoll_fd_ != -1);
   int ret = ::epoll_ctl(epoll_fd_, op, sd, event);
   if (ret == -1) {
@@ -34,15 +34,15 @@ bool fas::Epoll::eventCtl(int op, Socket_t sd, EpollEvent* event) {
   }
 }
 
-bool fas::Epoll::eventAdd(Socket_t sd, EpollEvent* event) {
+bool fas::Epoll::eventAdd(int sd, EpollEvent* event) {
   return eventCtl(EPOLL_CTL_ADD, sd, event);
 }
 
-bool fas::Epoll::eventDel(Socket_t sd, EpollEvent* event) {
+bool fas::Epoll::eventDel(int sd, EpollEvent* event) {
   return eventCtl(EPOLL_CTL_DEL, sd, event);
 }
 
-bool fas::Epoll::eventMod(Socket_t sd, EpollEvent* event) {
+bool fas::Epoll::eventMod(int sd, EpollEvent* event) {
   return eventCtl(EPOLL_CTL_MOD, sd, event);
 }
 
@@ -60,22 +60,22 @@ should_continue:
   return ret;
 }
 
-bool fas::Epoll::pollerEventsAdd(Events* events) {
+bool fas::Epoll::EventsAdd(Events* events) {
   EpollEvent event = events->epollEvents();
   return this->eventAdd(event.data.fd, &event);
 }
 
-bool fas::Epoll::pollerEventsMod(Events* events) {
+bool fas::Epoll::EventsMod(Events* events) {
   EpollEvent event = events->epollEvents();
   return this->eventMod(event.data.fd, &event);
 }
 
-bool fas::Epoll::pollerEventsDel(Events* events) {
+bool fas::Epoll::EventsDel(Events* events) {
   EpollEvent event = events->epollEvents();
   return this->eventDel(event.data.fd, &event);
 }
 
-fas::Timestamp fas::Epoll::pollerLoop(std::vector<Events> &events, int timeout) {
+fas::Timestamp fas::Epoll::Loop(std::vector<Events> &events, int timeout) {
   int ret = this->loopWait(revents_.data(), maxNum_, timeout);
   for(int i = 0; i < ret; i++) {
     events.emplace_back(revents_.data()[i]);

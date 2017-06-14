@@ -9,7 +9,7 @@ fas::Poll::Poll() :
  revents_() {
 }
 
-bool fas::Poll::pollerEventsAdd(Events* events) {
+bool fas::Poll::EventsAdd(Events* events) {
   assert(events != nullptr);
   if (revents_.size() >= kMaxPollNum_) {
     return false;
@@ -18,7 +18,7 @@ bool fas::Poll::pollerEventsAdd(Events* events) {
   return true;
 }
 
-bool fas::Poll::pollerEventsMod(Events* events) {
+bool fas::Poll::EventsMod(Events* events) {
   assert(events != nullptr);
   auto pos = getEventPos(events->pollEvents());
   if (pos == revents_.end()) {
@@ -28,7 +28,7 @@ bool fas::Poll::pollerEventsMod(Events* events) {
   return true;
 }
 
-bool fas::Poll::pollerEventsDel(Events* events) {
+bool fas::Poll::EventsDel(Events* events) {
   assert(events != nullptr);
   auto pos = getEventPos(events->pollEvents());
   if (pos == revents_.end()) {
@@ -38,7 +38,7 @@ bool fas::Poll::pollerEventsDel(Events* events) {
   return true;
 }
 
-std::vector<fas::PollEvent>::iterator fas::Poll::getEventPos(const fas::PollEvent& event) {
+std::vector<struct pollfd>::iterator fas::Poll::getEventPos(const struct pollfd& event) {
   for (auto iter = revents_.begin(); iter != revents_.end(); ++iter) {
     if (iter->fd == event.fd) {
       return iter;
@@ -47,7 +47,7 @@ std::vector<fas::PollEvent>::iterator fas::Poll::getEventPos(const fas::PollEven
   return revents_.end();
 }
 
-fas::Timestamp fas::Poll::pollerLoop(std::vector<fas::Events> &events, int timeout) {
+fas::Timestamp fas::Poll::Loop(std::vector<fas::Events> &events, int timeout) {
 should_continue:
   // FIXME : use ppoll
   int ret = ::poll(revents_.data(), revents_.size(), timeout);

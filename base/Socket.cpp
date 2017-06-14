@@ -13,12 +13,12 @@ fas::Socket::Socket(int domain, int type, int protocol) :
 
 }
 
-fas::Socket::Socket(Socket_t sd) :
+fas::Socket::Socket(int sd) :
   socket_(sd),
   state_(Socket::STATE::OPENED) {
 }
 
-fas::Socket_t fas::Socket::getSocket() const {
+int fas::Socket::getSocket() const {
   return socket_;
 }
 
@@ -76,9 +76,9 @@ bool fas::Socket::connect(const NetAddress& addr) {
   return true;
 }
 
-fas::Socket_t fas::Socket::accept(fas::NetAddress& addr, bool noblockingexec) {
+int fas::Socket::accept(fas::NetAddress& addr, bool noblockingexec) {
   socklen_t len = addr.addrLen();
-  fas::Socket_t ret = ::accept(socket_, addr.addrPtr(), &len);
+  int ret = ::accept(socket_, addr.addrPtr(), &len);
   if(ret == -1) {
     LOGGER_SYSERR << "accept error : " << ::strerror(errno) << Log::CLRF;
     return ret;
@@ -98,11 +98,12 @@ void fas::Socket::close() {
 }
 
 fas::Socket::~Socket() {
+  //for debug
   LOGGER_TRACE << "tid : " << gettid() <<  "socket close!" << Log::CLRF;
   //Don't close socket_.
 }
 
-bool fas::SetNoBlockingOrExec(fas::Socket_t sd) {
+bool fas::SetNoBlockingOrExec(int sd) {
   int flag = ::fcntl(sd, F_GETFL);
   int nflag = flag | O_NONBLOCK;
   int ret = ::fcntl(sd, F_SETFL, nflag);

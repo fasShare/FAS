@@ -5,12 +5,10 @@
 
 
 #include <utilfile.h>
-#include <Log.h>
 
 bool fas::utils::GetFileStat(const std::string& filename, struct stat *st) {
   int ret = ::lstat(filename.c_str(), st);
   if (ret == -1) {
-    LOGGER_SYSERR << "lstat error : " << ::strerror(errno) << fas::Log::CLRF;
     return false;
   }
   return true;

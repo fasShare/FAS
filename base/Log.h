@@ -6,7 +6,7 @@
 #include <sstream>
 #include <pthread.h>
 
-#include <Types.h>
+
 #include <Buffer.h>
 #include <Thread.h>
 

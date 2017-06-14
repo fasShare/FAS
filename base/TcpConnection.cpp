@@ -45,7 +45,7 @@ fas::EventLoop* fas::TcpConnection::getLoop() {
   return loop_;
 }
 
-fas::Socket_t fas::TcpConnection::getConnfd() const {
+int fas::TcpConnection::getConnfd() const {
   return connfd_.getSocket();
 }
 
@@ -61,7 +61,7 @@ void fas::TcpConnection::closeAndClearTcpConnection() {
   // FIXME : Other clear.
 }
 
-void fas::TcpConnection::setOnMessageCallBack(const fas::TcpConnMessageCallback& cb) {
+void fas::TcpConnection::setOnMessageCallBack(const TcpConnMessageCallback& cb) {
   messageCb_ = cb;
 }
 
@@ -72,7 +72,7 @@ bool fas::TcpConnection::messageCallbackVaild() {
   return false;
 }
 
-void fas::TcpConnection::setOnCloseCallBack(const fas::CloseCallback& cb) {
+void fas::TcpConnection::setOnCloseCallBack(const CloseCallback& cb) {
   closeCb_ = cb;
 }
 
@@ -134,7 +134,7 @@ void fas::TcpConnection::handleWrite(const fas::Events& revents, fas::Timestamp 
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
 
-  Socket_t writeSd = connfd_.getSocket();
+  int writeSd = connfd_.getSocket();
   int readablesizes = writeBuffer_->readableBytes();
 reWrite:
   int ret = ::write(writeSd, writeBuffer_->peek(), readablesizes);
@@ -207,7 +207,7 @@ void fas::TcpConnection::shutdown() {
   loop_->queueInLoop(boost::bind(shutdownFromThis, shared_from_this()));
 }
 
-void fas::shutdownFromThis(fas::TcpConnShreadPtr conn) {
+void fas::shutdownFromThis(TcpConnection::TcpConnShreadPtr conn) {
   if (conn->closeing_) {
     return;
   }
