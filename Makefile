@@ -9,6 +9,7 @@ export FAS_TEST_BIN									:= $(CURRENT_DIR)/test_bin
 export STATIC_LIB_CMD								:= ar rcs
 export SHARED_LIB_CMD								:= g++ -shared -fPIC
 export CFLAG												:= -std=c++11 -Wall -static
+export TEST_CFLAG										:= -std=c++11 -Wall -static 
 export CC														:= g++
 
 export UTILS_HEADERS								:= $(wildcard $(FAS_UTILS)/*.h)
@@ -22,14 +23,14 @@ export HTTP_INCLUDE_DIR             := -I$(FAS_BASE) -I$(FAS_UTILS) -I$(FAS_HTTP
 export TEST_INCLUDE_DIR							:= $(HTTP_INCLUDE_DIR)
 
 export UTILS_LIBS										:= -lpthread
-export BASE_LIBS										:= -lpthread -lfasutils -ljsoncpp
-export HTTP_LIBS										:= -lfas -lpthread -lfasutils
-export TEST_BIN_LIBS								:= -lfashttp -lfas -lpthread -lfasutils -ljsoncpp 
+export BASE_LIBS										:= -llog4cplus -lpthread -lfasutils -ljsoncpp 
+export HTTP_LIBS										:= -lfas -llog4cplus -lpthread -lfasutils
+export TEST_BIN_LIBS								:= -lfashttp -lfas -llog4cplus -lpthread -lfasutils -ljsoncpp 
 
 all:
 	mkdir -p $(FAS_LIBS_DIR)
 	mkdir -p $(FAS_TEST_BIN)
-	
+
 	make -C $(FAS_UTILS)
 	make -C $(FAS_BASE)
 	make -C $(FAS_HTTP)

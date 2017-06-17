@@ -47,7 +47,7 @@ fas::EventLoop::EventLoop() :
     poll_ = new (std::nothrow) Epoll();
   }
   if (!poll_) {
-    LOGGER_SYSERR << "New Poller error!" << fas::Log::CLRF;
+    LOGGER_SYSERR("New Poller error!");
   }
 
   count_++;
@@ -102,7 +102,7 @@ bool fas::EventLoop::modHandle(HandlePtr handle) {
 bool fas::EventLoop::modSHandle(SHandlePtr handle) {
   MutexLocker lock(mutex_);(void)lock;
   if (handles_.find(handle->fd()) == handles_.end()) {
-    LOGGER_ERROR << "handles_.find(handle->fd()) == handles_.end()" << Log::CLRF;
+    LOGGER_ERROR("handles_.find(handle->fd()) == handles_.end()");
     return false;
   }
   SHandlePtr mod = handles_.find(handle->fd())->second;
@@ -123,7 +123,7 @@ bool fas::EventLoop::delHandle(HandlePtr handle) {
 bool fas::EventLoop::delSHandle(SHandlePtr handle) {
   MutexLocker lock(mutex_);(void)lock;
   if (handles_.find(handle->fd()) == handles_.end()) {
-    LOGGER_ERROR << "handles_.find(handle->fd()) == handles_.end()" << Log::CLRF;
+    LOGGER_ERROR("handles_.find(handle->fd()) == handles_.end()");
     return false;
   }
   SHandlePtr del = handles_.find(handle->fd())->second;
@@ -179,7 +179,7 @@ void fas::EventLoop::wakeUp() {
   uint64_t one = 1;
   ssize_t n = ::write(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one) {
-    LOGGER_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8" << Log::CLRF;
+    LOGGER_ERROR("EventLoop::wakeup() writes " << n << " bytes instead of 8");
   }
 
 }
@@ -189,14 +189,14 @@ void fas::EventLoop::handWakeUp(Events event, Timestamp time) {
   uint64_t one = 1;
   ssize_t n = ::read(wakeUpFd_, &one, sizeof one);
   if (n != sizeof one){
-    LOGGER_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8" << Log::CLRF;
+    LOGGER_ERROR("EventLoop::handleRead() reads " << n << " bytes instead of 8");
   }
 }
 
 int fas::createEventfd() {
   int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
   if (evtfd < 0) {
-    LOGGER_SYSERR << "Failed in eventfd" << fas::Log::CLRF;
+    LOGGER_SYSERR("Failed in eventfd!");
     ::abort();
   }
   return evtfd;
@@ -268,7 +268,7 @@ bool fas::EventLoop::loop() {
       }
       SHandlePtr handle = finditer->second;
       if (handle->getState() != Handle::state::STATE_LOOP) {
-        LOGGER_DEBUG << "handle'state != STATE_LOOP!" << Log::CLRF;
+        LOGGER_DEBUG("handle'state != STATE_LOOP!");
         continue;
       }
       //handle revents

@@ -24,10 +24,12 @@ fas::TimersScheduler::TimersScheduler(fas::EventLoop *loop) :
   timerCallbackRunning_(false) {
 
   if (timerfd_ ==  -1) {
-    LOGGER_SYSERR << "timerfd_create error : " << ::strerror(errno) << Log::CLRF;
+    LOGGER_SYSERR("timerfd_create error : " << ::strerror(errno));
   }
 
-  assert(handle_->getLoop() == loop_);
+  if (handle_->getLoop() != loop_) {
+    LOGGER_ERROR("handle_->getLoop() == loop_");
+  }
 
   //set handle callbacks
   handle_->setHandleRead(boost::bind(&TimersScheduler::handdleRead, this, _1, _2));
@@ -69,7 +71,7 @@ bool fas::TimersScheduler::resetTimer(fas::Timestamp earlist) {
   newvalue = calculateTimerfdNewValue(earlist);
   int ret = ::timerfd_settime(timerfd_, 0, &newvalue, &oldvalue);
   if (ret < 0) {
-    LOGGER_SYSERR << "timerfd_settime error : " << ::strerror(errno) << Log::CLRF;
+    LOGGER_SYSERR("timerfd_settime error : " << ::strerror(errno));
     return false;
   }
   return true;

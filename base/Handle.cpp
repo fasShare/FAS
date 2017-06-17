@@ -5,6 +5,7 @@
 #include <Events.h>
 #include <Timestamp.h>
 #include <Log.h>
+#include <Thread.h>
 
 
 #include <boost/bind.hpp>
@@ -94,7 +95,7 @@ void fas::Handle::handleEvent(const Events& events, Timestamp time) {
   }
 
   if (events.containsAtLeastOneEvents(POLLNVAL)) {
-    LOGGER_DEBUG << "events contains POLLNVAL!" << Log::CLRF;
+    LOGGER_DEBUG("events contains POLLNVAL!");
   }
 }
 
@@ -139,5 +140,5 @@ fas::Handle::~Handle() {
     delete events_;
     events_ = nullptr;
   }
-  LOGGER_TRACE << "tid: " << gettid() << " handle Destroyed!" << Log::CLRF;
+  LOGGER_TRACE("tid: " << gettid() << " handle Destroyed!");
 }

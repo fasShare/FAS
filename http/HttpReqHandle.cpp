@@ -5,6 +5,7 @@
 #include <HttpRequest.h>
 #include <utilstring.h>
 #include <utilfile.h>
+#include <Thread.h>
 #include <HttpCommon.h>
 #include <TcpConnection.h>
 #include <Log.h>
@@ -24,9 +25,7 @@ fas::http::HttpReqHandle::HttpReqHandle() :
 void fas::http::HttpReqHandle::OnMessageCallback(TcpConnShreadPtr conn,
                                                  Buffer* buffer,
                                                  Timestamp time) {
-  //LOGGER_DEBUG << "fas::http::HttpReqHandle::OnMessageCallback" << fas::Log::CLRF;
-  std::cout << "tid : " << gettid() << " HttpReqHandle::OnMessageCallback" << std::endl;
-
+  LOGGER_TRACE("tid : " << gettid() << " HttpReqHandle::OnMessageCallback");
   //如果首部字段存在错误
   if (!request_.analyseHttpRequestHeader(buffer)) {
     return;
@@ -73,10 +72,10 @@ bool fas::http::HttpReqHandle::HandleGet(TcpConnShreadPtr conn, const HttpReques
   std::string file = options_.getServerPath() + getpath;
 
 
-  std::cout << "tid : " << gettid() << " " << file << std::endl;
+  LOGGER_TRACE("tid : " << gettid() << " get file: " << file);
 #if 1
   for (auto iter : req.getHeaders()) {
-    std::cout << iter.first << " : " << iter.second << std::endl;
+    LOGGER_TRACE(iter.first << " : " << iter.second);
   }
 #endif
   struct stat st;
@@ -96,7 +95,7 @@ bool fas::http::HttpReqHandle::HandleGet(TcpConnShreadPtr conn, const HttpReques
 
     conn->sendString(req.getVersion() + " 200 OK\r\n");
 
-    std::cout << "send file length : " << std::to_string(fas::utils::FileSizeInBytes(&st)) << std::endl;
+    LOGGER_TRACE("send file length : " << std::to_string(fas::utils::FileSizeInBytes(&st)));
 
     conn->sendString(std::string("Content-Length : ") +
                       std::to_string(fas::utils::FileSizeInBytes(&st)) + "\r\n");

@@ -4,6 +4,7 @@
 
 
 #include <Socket.h>
+#include <Thread.h>
 #include <Log.h>
 #include <NetAddress.h>
 
@@ -49,7 +50,7 @@ bool fas::Socket::setExecClose() {
 bool fas::Socket::bind(const NetAddress& addr) {
   int ret = ::bind(socket_, addr.addrPtr(), addr.addrLen());
   if (ret == -1) {
-    LOGGER_SYSERR << " " << ::strerror(errno) << fas::Log::CLRF;
+    LOGGER_SYSERR("bind error : " << ::strerror(errno));
     return false;
   }
   return true;
@@ -58,7 +59,7 @@ bool fas::Socket::bind(const NetAddress& addr) {
 bool fas::Socket::listen(int backlog) {
   int ret = ::listen(socket_, backlog);
   if (ret == -1) {
-    LOGGER_SYSERR << " " << ::strerror(errno) << fas::Log::CLRF;
+    LOGGER_SYSERR("listen error : " << ::strerror(errno));
     return false;
   }
   return true;
@@ -70,7 +71,7 @@ bool fas::Socket::connect(const NetAddress& addr) {
     if (errno == EINPROGRESS) {
       return true;
     }
-    LOGGER_SYSERR << "connect error : " << ::strerror(errno) << Log::CLRF;
+    LOGGER_SYSERR("connect error : " << ::strerror(errno));
     return false;
   }
   return true;
@@ -80,7 +81,7 @@ int fas::Socket::accept(fas::NetAddress& addr, bool noblockingexec) {
   socklen_t len = addr.addrLen();
   int ret = ::accept(socket_, addr.addrPtr(), &len);
   if(ret == -1) {
-    LOGGER_SYSERR << "accept error : " << ::strerror(errno) << Log::CLRF;
+    LOGGER_SYSERR("accept error : " << ::strerror(errno));
     return ret;
   }
   if (!noblockingexec) {
@@ -99,7 +100,7 @@ void fas::Socket::close() {
 
 fas::Socket::~Socket() {
   //for debug
-  LOGGER_TRACE << "tid : " << gettid() <<  "socket close!" << Log::CLRF;
+  LOGGER_TRACE("tid : " << gettid() <<  " socket close!");
   //Don't close socket_.
 }
 
@@ -112,7 +113,7 @@ bool fas::SetNoBlockingOrExec(int sd) {
   nflag |= FD_CLOEXEC;
   ret == -1? ret : (::fcntl(sd, F_SETFD, nflag));
   if (ret == -1) {
-    LOGGER_SYSERR << "accept error : " << ::strerror(errno) << fas::Log::CLRF;
+    LOGGER_SYSERR("accept error : " << ::strerror(errno));
     return false;
   }
   return true;

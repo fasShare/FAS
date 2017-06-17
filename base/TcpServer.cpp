@@ -49,7 +49,7 @@ bool fas::TcpServer::start() {
   server_.setExecClose();
   handle_ = new (std::nothrow) Handle(loop_, events_);
   if (!handle_) {
-    LOGGER_ERROR << "new server handle_ error!" << Log::CLRF;
+    LOGGER_ERROR("new server handle_ error!");
     return false;
   }
   server_.bind(addr_);
@@ -77,7 +77,7 @@ void fas::TcpServer::defHandleAccept(const fas::Events& event, fas::Timestamp ti
     Timestamp acceptTime = Timestamp::now();
     int sd = server_.accept(peerAddr, true);
     if (sd < 0) {
-      LOGGER_SYSERR << "In Tcpserver accepted return an error!" << Log::CLRF;
+      LOGGER_SYSERR("In Tcpserver accepted return an error!");
       return;
     }
     workloop = loopThreadPool_->getNextEventLoop();
@@ -99,7 +99,7 @@ void fas::TcpServer::defHandleAccept(const fas::Events& event, fas::Timestamp ti
 
     workloop->wakeUp();
   } else {
-    LOGGER_ERROR << "event.getFd() == server_.getSocket()" << fas::Log::CLRF;
+    LOGGER_ERROR("event.getFd() == server_.getSocket()");
   }
 }
 
@@ -108,7 +108,7 @@ void fas::TcpServer::setOnConnectionCallBack(OnConnectionCallBack onConnectionCb
 }
 
 void fas::TcpServer::setOnConnRemovedCallBack(OnConnectionRemovedCallBack onConnRemovedCb) {
-  LOGGER_TRACE << Log::CLRF;
+  LOGGER_TRACE("TcpServer::setOnConnRemovedCallBack");
   this->onConnRemovedCb_ = onConnRemovedCb;
 }
 
@@ -125,7 +125,7 @@ void fas::TcpServer::removeConnectionInLoop(fas::TcpServer::connkey_t key) {
   if (this->onConnRemovedCb_) {
     this->onConnRemovedCb_(key);
   } else {
-    LOGGER_DEBUG << "On connecction remove callback is invaild!" << fas::Log::CLRF;
+    LOGGER_DEBUG("On connecction remove callback is invaild!");
   }
   auto iter = conns_.find(key);
   if (iter == conns_.end()) {
@@ -133,11 +133,11 @@ void fas::TcpServer::removeConnectionInLoop(fas::TcpServer::connkey_t key) {
   }
   fas::TcpServer::TcpConnShreadPtr conn = conns_.find(key)->second;
   if (!conn) {
-    LOGGER_ERROR << "can't find conn in conns!" << fas::Log::CLRF;
+    LOGGER_ERROR("can't find conn in conns!");
   }
   size_t n = conns_.erase(key);
   if (n != 1) {
-    LOGGER_ERROR << "connectin erase ret != 1." << fas::Log::CLRF;
+    LOGGER_ERROR("connectin erase ret != 1.");
   }
   fas::EventLoop* ioLoop = conn->getLoop();
   ioLoop->queueInLoop(boost::bind(&TcpConnection::closeAndClearTcpConnection, conn));

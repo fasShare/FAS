@@ -3,6 +3,7 @@
 #include <EventLoop.h>
 #include <Timestamp.h>
 #include <Socket.h>
+#include <Thread.h>
 #include <Log.h>
 #include <Buffer.h>
 
@@ -38,7 +39,7 @@ fas::TcpConnection::TcpConnection(EventLoop *loop,
 
   loop_->addHandle(handle_);
 
-  LOGGER_DEBUG << "tid : " << gettid() <<  " TID : " << loop_->getTid() << fas::Log::CLRF;
+  LOGGER_DEBUG("tid : " << gettid() <<  " TID : " << loop_->getTid());
 }
 
 fas::EventLoop* fas::TcpConnection::getLoop() {
@@ -55,7 +56,7 @@ void fas::TcpConnection::setPeerAddr(const fas::NetAddress& addr) {
 
 void fas::TcpConnection::closeAndClearTcpConnection() {
   //Add this function to QueueInLoop can ensure handle_ destroy before TcpConnection
-  LOGGER_TRACE << Log::CLRF;
+  LOGGER_TRACE("TcpConnection::closeAndClearTcpConnection");
   loop_->assertInOwnerThread();
   assert(closeing_);
   // FIXME : Other clear.
@@ -110,7 +111,7 @@ void fas::TcpConnection::handleRead(const fas::Events& revents,
   boost::ignore_unused(time);
   loop_->assertInOwnerThread();
   if (revents.getFd() != connfd_.getSocket()) {
-    LOGGER_ERROR << revents.getFd() << " != " << connfd_.getSocket() << fas::Log::CLRF;
+    LOGGER_ERROR(revents.getFd() << " != " << connfd_.getSocket());
     if(!closeing_) {
       handleClose(revents, time);
     }
@@ -122,7 +123,7 @@ void fas::TcpConnection::handleRead(const fas::Events& revents,
       handleClose(revents, time);
     }
   } else if (ret < 0) {
-    LOGGER_DEBUG << "readBuffer_.readFd return " << ::strerror(err) << Log::CLRF;
+    LOGGER_DEBUG("readBuffer_.readFd return -1 : " << ::strerror(err));
   } else {
     if (messageCb_) {
       messageCb_(shared_from_this(), readBuffer_, time);
@@ -144,7 +145,7 @@ reWrite:
     } else if (errno == EINTR) {
       goto reWrite;
     }
-    LOGGER_SYSERR << "TcpConnection::handleWrite error" <<  ::strerror(errno) << Log::CLRF;
+    LOGGER_SYSERR("TcpConnection::handleWrite error" <<  ::strerror(errno));
   } else if (ret == 0) {
     if(!closeing_) {
       sendAllDataOut_ = true;
@@ -174,7 +175,7 @@ reWrite:
 
 void fas::TcpConnection::handleError(const fas::Events& revents,
                                        fas::Timestamp time) {
-  LOGGER_TRACE << Log::CLRF;
+  LOGGER_TRACE("handleError");
   boost::ignore_unused(revents, time);
   loop_->assertInOwnerThread();
 }
@@ -186,7 +187,7 @@ void fas::TcpConnection::handleError(const fas::Events& revents,
  * close this TcpConnection immediately.
  */
 void fas::TcpConnection::handleClose(const fas::Events& revents, fas::Timestamp time) {
-  LOGGER_TRACE << Log::CLRF;
+  LOGGER_TRACE("TcpConnection::handleClose");
   boost::ignore_unused(revents, time);
   if (closeing_) {
     return;
@@ -197,7 +198,6 @@ void fas::TcpConnection::handleClose(const fas::Events& revents, fas::Timestamp 
     closeing_ = true;
     closeCb_();
   }
-  LOGGER_TRACE << " out" << Log::CLRF;
 }
 /*!
  * \brief fas::TcpConnection::shutdown
@@ -231,5 +231,5 @@ fas::TcpConnection::~TcpConnection() {
   readBuffer_ = nullptr;
   delete writeBuffer_;
   writeBuffer_ = nullptr;
-  LOGGER_TRACE << "tid: " << gettid() << " TcpConnection destroy!" << Log::CLRF;
+  LOGGER_TRACE("tid: " << gettid() << " TcpConnection destroy!");
 }

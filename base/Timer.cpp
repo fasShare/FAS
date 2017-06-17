@@ -39,5 +39,5 @@ void fas::Timer::restart(fas::Timestamp now) {
 }
 
 fas::Timer::~Timer() {
-  LOGGER_TRACE << "Destroy one Timer!" << fas::Log::CLRF;
+  LOGGER_TRACE("Destroy one Timer!");
 }

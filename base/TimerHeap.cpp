@@ -76,11 +76,14 @@ bool fas::TimerHeap::addTimer(fas::Timer *timer) {
 void fas::TimerHeap::delTimer(fas::Timer *timer) {
   TimerHeapIter iter = timers_.find(std::make_pair(timer->getExpiration(), timer));
   if (iter == timers_.end()) {
-    LOGGER_ERROR << "This timer which was deleted not exist." << fas::Log::CLRF;
+    LOGGER_ERROR("This timer which was deleted not exist.");
     return;
   }
   size_t ret = timers_.erase(std::make_pair(timer->getExpiration(), timer));
-  assert(ret == 1);
+  if (ret != 1) {
+    LOGGER_ERROR("ret != 1");
+    return;
+  }
   if (timers_.begin() != timers_.end()) {
     earlistChange_ = false;
     if (earlistExpiration_ != timers_.begin()->second) {

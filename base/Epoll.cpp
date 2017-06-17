@@ -18,7 +18,7 @@ fas::Epoll::Epoll() :
   //FIXME : EPOLL_CLOEXEC
   epoll_fd_ = ::epoll_create(1);
   if(epoll_fd_ == -1) {
-    LOGGER_SYSERR << "epoll_create error : " << ::strerror(errno) << Log::CLRF;
+    LOGGER_SYSERR("epoll_create error : " << ::strerror(errno));
   }
   revents_.resize(maxNum_);
 }
@@ -27,7 +27,7 @@ bool fas::Epoll::eventCtl(int op, int sd, EpollEvent* event) {
   assert(epoll_fd_ != -1);
   int ret = ::epoll_ctl(epoll_fd_, op, sd, event);
   if (ret == -1) {
-    LOGGER_SYSERR << "epoll_ctl error : " << ::strerror(errno) << Log::CLRF;
+    LOGGER_SYSERR("epoll_ctl error : " << ::strerror(errno));
     return false;
   } else {
     return true;
@@ -52,10 +52,10 @@ should_continue:
   int ret = ::epoll_wait(epoll_fd_, events, maxevents, timeout);
   if (ret == -1) {
     if (errno == EINTR) {
-      LOGGER_SYSERR << "epoll_wait error : " << ::strerror(errno) << Log::CLRF;
+      LOGGER_SYSERR("epoll_wait error : " << ::strerror(errno));
       goto should_continue;
     }
-    LOGGER_SYSERR << "epoll_wait error : " << ::strerror(errno) << Log::CLRF;
+    LOGGER_SYSERR("epoll_wait error : " << ::strerror(errno));
   }
   return ret;
 }

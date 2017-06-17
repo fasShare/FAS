@@ -55,7 +55,7 @@ should_continue:
     if (errno == EINTR) {
       goto should_continue;
     }
-    LOGGER_SYSERR << "poll error : " << ::strerror(errno) << Log::CLRF;
+    LOGGER_SYSERR("poll error : " << ::strerror(errno));
     events.clear();
     revents_.clear();
     return Timestamp::now();

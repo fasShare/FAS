@@ -54,7 +54,7 @@ fas::EventLoopThread::~EventLoopThread() {
 }
 
 void fas::EventLoopThread::threadFunc() {
-  LOGGER_TRACE << "Thread tid :"  << gettid() << fas::Log::CLRF;
+  LOGGER_TRACE("Thread tid :"  << gettid());
   fas::EventLoop loop;
   loop.assertInOwnerThread();
 

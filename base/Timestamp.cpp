@@ -75,24 +75,11 @@ bool fas::operator==(Timestamp lhs, Timestamp rhs) {
   return lhs.get_microSecondsSinceEpoch() == rhs.get_microSecondsSinceEpoch();
 }
 
-/*!
- * \brief timeDifference
- * \param high
- * \param low
- * \return (high-low) in seconds
- * double has 52-bit precision, enough for one-microseciond resolution for next 100 years.
- */
 double fas::timeDifference(Timestamp high, Timestamp low) {
   int64_t diff = high.get_microSecondsSinceEpoch() - low.get_microSecondsSinceEpoch();
   return static_cast<double>(diff) / Timestamp::kMicroSecondsPerSecond;
 }
 
-/*!
- * \brief addTime
- * \param timestamp
- * \param seconds
- * \return timestamp+seconds as Timestamp
- */
 fas::Timestamp fas::addTime(Timestamp timestamp, double seconds) {
   int64_t delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);
   return Timestamp(timestamp.get_microSecondsSinceEpoch() + delta);

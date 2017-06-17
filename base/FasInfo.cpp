@@ -24,7 +24,7 @@ int FasInfo::load(const std::string& filename) {
   in.open(filename, std::ios_base::in);
 
   if (!in.is_open()) {
-    LOGGER_ERROR << " Open info file error!" << fas::Log::CLRF;
+    LOGGER_ERROR(" Open info file error!");
     return -1;
   }
 
@@ -32,7 +32,7 @@ int FasInfo::load(const std::string& filename) {
   Json::Value root;
 
   if (!jsonReader.parse(in, root)) {
-    LOGGER_ERROR << " Parse info file error!" << fas::Log::CLRF;
+    LOGGER_ERROR(" Parse info file error!");
     return -1;
   }
 
@@ -40,8 +40,9 @@ int FasInfo::load(const std::string& filename) {
     fasInfo_["thread_num"] = root["fas"]["thread_num"].asString();
     fasInfo_["server_ip"] = root["fas"]["server_ip"].asString();
     fasInfo_["server_port"] = root["fas"]["server_port"].asString();
+    fasInfo_["log_conf"] = root["fas"]["log_conf"].asString();
   } else {
-    LOGGER_ERROR << " can not find fas json root!" << fas::Log::CLRF;
+    LOGGER_ERROR(" can not find fas json root!");
   }
 
   if (root.isMember("poller")) {
@@ -49,10 +50,14 @@ int FasInfo::load(const std::string& filename) {
     pollerInfo_["time_out"] = root["poller"]["time_out"].asString();
     pollerInfo_["type"] = root["poller"]["type"].asString();
   } else {
-    LOGGER_ERROR << " can not find poller json root!" << fas::Log::CLRF;
+    LOGGER_ERROR(" can not find poller json root!");
   }
 
   return 0;
+}
+
+std::string FasInfo::getLogConf() const {
+  return getValue("fas", "log_conf");
 }
 
 std::string FasInfo::getServerIp() const {

@@ -45,23 +45,24 @@ void ConnMessageCallback(fas::TcpServer::TcpConnShreadPtr conn, Buffer *buffer, 
 int main()
 {
     ENV_INIT();
+    std::cout << "after init" << std::endl;
     //这一步是必须的，EventLoop是程序的核心。
     EventLoop *loop = new EventLoop;
     //把loop传给TcpServer，也就是说，TcpServer里面的定时器事件，套接字监听，消息读写等事件，
     //都会在下面的loop循环中被polling监听。
     short port = GET_FAS_INFO()->getServerPort();
     if (port < 0) {
-      LOGGER_ERROR << "get server　Port error!" << fas::Log::CLRF;
+      LOGGER_ERROR("get server　Port error!");
       port = 6686;
     }
     std::string ip = GET_FAS_INFO()->getServerIp();
     if (ip.empty()) {
-      LOGGER_ERROR << "get server　ip error!" << fas::Log::CLRF;
+      LOGGER_ERROR("get server　ip error!");
       ip = "127.0.0.1";
     }
     int thread_num = GET_FAS_INFO()->getThreadNum();
     if (thread_num < 0) {
-      LOGGER_ERROR << "get server　thread_num error!" << fas::Log::CLRF;
+      LOGGER_ERROR("get server　thread_num error!");
       thread_num = 4;
     }
     TcpServer *ser = new TcpServer(loop, NetAddress(AF_INET, port, ip.c_str()), thread_num);

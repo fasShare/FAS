@@ -33,7 +33,7 @@ bool fas::Thread::setThreadFunc(boost::function<void ()> threadFunc) {
 bool fas::Thread::join() {
   errno = ::pthread_join(threadId_, NULL);
   if (errno != 0) {
-    LOGGER_SYSERR << "ERROR pthread_join : " <<  ::strerror(errno) << fas::Log::CLRF;
+    LOGGER_SYSERR("ERROR pthread_join : " <<  ::strerror(errno));
     return false;
   }
   return true;
@@ -46,7 +46,7 @@ bool fas::Thread::MainThread() {
 bool fas::Thread::start() {
   errno = ::pthread_create(&threadId_, NULL, &run, this);
   if (errno != 0) {
-    LOGGER_SYSERR << "ERROR pthread_create : " << ::strerror(errno) << fas::Log::CLRF;
+    LOGGER_SYSERR("ERROR pthread_create : " << ::strerror(errno));
     return false;
   }
   return true;
@@ -60,13 +60,13 @@ void* fas::run(void *obj) {
 
 void fas::Thread::ThreadFunc() {
   if (!this->threadFunc_) {
-    LOGGER_ERROR << "Thread no Function object!" << fas::Log::CLRF;
+    LOGGER_ERROR("Thread no Function object!");
     return;
   }
   try {
     threadFunc_();
   } catch (const std::exception &ex) {
-    LOGGER_ERROR << ex.what() << fas::Log::CLRF;
+    LOGGER_ERROR("exception : " << ex.what());
   }
 }
 

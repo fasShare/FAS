@@ -18,7 +18,7 @@ fas::http::HttpServer::HttpServer(fas::EventLoop *loop,
 }
 
 void fas::http::HttpServer::OnNewConnection(fas::TcpServer::TcpConnShreadPtr conn) {
-  LOGGER_TRACE << "fas::http::HttpServer::OnNewConnection" << fas::Log::CLRF;
+  LOGGER_TRACE("fas::http::HttpServer::OnNewConnection");
   // req must not be shared_ptr, or conn will be referenced by itself.
   // you can analyse it by youself seriously.
   std::shared_ptr<HttpReqHandle> reqHandle = std::make_shared<HttpReqHandle>();
@@ -29,7 +29,7 @@ void fas::http::HttpServer::OnNewConnection(fas::TcpServer::TcpConnShreadPtr con
 }
 
 void fas::http::HttpServer::OnConnectionRemoved(fas::TcpServer::connkey_t key) {
-  LOGGER_TRACE << "fas::http::HttpServer::OnConnectionRemoved" << fas::Log::CLRF;
+  LOGGER_TRACE("fas::http::HttpServer::OnConnectionRemoved");
   loop_->assertInOwnerThread();
   if (this->reqHandles_.find(key) == this->reqHandles_.end()) {
     return;
@@ -37,7 +37,7 @@ void fas::http::HttpServer::OnConnectionRemoved(fas::TcpServer::connkey_t key) {
 
   int ret = this->reqHandles_.erase(key);
   assert(ret == 1);
-  LOGGER_TRACE << "out of fas::http::HttpServer::OnConnectionRemoved" << fas::Log::CLRF;
+  LOGGER_TRACE("out of fas::http::HttpServer::OnConnectionRemoved");
 }
 
 bool fas::http::HttpServer::start() {

@@ -11,35 +11,17 @@
 
 namespace fas {
 
-/*!
- * \brief The ThreadPool class
- * ThreadPool
- */
 class ThreadPool : boost::noncopyable{
 public:
     ThreadPool(int threadNum, boost::function<void ()> func, const std::string name);
     ~ThreadPool();
-    /*!
-     * \brief updateThreadFunc
-     * \param Func
-     * Change thread function
-     */
+
     void updateThreadFunc(boost::function<void ()> Func);
-    /*!
-     * \brief updateThreadNum
-     * \param Num
-     * Change the thread num of this threadPool. but it dosn't work.
-     */
     void updateThreadNum(int Num);
 
     void assertInOwnerThread();
-    /*!
-     * \brief start
-     * \return bool
-     * Start this ThreadPool
-     */
-    bool start();
 
+    bool start();
 private:
     int curThreadNum_;      /*!< Current Thread num of this Threadpool */
     int threadNum_;         /*!< Thread num of this Threadpool */
