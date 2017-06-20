@@ -16,45 +16,45 @@ namespace fas {
  */
 class Thread : boost::noncopyable {
 public:
-  Thread();
-  Thread(const std::string& name);
-  Thread(boost::function<void ()> threadFunc);
-  Thread(boost::function<void ()> threadFunc, const std::string name);
+    Thread();
+    Thread(const std::string& name);
+    Thread(boost::function<void ()> threadFunc);
+    Thread(boost::function<void ()> threadFunc, const std::string name);
 
-  bool setThreadFunc(boost::function<void ()> threadFunc);
-  /*!
-   * \brief join
-   * \return bool
-   * pthread_join
-   */
-  bool join();
-  /*!
-   * \brief MainThread
-   * \return bool
-   * judge this thread if
-   */
-  bool MainThread();
+    bool setThreadFunc(boost::function<void ()> threadFunc);
+    /*!
+     * \brief join
+     * \return bool
+     * pthread_join
+     */
+    bool join();
+    /*!
+     * \brief MainThread
+     * \return bool
+     * judge this thread if
+     */
+    bool MainThread();
 
-  /*!
-   * \brief start
-   * \return bool
-   * pthread_create(thread_func)
-   */
-  bool start();
+    /*!
+     * \brief start
+     * \return bool
+     * pthread_create(thread_func)
+     */
+    bool start();
 
-  std::string getName();
-  void setName(const std::string& name);
+    std::string getName();
+    void setName(const std::string& name);
 
-  ~Thread();
+    ~Thread();
 
 private:
-  friend void* run(void *);
-  void ThreadFunc();
+    friend void* run(void *);
+    void ThreadFunc();
 
 
-  pthread_t threadId_;       /*!< Id of the thread */
-  std::string name_;         /*!< Name of the thread */
-  boost::function<void ()> threadFunc_;  /*!< Thread function */
+    pthread_t threadId_;       /*!< Id of the thread */
+    std::string name_;         /*!< Name of the thread */
+    boost::function<void ()> threadFunc_;  /*!< Thread function */
 };
 
 
@@ -63,28 +63,28 @@ private:
  */
 template <typename T>
 class PthreadSpecificData {
-public:
-  PthreadSpecificData() {
-    pthread_key_create(&key_, &PthreadSpecificData::KeyDataDestroy);
-  }
+    public:
+        PthreadSpecificData() {
+            pthread_key_create(&key_, &PthreadSpecificData::KeyDataDestroy);
+        }
 
-  T& Data() {
-    T *ptr = static_cast<T *>(pthread_getspecific(key_));
-    if (ptr == NULL) {
-      ptr = new T();
-      pthread_setspecific(key_, ptr);
-    }
-    assert(ptr != NULL);
-    return *ptr;
-  }
+        T& Data() {
+            T *ptr = static_cast<T *>(pthread_getspecific(key_));
+            if (ptr == NULL) {
+                ptr = new T();
+                pthread_setspecific(key_, ptr);
+            }
+            assert(ptr != NULL);
+            return *ptr;
+        }
 
-  static void KeyDataDestroy(void *data) {
-    T *ptr =  static_cast<T *>(data);
-    delete ptr;
-  }
+        static void KeyDataDestroy(void *data) {
+            T *ptr =  static_cast<T *>(data);
+            delete ptr;
+        }
 
-private:
-  pthread_key_t key_;
+    private:
+        pthread_key_t key_;
 };
 
 

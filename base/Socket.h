@@ -14,28 +14,28 @@ class NetAddress;
  */
 class Socket {
 public:
-  enum STATE {
-    CLOSED,
-    OPENED,
-  };
+    enum STATE {
+        CLOSED,
+        OPENED,
+    };
 
-  Socket(int domain, int type, int protocol);
-  Socket(int sd);
-  ~Socket();
+    Socket(int domain, int type, int protocol);
+    Socket(int sd);
+    ~Socket();
 
-  int getSocket() const;
+    int getSocket() const;
 
-  bool setNoBlocking();
-  bool setExecClose();
+    bool setNoBlocking();
+    bool setExecClose();
 
-  bool bind(const NetAddress& addr);
-  bool listen(int backlog);
-  bool connect(const NetAddress& addr);
-  int accept(NetAddress& addr, bool noblockingexec);
-  void close();
+    bool bind(const NetAddress& addr);
+    bool listen(int backlog);
+    bool connect(const NetAddress& addr);
+    int accept(NetAddress& addr, bool noblockingexec);
+    void close();
 private:
-  int socket_;
-  u_int8_t state_;
+    int socket_;
+    u_int8_t state_;
 };
 
 bool SetNoBlockingOrExec(int sd);

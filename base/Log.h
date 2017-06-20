@@ -17,46 +17,46 @@ static const std::string CRLF = "\r\n";
 class CommonLog
 {
 public:
-  log4cplus::Logger* trace_;
-  log4cplus::Logger* debug_;
-  log4cplus::Logger* info_;
-  log4cplus::Logger* warn_;
-  log4cplus::Logger* error_;
-  log4cplus::Logger* sys_error_;
-  log4cplus::Logger* fetal_;
+    log4cplus::Logger* trace_;
+    log4cplus::Logger* debug_;
+    log4cplus::Logger* info_;
+    log4cplus::Logger* warn_;
+    log4cplus::Logger* error_;
+    log4cplus::Logger* sys_error_;
+    log4cplus::Logger* fetal_;
 
 public:
-  int init(const std::string& name, std::vector<std::string>& log_name) {
-      if (name.empty()) {
-          return -1;
-      }
+    int init(const std::string& name, std::vector<std::string>& log_name) {
+        if (name.empty()) {
+            return -1;
+        }
 
-      log4cplus::initialize();
-      log4cplus::helpers::LogLog::getLogLog()->setInternalDebugging(true);
-      log4cplus::PropertyConfigurator::doConfigure(name);
+        log4cplus::initialize();
+        log4cplus::helpers::LogLog::getLogLog()->setInternalDebugging(true);
+        log4cplus::PropertyConfigurator::doConfigure(name);
 
-      #define CREATE_LOG_OBJECT(KEY, POINT) \
-      if (log_name.end() != std::find(log_name.begin(), log_name.end(), #KEY)) { \
-          log4cplus::Logger logger = log4cplus::Logger::getInstance(#KEY);\
-          POINT = new log4cplus::Logger(logger); \
-      }
+#define CREATE_LOG_OBJECT(KEY, POINT) \
+        if (log_name.end() != std::find(log_name.begin(), log_name.end(), #KEY)) { \
+            log4cplus::Logger logger = log4cplus::Logger::getInstance(#KEY);\
+            POINT = new log4cplus::Logger(logger); \
+        }
 
-      CREATE_LOG_OBJECT(TRACE, trace_)
-      CREATE_LOG_OBJECT(DEBUG, debug_)
-      CREATE_LOG_OBJECT(INFO, info_)
-      CREATE_LOG_OBJECT(WARN, warn_)
-      CREATE_LOG_OBJECT(ERROR, error_)
-      CREATE_LOG_OBJECT(SYS_ERROR, sys_error_)
-      CREATE_LOG_OBJECT(FETAL, fetal_)
-      return 0;
-  }
+        CREATE_LOG_OBJECT(TRACE, trace_)
+            CREATE_LOG_OBJECT(DEBUG, debug_)
+            CREATE_LOG_OBJECT(INFO, info_)
+            CREATE_LOG_OBJECT(WARN, warn_)
+            CREATE_LOG_OBJECT(ERROR, error_)
+            CREATE_LOG_OBJECT(SYS_ERROR, sys_error_)
+            CREATE_LOG_OBJECT(FETAL, fetal_)
+            return 0;
+    }
 
-  static CommonLog* instance();
+    static CommonLog* instance();
 
 private:
-  CommonLog() {}
+    CommonLog() {}
 
-  static CommonLog* logger_;
+    static CommonLog* logger_;
 };
 
 bool LoggerInit();

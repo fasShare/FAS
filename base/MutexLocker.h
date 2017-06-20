@@ -12,10 +12,10 @@ class Mutex;
  */
 class MutexLocker {
 public:
-  MutexLocker(Mutex& mutex);
-  ~MutexLocker();
+    MutexLocker(Mutex& mutex);
+    ~MutexLocker();
 private:
-  Mutex& mutex_;
+    Mutex& mutex_;
 };
 
 }

@@ -18,11 +18,11 @@ namespace fas {
  */
 class Poller : boost::noncopyable {
 public:
-  Poller();
-  virtual bool EventsAdd(Events* events) = 0;
-  virtual bool EventsMod(Events* events) = 0;
-  virtual bool EventsDel(Events* events) = 0;
-  virtual Timestamp Loop(std::vector<Events> &events, int timeout) = 0;
+    Poller();
+    virtual bool EventsAdd(Events* events) = 0;
+    virtual bool EventsMod(Events* events) = 0;
+    virtual bool EventsDel(Events* events) = 0;
+    virtual Timestamp Loop(std::vector<Events> &events, int timeout) = 0;
 };
 
 #define DEFAULT_POLLER Epoll

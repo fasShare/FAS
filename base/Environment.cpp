@@ -1,78 +1,112 @@
+#include <utility>
+
 #include <Environment.h>
+#include <FasInfoLoader.h>
 #include <Log.h>
 
 fas::Environment* fas::Environment::env_ = nullptr;
 
 fas::Environment* fas::Environment::instance() {
-  if (env_ == nullptr) {
-    env_ = new Environment;
-  }
-  return env_;
+    if (env_ == nullptr) {
+        env_ = new Environment;
+    }
+    return env_;
 }
 
 bool fas::Environment::init() {
-  if (!Environment::instance()) {
-    return false;
-  }
-  if (fas::LoggerInit() == false) {
-    LOGGER_ERROR("fas::LoggerInit() == false");
-    return false;
-  }
-  if (env_->load_files() == false) {
-    LOGGER_ERROR("env_->load_files() == false");
-    return false;
-  }
-  return true;
+    if (!Environment::instance()) {
+        return false;
+    }
+    if (fas::LoggerInit() == false) {
+        return false;
+    }
+    FasInfoLoader *loader = new (std::nothrow) FasInfoLoader("./conf/fas.conf");
+    if (!env_->insertReloader("fasinfo", loader)) {
+        LOGGER_ERROR("Environment insert FasInfoLoader error.");
+        return false;
+    }
+    if (env_->load_files() == false) {
+        LOGGER_ERROR("env_->load_files() == false");
+        return false;
+    }
+    return true;
 }
 
-bool fas::Environment::load_files() {
+bool fas::Environment::insertReloader(const std::string& info, Reloader *loader) {
+    if (info.empty()) {
+        LOGGER_ERROR("inserted info empty.");
+        return false;
+    } else {
+        if (loader == nullptr) {
+            LOGGER_ERROR("inserted loader == nullptr");
+            return false;
+        }
+    }
+    auto retp = reloaders_.insert(std::make_pair(info, loader));
+    if (!retp.second) {
+        LOGGER_ERROR("inserted loader error. loader of " << loader->get_fname());
+        return false;
+    }
+    return true;
+}
 
-#define LOAD_FILE_CONTENT(TYPE_P,C_TYPE_P,FPATH,arg...) \
-  do{ \
-    TYPE_P = new(std::nothrow) C_TYPE_P(FPATH);\
-    if (NULL == TYPE_P) { \
-      LOGGER_ERROR("new TYPE_P failed!");\
-      return false; \
-    } \
-    if (TYPE_P->load(arg) < 0) { \
-      LOGGER_ERROR("load file failed!");\
-      return false; \
-     } \
-     LOGGER_DEBUG("load file suss, file:" << FPATH);\
-   }while(0)
+bool fas::Environment::load_files() {  
+    int ret = 0;
 
-#define CREATE_RELOADER(TYPE_P,C_TYPE_P,FPATH) \
-  do{ \
-    TYPE_P = new(std::nothrow) C_TYPE_P(FPATH);\
-    if (NULL == TYPE_P) { \
-      LOGGER_ERROR("new TYPE_P failed!");\
-      return false; \
-    } \
-    LOGGER_DEBUG("create reloader suss, file:" << FPATH);\
-  }while(0)
+    for (auto iter = reloaders_.begin(); iter != reloaders_.end(); ++iter) {
+        if (iter->second) {
+            if (iter->second->load() >= 0) {
+                LOGGER_TRACE("load " << iter->second->get_fname() << " success.");
+            } else {
+                LOGGER_TRACE("load " << iter->second->get_fname() << " failed.");
+                ret -= 1;
+            }
+        } else {
+            LOGGER_TRACE("Info " << iter->first << "'s reloader is null.");
+            ret -= 1;
+        }
+    }
 
-  LOAD_FILE_CONTENT(fasInfoLoader_, FasInfoLoader, "./conf/fas.conf");
-
-  return true;
+    if (ret < 0) {
+        LOGGER_TRACE("load  ret = " << ret);
+        return false;
+    }
+    return true;
 }
 
 bool fas::Environment::check_load() {
-  int ret = 0;
-  #define RELOAD_FILE(TYPE_P,NAME,arg...) \
-    do{ \
-      if (NULL != TYPE_P && TYPE_P->need_reload()) { \
-        if (TYPE_P->reload(arg) >= 0) { \
-          LOGGER_WARN(NAME << " reload succ");\
-        } else { \
-          ret = -1; \
-          LOGGER_ERROR(NAME << " reload failed,please check");\
-        } \
-      } \
-    }while(0)
+    int ret = 0;
 
-  RELOAD_FILE(fasInfoLoader_, "./conf/fas.conf");
-  if (ret < 0) {
-    return false;
-  }
-  return true;
+    for (auto iter = reloaders_.begin(); iter != reloaders_.end(); ++iter) {
+        if (iter->second && iter->second->need_reload()) {
+            if (iter->second->reload() >= 0) {
+                LOGGER_TRACE("Relaod " << iter->second->get_fname() << " success.");
+            } else {
+                LOGGER_TRACE("Relaod " << iter->second->get_fname() << " failed.");
+                ret -= 1;
+            }
+        }
+    }
+
+    if (ret < 0) {
+        LOGGER_TRACE("check_load  ret = " << ret);
+        return false;
+    }
+    return true;
+}
+
+fas::Reloader* fas::Environment::getReloader(const std::string& info) const {
+    auto iter = reloaders_.find(info);
+    if (iter == reloaders_.end()) {
+        return nullptr;
+    }
+    return iter->second;
+}
+
+fas::Reloader* fas::Environment::getReloader(const std::string& info) {
+    auto iter = reloaders_.find(info);
+    if (iter == reloaders_.end()) {
+        return nullptr;
+    }
+    return iter->second;
 }

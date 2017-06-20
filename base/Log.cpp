@@ -6,10 +6,10 @@
 fas::CommonLog* fas::CommonLog::logger_ = nullptr;
 
 bool fas::LoggerInit() {
-  std::vector<std::string> logNames({"TRACE", "DEBUG", \
-                                     "INFO", "ERROR", \
-                                     "WARN", "SYS_ERROR", "FETAL"});
-  return CommonLog::instance()->init("./conf/log.conf", logNames) == 0 ? true : false;
+    std::vector<std::string> logNames({"TRACE", "DEBUG", \
+            "INFO", "ERROR", \
+            "WARN", "SYS_ERROR", "FETAL"});
+    return CommonLog::instance()->init("./conf/log.conf", logNames) == 0 ? true : false;
 }
 
 fas::CommonLog* fas::CommonLog::instance() {
