@@ -5,6 +5,7 @@
 #include <HttpRequest.h>
 #include <utilstring.h>
 #include <utilfile.h>
+#include <Thread.h>
 #include <HttpCommon.h>
 #include <TcpConnection.h>
 #include <Log.h>
@@ -21,11 +22,11 @@ fas::http::HttpReqHandle::HttpReqHandle() :
 
 }
 
-void fas::http::HttpReqHandle::OnMessageCallback(TcpConnection *conn,
+void fas::http::HttpReqHandle::OnMessageCallback(TcpConnShreadPtr conn,
                                                  Buffer* buffer,
                                                  Timestamp time) {
-  //LOGGER_DEBUG << "fas::http::HttpReqHandle::OnMessageCallback" << fas::Log::CLRF;
-  std::cout << "tid : " << gettid() << " HttpReqHandle::OnMessageCallback" << std::endl;
+  LOGGER_TRACE("tid : " << gettid() << " HttpReqHandle::OnMessageCallback");
+  //如果首部字段存在错误
   if (!request_.analyseHttpRequestHeader(buffer)) {
     return;
   }
@@ -37,7 +38,7 @@ void fas::http::HttpReqHandle::OnMessageCallback(TcpConnection *conn,
   this->handleMethod(conn, request_);
 }
 
-bool fas::http::HttpReqHandle::handleMethod(TcpConnection *conn, const HttpRequest& req) {
+bool fas::http::HttpReqHandle::handleMethod(TcpConnShreadPtr conn, const HttpRequest& req) {
   const std::string method = req.getMethod();
 
   if (method == fas::http::Method::GET) {
@@ -58,7 +59,7 @@ bool fas::http::HttpReqHandle::handleMethod(TcpConnection *conn, const HttpReque
   return false;
 }
 
-bool fas::http::HttpReqHandle::HandleGet(TcpConnection *conn, const HttpRequest& req) {
+bool fas::http::HttpReqHandle::HandleGet(TcpConnShreadPtr conn, const HttpRequest& req) {
   if (req.getPath().find("../") != std::string::npos) {
     this->HandleError(conn, req, "400");
     return false;
@@ -71,10 +72,10 @@ bool fas::http::HttpReqHandle::HandleGet(TcpConnection *conn, const HttpRequest&
   std::string file = options_.getServerPath() + getpath;
 
 
-  std::cout << "tid : " << gettid() << " " << file << std::endl;
+  LOGGER_TRACE("tid : " << gettid() << " get file: " << file);
 #if 1
   for (auto iter : req.getHeaders()) {
-    std::cout << iter.first << " : " << iter.second << std::endl;
+    LOGGER_TRACE(iter.first << " : " << iter.second);
   }
 #endif
   struct stat st;
@@ -94,7 +95,7 @@ bool fas::http::HttpReqHandle::HandleGet(TcpConnection *conn, const HttpRequest&
 
     conn->sendString(req.getVersion() + " 200 OK\r\n");
 
-    std::cout << "send file length : " << std::to_string(fas::utils::FileSizeInBytes(&st)) << std::endl;
+    LOGGER_TRACE("send file length : " << std::to_string(fas::utils::FileSizeInBytes(&st)));
 
     conn->sendString(std::string("Content-Length : ") +
                       std::to_string(fas::utils::FileSizeInBytes(&st)) + "\r\n");
@@ -109,39 +110,39 @@ bool fas::http::HttpReqHandle::HandleGet(TcpConnection *conn, const HttpRequest&
   return true;
 }
 
-bool fas::http::HttpReqHandle::HandlePut(TcpConnection *conn, const HttpRequest& req) {
+bool fas::http::HttpReqHandle::HandlePut(TcpConnShreadPtr conn, const HttpRequest& req) {
   boost::ignore_unused(conn, req);
   return true;
 }
 
-bool fas::http::HttpReqHandle::HandlePost(TcpConnection *conn, const HttpRequest& req) {
+bool fas::http::HttpReqHandle::HandlePost(TcpConnShreadPtr conn, const HttpRequest& req) {
   boost::ignore_unused(conn, req);
   return true;
 }
 
-bool fas::http::HttpReqHandle::HandleTrace(TcpConnection *conn, const HttpRequest& req) {
+bool fas::http::HttpReqHandle::HandleTrace(TcpConnShreadPtr conn, const HttpRequest& req) {
   boost::ignore_unused(conn, req);
   return true;
 }
 
-bool fas::http::HttpReqHandle::HandleHead(TcpConnection *conn, const HttpRequest& req) {
+bool fas::http::HttpReqHandle::HandleHead(TcpConnShreadPtr conn, const HttpRequest& req) {
   boost::ignore_unused(conn, req);
   return true;
 }
 
-bool fas::http::HttpReqHandle::HandleDelete(TcpConnection *conn, const HttpRequest& req) {
+bool fas::http::HttpReqHandle::HandleDelete(TcpConnShreadPtr conn, const HttpRequest& req) {
   boost::ignore_unused(conn, req);
   return true;
 }
 
-bool fas::http::HttpReqHandle::HandleOptions(TcpConnection *conn, const HttpRequest& req) {
+bool fas::http::HttpReqHandle::HandleOptions(TcpConnShreadPtr conn, const HttpRequest& req) {
   boost::ignore_unused(conn, req);
   return true;
 }
 
-void fas::http::HttpReqHandle::sendMassData(TcpConnection *conn) {
+void fas::http::HttpReqHandle::sendMassData(TcpConnShreadPtr conn) {
   assert(massDataC_.getFd() > 0);
-  uchar buf[massDataC_.getReadEveryTime() + 1];
+  uint8_t buf[massDataC_.getReadEveryTime() + 1];
 
   if (lseek(massDataC_.getFd(), massDataC_.getRdstart(), SEEK_SET) == static_cast<off_t>(-1)) {
     massDataC_.closeFd();
@@ -185,7 +186,7 @@ void fas::http::HttpReqHandle::sendMassData(TcpConnection *conn) {
 
 }
 
-bool fas::http::HttpReqHandle::HandleError(TcpConnection *conn,
+bool fas::http::HttpReqHandle::HandleError(TcpConnShreadPtr conn,
                                            const HttpRequest& req,
                                            const std::string& errorCode) {
   // FIXME : May be unreasonable.

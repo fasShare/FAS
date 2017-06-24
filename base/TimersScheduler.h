@@ -3,9 +3,9 @@
 #include <sys/timerfd.h>
 
 
-#include <Types.h>
 #include <TimerHeap.h>
 #include <Timestamp.h>
+#include <Events.h>
 
 namespace fas {
 
@@ -22,35 +22,35 @@ class EventLoop;
  */
 class TimersScheduler {
 public:
-  TimersScheduler(EventLoop *loop);
-  ~TimersScheduler();
+    TimersScheduler(EventLoop *loop);
+    ~TimersScheduler();
 
-  timerfd_t getTimerfd() const;
+    TimerHeap::timerfd_t getTimerfd() const;
 
-  bool addTimer(Timer *);
-  void delTimer(Timer *);
+    bool addTimer(Timer *);
+    void delTimer(Timer *);
 
-  void handdleRead(Events events, Timestamp time);
+    void handdleRead(Events events, Timestamp time);
 
 private:
-  struct itimerspec calculateTimerfdNewValue(Timestamp earlist);
-  /*!
-   * \brief resetTimer
-   * \param earlist
-   * \return bool
-   * if addTimer or delTimer cause the earlist expired time changed,
-   * we can call resetTimer retset the readable Time of timerfd_.
-   */
-  bool resetTimer(Timestamp earlist);
+    struct itimerspec calculateTimerfdNewValue(Timestamp earlist);
+    /*!
+     * \brief resetTimer
+     * \param earlist
+     * \return bool
+     * if addTimer or delTimer cause the earlist expired time changed,
+     * we can call resetTimer retset the readable Time of timerfd_.
+     */
+    bool resetTimer(Timestamp earlist);
 
-  timerfd_t timerfd_;
-  EventLoop *loop_;
-  Handle *handle_;
-  TimerHeap timerheap_;
+    TimerHeap::timerfd_t timerfd_;
+    EventLoop *loop_;
+    Handle *handle_;
+    TimerHeap timerheap_;
 
-  std::vector<std::pair<Timestamp, Timer*>> expired_;
+    std::vector<std::pair<Timestamp, Timer*>> expired_;
 
-  bool timerCallbackRunning_;
+    bool timerCallbackRunning_;
 };
 
 }

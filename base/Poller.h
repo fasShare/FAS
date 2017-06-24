@@ -4,17 +4,13 @@
 
 
 #include <Timestamp.h>
+#include <Events.h>
 
 
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
 namespace fas {
-
-class Events;
-class Epoll;
-class Poll;
-
 /*!
  * \brief The Poller class
  * The Poller class difine the common interface between EventLoop and Epoll or Poll class
@@ -22,11 +18,11 @@ class Poll;
  */
 class Poller : boost::noncopyable {
 public:
-  Poller();
-  boost::function<bool (Events* events)> events_add_;
-  boost::function<bool (Events* events)> events_mod_;
-  boost::function<bool (Events* events)> events_del_;
-  boost::function<Timestamp (std::vector<Events> &events, int timeout)> loop_;
+    Poller();
+    virtual bool EventsAdd(Events* events) = 0;
+    virtual bool EventsMod(Events* events) = 0;
+    virtual bool EventsDel(Events* events) = 0;
+    virtual Timestamp Loop(std::vector<Events> &events, int timeout) = 0;
 };
 
 #define DEFAULT_POLLER Epoll

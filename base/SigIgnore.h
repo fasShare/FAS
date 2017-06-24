@@ -9,7 +9,7 @@ namespace fas {
  */
 class SigIgnore {
 public:
-  SigIgnore();
+    SigIgnore();
 };
 
 }

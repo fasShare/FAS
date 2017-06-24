@@ -1,90 +1,75 @@
 #ifndef FAS_LOG_H
 #define FAS_LOG_H
-#include <ostream>
-#include <sys/types.h>
-#include <string>
-#include <sstream>
-#include <pthread.h>
-
-#include <Types.h>
-#include <Buffer.h>
-#include <Thread.h>
-
-
-#include <boost/function.hpp>
-#include <boost/implicit_cast.hpp>
+#include <log4cplus/layout.h>
+#include <log4cplus/configurator.h>
+#include <log4cplus/logger.h>
+#include <log4cplus/fileappender.h>
+#include <log4cplus/loggingmacros.h>
+#include <log4cplus/helpers/property.h>
+#include <log4cplus/configurator.h>
+#include <log4cplus/helpers/loglog.h>
+#include <log4cplus/loggingmacros.h>
 
 namespace fas {
 
-bool defaultLogOutput(const char* data, int len);
+static const std::string CRLF = "\r\n";
 
-/*!
- * \brief The Log class
- * Output the log of our pragram.
- * The Log class consist of six levels fllowing:
- * LogLevel::TRACE,
- * LogLevel::DEBUG
- * LogLevel::INFO
- * LogLevel::WARN
- * LogLevel::ERROR
- * LogLevel::FATAL
- */
-class Log{
+class CommonLog
+{
 public:
-  typedef boost::function<bool (const char* data, int len)> default_output_t;
-  const static char *CLRF;
-  enum LogLevel {
-   TRACE = 1,
-   DEBUG,
-   INFO,
-   WARN,
-   ERROR,
-   FATAL,
-   NUM_LOG_LEVELS,
-   };
+    log4cplus::Logger* trace_;
+    log4cplus::Logger* debug_;
+    log4cplus::Logger* info_;
+    log4cplus::Logger* warn_;
+    log4cplus::Logger* error_;
+    log4cplus::Logger* sys_error_;
+    log4cplus::Logger* fetal_;
 
-  Log();
-  Log(std::string file, int line);
-  Log(std::string file, int line, Log::LogLevel level);
-  Log(std::string file, int line, Log::LogLevel level, std::string func);
-  Log(std::string file, int line, bool toAbort);
-  ~Log();
+public:
+    int init(const std::string& name, std::vector<std::string>& log_name) {
+        if (name.empty()) {
+            return -1;
+        }
 
-  Log& fflush();
+        log4cplus::initialize();
+        log4cplus::helpers::LogLog::getLogLog()->setInternalDebugging(true);
+        log4cplus::PropertyConfigurator::doConfigure(name);
 
-  static LogLevel getLogLevel();
+#define CREATE_LOG_OBJECT(KEY, POINT) \
+        if (log_name.end() != std::find(log_name.begin(), log_name.end(), #KEY)) { \
+            log4cplus::Logger logger = log4cplus::Logger::getInstance(#KEY);\
+            POINT = new log4cplus::Logger(logger); \
+        }
 
-  void setOutput(default_output_t output);
+        CREATE_LOG_OBJECT(TRACE, trace_)
+            CREATE_LOG_OBJECT(DEBUG, debug_)
+            CREATE_LOG_OBJECT(INFO, info_)
+            CREATE_LOG_OBJECT(WARN, warn_)
+            CREATE_LOG_OBJECT(ERROR, error_)
+            CREATE_LOG_OBJECT(SYS_ERROR, sys_error_)
+            CREATE_LOG_OBJECT(FETAL, fetal_)
+            return 0;
+    }
 
-  std::ostringstream& getBuffer();
+    static CommonLog* instance();
 
-  Log& LOG();
 private:
-  LogLevel runTimeLevel_;
-  std::string file_;
-  int line_;
-  std::string func_;
-  bool abort_;
-  default_output_t output_;
-  // FIXME : use little buffer.
-  std::ostringstream buffer_;
+    CommonLog() {}
+
+    static CommonLog* logger_;
 };
 
-template<typename T>
-Log& operator<<(Log& log, T val) {
-  log.getBuffer() << val;
-  return log.fflush();
-}
-
-#define LOGGER_TRACE  fas::Log(__FILE__, __LINE__, fas::Log::TRACE, __func__).LOG()
-#define LOGGER_DEBUG  fas::Log(__FILE__, __LINE__, fas::Log::DEBUG, __func__).LOG()
-#define LOGGER_INFO   fas::Log(__FILE__, __LINE__).LOG()
-#define LOGGER_WARN fas::Log(__FILE__, __LINE__, fas::Log::WARN).LOG()
-#define LOGGER_ERROR fas::Log(__FILE__, __LINE__, fas::Log::ERROR).LOG()
-#define LOGGER_FATAL fas::Log(__FILE__, __LINE__, fas::Log::FATAL).LOG()
-#define LOGGER_SYSERR fas::Log(__FILE__, __LINE__, false).LOG()
-#define LOGGER_SYSFATAL fas::Log(__FILE__, __LINE__, true).LOG()
+bool LoggerInit();
 
 }
+
+#define LOGGER_TRACE(MSG) LOG4CPLUS_TRACE(*fas::CommonLog::instance()->trace_, MSG)
+#define LOGGER_DEBUG(MSG) LOG4CPLUS_DEBUG(*fas::CommonLog::instance()->debug_, MSG)
+#define LOGGER_INFO(MSG) LOG4CPLUS_INFO(*fas::CommonLog::instance()->info_, MSG)
+#define LOGGER_WARN(MSG) LOG4CPLUS_WARN(*fas::CommonLog::instance()->warn_, MSG)
+#define LOGGER_ERROR(MSG) LOG4CPLUS_ERROR(*fas::CommonLog::instance()->error_, MSG)
+#define LOGGER_FATAL(MSG) LOG4CPLUS_FATAL(*fas::CommonLog::instance()->fetal_, MSG)
+#define LOGGER_SYSERR(MSG) LOG4CPLUS_ERROR(*fas::CommonLog::instance()->error_, MSG)
+
 #endif // FAS_LOG_H
 

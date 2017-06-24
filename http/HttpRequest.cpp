@@ -1,12 +1,13 @@
 #include <HttpRequest.h>
 #include <utilstring.h>
+#include <Buffer.h>
 #include <Log.h>
 
 
 #include <boost/core/ignore_unused.hpp>
 
 fas::http::HttpRequest::HttpRequest() :
-  requestState_(ReqState::BAD) {
+  requestState_(ReqState::INCOMPLETE) {
 }
 
 bool fas::http::HttpRequest::analyseHttpRequestHeader(Buffer *buffer) {
@@ -82,5 +83,5 @@ std::string fas::http::HttpRequest::getVersion() const {
 }
 
 fas::http::HttpRequest::~HttpRequest() {
-  LOGGER_TRACE << "fas::http::~HttpRequest()" << fas::Log::CLRF;
+  LOGGER_TRACE("fas::http::~HttpRequest()");
 }

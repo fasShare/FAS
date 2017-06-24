@@ -3,9 +3,10 @@
 #include <set>
 #include <utility>
 #include <vector>
+#include <Timestamp.h>
 
 
-#include <Types.h>
+#include <boost/shared_ptr.hpp>
 
 namespace fas {
 
@@ -16,45 +17,47 @@ class Timer;
  */
 class TimerHeap {
 public:
-  typedef std::set<std::pair<Timestamp, Timer*>>::iterator TimerHeapIter;
-  typedef std::pair<TimerHeapIter, bool> TimerHeapSetRetType;
-  TimerHeap();
-  ~TimerHeap();
+    typedef int timerfd_t;
+    typedef boost::shared_ptr<Timer> TimerPtr;
+    typedef std::set<std::pair<Timestamp, Timer*>>::iterator TimerHeapIter;
+    typedef std::pair<TimerHeapIter, bool> TimerHeapSetRetType;
+    TimerHeap();
+    ~TimerHeap();
 
-  uint getTimerNum() const;
+    uint getTimerNum() const;
 
-  /*!
-   * \brief getEarlistChange
-   * \return bool
-   * \see addTimer, delTimer
-   * if addTimer and delTimer cause the earlist expired Timer change,
-   * this funtion will return true, else return false.
-   */
-  bool getEarlistChange() const;
-  Timestamp getEarlistExpiration() const;
-  void getExpiredTimers(std::vector<std::pair<Timestamp, Timer *>>& expired, Timestamp now);
+    /*!
+     * \brief getEarlistChange
+     * \return bool
+     * \see addTimer, delTimer
+     * if addTimer and delTimer cause the earlist expired Timer change,
+     * this funtion will return true, else return false.
+     */
+    bool getEarlistChange() const;
+    Timestamp getEarlistExpiration() const;
+    void getExpiredTimers(std::vector<std::pair<Timestamp, Timer *>>& expired, Timestamp now);
 
-  void restartIntervalTimer(std::vector<std::pair<Timestamp, Timer *>>& expired);
-  /*!
-   * \brief addTimer
-   * \param timer
-   * \return bool
-   * \see delTimer
-   * add  timer to TimerHeap. if successful return true.
-   * timer must be created by new Timer().
-   */
-  bool addTimer(Timer *timer);
-  /*!
-   * \brief delTimer
-   * \param timer
-   * delete timer from TimerHeap. timer must be created by new Timer().
-   * timer's memory will be auto released.
-   */
-  void delTimer(Timer *timer);
+    void restartIntervalTimer(std::vector<std::pair<Timestamp, Timer *>>& expired);
+    /*!
+     * \brief addTimer
+     * \param timer
+     * \return bool
+     * \see delTimer
+     * add  timer to TimerHeap. if successful return true.
+     * timer must be created by new Timer().
+     */
+    bool addTimer(Timer *timer);
+    /*!
+     * \brief delTimer
+     * \param timer
+     * delete timer from TimerHeap. timer must be created by new Timer().
+     * timer's memory will be auto released.
+     */
+    void delTimer(Timer *timer);
 private:
-  std::set<std::pair<Timestamp, Timer *>> timers_;
-  Timer *earlistExpiration_;
-  bool earlistChange_;  /*!< The flag of earlist expired Timer change. */
+    std::set<std::pair<Timestamp, Timer *>> timers_;
+    Timer *earlistExpiration_;
+    bool earlistChange_;  /*!< The flag of earlist expired Timer change. */
 };
 
 }

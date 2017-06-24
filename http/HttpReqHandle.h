@@ -3,6 +3,7 @@
 #include <string>
 
 
+#include <TcpConnection.h>
 #include <HttpResponse.h>
 #include <HttpRequest.h>
 #include <HttpCommon.h>
@@ -13,23 +14,24 @@ namespace http {
 
 class HttpReqHandle {
 public:
+using TcpConnShreadPtr = fas::TcpConnection::TcpConnShreadPtr;
   HttpReqHandle();
   ~HttpReqHandle();
 
-  void OnMessageCallback(TcpConnection *conn, Buffer* buffer, Timestamp time);
-  bool handleMethod(TcpConnection *conn, const HttpRequest& req);
+  void OnMessageCallback(TcpConnShreadPtr conn, Buffer* buffer, Timestamp time);
+  bool handleMethod(TcpConnShreadPtr conn, const HttpRequest& req);
 
-  bool HandleGet(TcpConnection *conn, const HttpRequest& req);
-  bool HandlePut(TcpConnection *conn, const HttpRequest& req);
-  bool HandlePost(TcpConnection *conn, const HttpRequest& req);
-  bool HandleTrace(TcpConnection *conn, const HttpRequest& req);
-  bool HandleHead(TcpConnection *conn, const HttpRequest& req);
-  bool HandleDelete(TcpConnection *conn, const HttpRequest& req);
-  bool HandleOptions(TcpConnection *conn, const HttpRequest& req);
+  bool HandleGet(TcpConnShreadPtr conn, const HttpRequest& req);
+  bool HandlePut(TcpConnShreadPtr conn, const HttpRequest& req);
+  bool HandlePost(TcpConnShreadPtr conn, const HttpRequest& req);
+  bool HandleTrace(TcpConnShreadPtr conn, const HttpRequest& req);
+  bool HandleHead(TcpConnShreadPtr conn, const HttpRequest& req);
+  bool HandleDelete(TcpConnShreadPtr conn, const HttpRequest& req);
+  bool HandleOptions(TcpConnShreadPtr conn, const HttpRequest& req);
 
-  void sendMassData(TcpConnection *conn);
+  void sendMassData(TcpConnShreadPtr conn);
 
-  bool HandleError(TcpConnection *conn, const HttpRequest& req, const std::string& errorCode);
+  bool HandleError(TcpConnShreadPtr conn, const HttpRequest& req, const std::string& errorCode);
 
   class SendMassDataContext {
   public:

@@ -2,7 +2,7 @@
 #include <signal.h>
 
 fas::SigIgnore::SigIgnore() {
-  ::signal(SIGPIPE, SIG_IGN);
+    ::signal(SIGPIPE, SIG_IGN);
 }
 
 fas::SigIgnore SigIgn;

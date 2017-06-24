@@ -1,23 +1,14 @@
-fas_base_static_lib = ../lib/libfas.a
-fas_base_shared_lib = ../lib/libfas.so
-fas_utils_shared_lib = ../lib/libfasutils.so
-fas_utils_static_lib = ../lib/libfasutils.a
-fas_base_header := $(fas_base)
-fas_utils_header := ./
-fas_libs    := ../lib
-static_lib_cmd  := ar rcs
-shared_lib_cmd  := g++ -shared -fPIC
-cflags          := -std=c++11 -Wall 
-CC = g++
-objects := $(patsubst %.cpp, %.o, $(wildcard *.cpp))
+FAS_UTILS_STATIC_LIB							:= $(FAS_LIBS_DIR)/libfasutils.a
+FAS_UTILS_SHARED_LIB							:= $(FAS_LIBS_DIR)/libfasutils.so
 
-all:$(objects)
-	echo $(objects)
-	$(shared_lib_cmd) $^ -o $(fas_utils_shared_lib)
-	$(static_lib_cmd) $(fas_utils_static_lib) $^ 
+OBJECTS											:= $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 
-%.o:%.cpp
-	$(CC) -c $^ -I${fas_base_header} -I${fas_utils_header} $(cflags) -o $@ -l$(fas_base_static_lib) -static
+all:$(OBJECTS)
+	$(SHARED_LIB_CMD) $^ -L$(FAS_LIBS_DIR) -o $(FAS_UTILS_SHARED_LIB)
+	$(STATIC_LIB_CMD) $(FAS_UTILS_STATIC_LIB) $^ 
+
+%.o:%.cpp $(UTILS_HEADERS) 
+	$(CC) -c $< $(UTILS_INCLUDE_DIR) $(CFLAG) -o $@ $(UTILS_LIBS) 
 
 .PHONY : clean
 clean:

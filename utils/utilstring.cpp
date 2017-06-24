@@ -1,7 +1,6 @@
 #include <string>
 
 
-#include <Log.h>
 #include <utilstring.h>
 
 
@@ -20,10 +19,8 @@ bool fas::utils::StringSplitBychar(const std::string& src,
   size_t firstEndPos = src.find_first_of(delimter, firstStartPos);
   if (firstEndPos == std::string::npos) {
     ret.push_back(src.substr(firstStartPos, src.length() - firstStartPos));
-    //LOGGER_DEBUG << "firstStartPos = " << firstStartPos << " firstEndPos = " << src.length() << fas::Log::CLRF;
   } else {
     ret.push_back(src.substr(firstStartPos, firstEndPos - firstStartPos));
-    //LOGGER_DEBUG << "firstStartPos = " << firstStartPos << " firstEndPos = " << firstEndPos << fas::Log::CLRF;
   }
 
   return StringSplitBychar(src, delimter, ret, firstEndPos);
@@ -45,7 +42,6 @@ std::string fas::utils::StringTrim(const std::string& src) {
 }
 
 std::string fas::utils::StringRemoveRepeatChar(const std::string& src, const std::string& op) {
-  //boost::xpressive::sregex replace = boost::xpressive::sregex::compile((std::string("(") + op + std::string("){2, }")).c_str());
   std::string reg_format = std::string("(") + op + std::string("){2,}");
   sregex replace = sregex::compile(reg_format.c_str());
   return regex_replace(src, replace, op.c_str());
