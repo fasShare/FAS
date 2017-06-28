@@ -35,7 +35,7 @@ void fas::http::HttpServer::OnConnectionRemoved(fas::TcpServer::connkey_t key) {
     return;
   }
 
-  int ret = this->reqHandles_.erase(key);
+  ssize_t ret = this->reqHandles_.erase(key);
   assert(ret == 1);
   LOGGER_TRACE("out of fas::http::HttpServer::OnConnectionRemoved");
 }

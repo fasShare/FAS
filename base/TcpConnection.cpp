@@ -133,9 +133,9 @@ void fas::TcpConnection::handleWrite(const fas::Events& revents, fas::Timestamp 
     loop_->assertInOwnerThread();
 
     int writeSd = connfd_.getSocket();
-    int readablesizes = writeBuffer_->readableBytes();
+    size_t readablesizes = writeBuffer_->readableBytes();
 reWrite:
-    int ret = ::write(writeSd, writeBuffer_->peek(), readablesizes);
+    ssize_t ret = ::write(writeSd, writeBuffer_->peek(), readablesizes);
     if (ret < 0) {
         if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
             return;

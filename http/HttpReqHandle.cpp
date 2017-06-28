@@ -200,8 +200,8 @@ fas::http::HttpReqHandle::~HttpReqHandle() {
 
 
 fas::http::HttpReqHandle::SendMassDataContext::SendMassDataContext(int fd,
-                                                                   int length,
-                                                                   int rdstart) :
+                                                                   size_t length,
+                                                                   size_t rdstart) :
   fd_(fd),
   length_(length),
   rdstart_(rdstart),
@@ -210,8 +210,8 @@ fas::http::HttpReqHandle::SendMassDataContext::SendMassDataContext(int fd,
 }
 
 void fas::http::HttpReqHandle::SendMassDataContext::ContextReset(int fd,
-                                                                 int length,
-                                                                 int rdstart) {
+                                                                 size_t length,
+                                                                 size_t rdstart) {
   fd_ = fd;
   length_ = length;
   rdstart_ = rdstart;

@@ -13,6 +13,7 @@
 #include <TcpServer.h>
 #include <TcpConnection.h>
 #include <Environment.h>
+#include <FasInfo.h>
 
 
 #include <boost/bind.hpp>

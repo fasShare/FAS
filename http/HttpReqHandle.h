@@ -36,9 +36,9 @@ using TcpConnShreadPtr = fas::TcpConnection::TcpConnShreadPtr;
   class SendMassDataContext {
   public:
     SendMassDataContext() = default;
-    SendMassDataContext(int fd, int length, int rdstart);
+    SendMassDataContext(int fd, size_t length, size_t rdstart);
 
-    void ContextReset(int fd, int length, int rdstart);
+    void ContextReset(int fd, size_t length, size_t rdstart);
 
     void addSizeToRdstartAndUpdateRemind(ssize_t size);
 
