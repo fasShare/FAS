@@ -267,13 +267,12 @@ bool fas::EventLoop::loop() {
                 LOGGER_DEBUG("handle'state != STATE_LOOP!");
                 continue;
             }
-            //handle revents
             handle->handleEvent(*iter, looptime);
-        } //for
+        } 
 
         assert(!runningFunctors_);
         runFunctors();
-    } //while
+    } 
     return true;
 }
 

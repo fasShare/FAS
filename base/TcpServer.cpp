@@ -27,6 +27,10 @@ fas::TcpServer::TcpServer(fas::EventLoop* loop, const NetAddress& addr, int thre
     handleQueue_(nullptr),
     handleMap_(nullptr) {
     assert(loop_ != NULL);
+    server_.setNoBlocking();
+    server_.setExecClose();
+    server_.bind(addr_);
+    server_.listen(listenBacklog_);
 }
 
 fas::EventLoop* fas::TcpServer::getLoop() const{
@@ -43,15 +47,11 @@ fas::TcpServer::TcpConnShreadPtr fas::TcpServer::getConn(fas::TcpServer::connkey
 }
 
 bool fas::TcpServer::start() {  
-    server_.setNoBlocking();
-    server_.setExecClose();
     handle_ = new (std::nothrow) Handle(loop_, events_);
     if (!handle_) {
         LOGGER_ERROR("new server handle_ error!");
         return false;
     }
-    server_.bind(addr_);
-    server_.listen(listenBacklog_);
 
     handle_->setHandleRead(boost::bind(&TcpServer::defHandleAccept, this, _1, _2));
     loop_->addHandle(handle_);
@@ -144,4 +144,5 @@ void fas::TcpServer::removeConnectionInLoop(fas::TcpServer::connkey_t key) {
 
 fas::TcpServer::~TcpServer() {
     delete handle_;
+    handle_ = nullptr;
 }
