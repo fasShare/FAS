@@ -1,4 +1,0 @@
-Log file created at: 2017/06/30 16:22:35
-Running on machine: fas-VirtualBox
-Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
-E0630 16:22:35.121486  1723 FasInfo.cpp:55]  can not find log json root!
