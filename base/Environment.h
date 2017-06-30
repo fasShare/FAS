@@ -6,8 +6,6 @@
 #include <Reloader.h>
 #include <Log.h>
 
-#define GET_ENV() (fas::Environment::instance())
-#define ENV_INIT() (GET_ENV()->init())
 
 namespace fas {
 
@@ -30,5 +28,12 @@ private:
 };
 
 }
+fas::Environment *GET_ENV() {
+    return fas::Environment::instance();
+}
+bool ENV_INIT() {
+    return GET_ENV()->init();
+}
+
 
 #endif // FAS_ENVIRONMENT_H

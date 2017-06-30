@@ -14,8 +14,7 @@ namespace fas {
 
 static const std::string CRLF = "\r\n";
 
-class CommonLog
-{
+class CommonLog {
 public:
     log4cplus::Logger* trace_;
     log4cplus::Logger* debug_;
@@ -26,30 +25,7 @@ public:
     log4cplus::Logger* fetal_;
 
 public:
-    int init(const std::string& name, std::vector<std::string>& log_name) {
-        if (name.empty()) {
-            return -1;
-        }
-
-        log4cplus::initialize();
-        log4cplus::helpers::LogLog::getLogLog()->setInternalDebugging(true);
-        log4cplus::PropertyConfigurator::doConfigure(name);
-
-#define CREATE_LOG_OBJECT(KEY, POINT) \
-        if (log_name.end() != std::find(log_name.begin(), log_name.end(), #KEY)) { \
-            log4cplus::Logger logger = log4cplus::Logger::getInstance(#KEY);\
-            POINT = new log4cplus::Logger(logger); \
-        }
-
-        CREATE_LOG_OBJECT(TRACE, trace_)
-            CREATE_LOG_OBJECT(DEBUG, debug_)
-            CREATE_LOG_OBJECT(INFO, info_)
-            CREATE_LOG_OBJECT(WARN, warn_)
-            CREATE_LOG_OBJECT(ERROR, error_)
-            CREATE_LOG_OBJECT(SYS_ERROR, sys_error_)
-            CREATE_LOG_OBJECT(FETAL, fetal_)
-            return 0;
-    }
+    int init(const std::string& name, std::vector<std::string>& log_name);
 
     static CommonLog* instance();
 
@@ -62,7 +38,6 @@ private:
 bool LoggerInit();
 
 }
-
 #define LOGGER_TRACE(MSG) LOG4CPLUS_TRACE(*fas::CommonLog::instance()->trace_, MSG)
 #define LOGGER_DEBUG(MSG) LOG4CPLUS_DEBUG(*fas::CommonLog::instance()->debug_, MSG)
 #define LOGGER_INFO(MSG) LOG4CPLUS_INFO(*fas::CommonLog::instance()->info_, MSG)

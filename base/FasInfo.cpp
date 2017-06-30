@@ -119,7 +119,7 @@ std::string fas::FasInfo::getValue(const std::string& root, const std::string& k
 fas::FasInfo* GET_FAS_INFO() {
     fas::FasInfoLoader *info = dynamic_cast<fas::FasInfoLoader*>(GET_ENV()->getReloader("fasinfo"));
     if (!info) {
-        LOGGER_ERROR("Get fasinfo Loader error.");
+        fas::LOGGER_ERROR("Get fasinfo Loader error.");
         return nullptr;
     }
     return info->get_content();

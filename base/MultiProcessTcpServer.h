@@ -10,18 +10,18 @@
 
 namespace fas {
 
-class MultiProcessTcpServer : boost::nocopyable {
+class MultiProcessTcpServer : boost::noncopyable {
 public:
     MultiProcessTcpServer();
     ~MultiProcessTcpServer();
 
-    static void signalHandler(int signo);
+    void signalHandler(int signo);
     
     bool reloadInfo();
 
     bool start();
 private:
-    pipeFd *pipes_;
+    PipeFd *pipes_;
     std::vector<ProcessTcpServer *> process_;
     std::vector<pid_t> pids_;
     int threadNum_;
@@ -32,6 +32,8 @@ private:
     sigset_t maskset_;
     sigset_t maskold_;
     sigset_t waitset_;
+};
+
 }
 
 #endif

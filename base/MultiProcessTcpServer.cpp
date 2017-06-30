@@ -1,12 +1,13 @@
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <iostream>
 #include <new>
 #include <signal.h>
 
-#include <MultiProcessTcpServer.h>
-#include <Environment.h>
-#include <FasInfo.h>
 #include <Log.h>
-
+#include <FasInfo.h>
+#include <Environment.h>
+#include <MultiProcessTcpServer.h>
 
 fas::MultiProcessTcpServer::MultiProcessTcpServer():
     pipes_(nullptr),
@@ -17,9 +18,9 @@ fas::MultiProcessTcpServer::MultiProcessTcpServer():
     server_(nullptr),
     quit_(false),
     waiting_(false) {
-    ::sigemptyset(&maskset_);
-    ::sigemptyset(&maskold_);
-    ::sigemptyset(&waitset_);
+    sigemptyset(&maskset_);
+    sigemptyset(&maskold_);
+    sigemptyset(&waitset_);
 }
 
 void fas::MultiProcessTcpServer::signalHandler(int signo) {
@@ -71,7 +72,7 @@ bool fas::MultiProcessTcpServer::start() {
     sigaddset(&maskset_, SIGCONT);
     sigaddset(&maskset_, SIGSTOP);
     if (-1 == sigprocmask(SIG_BLOCK, &maskset_, &maskold_)) {
-        std::cerr << "mask signal set (SIGPIPE, SIGALRM, SIGCONT, SIGSTOP) error. in MultiProcessTcpServer" << std::endl;
+        std::cout << "mask signal set (SIGPIPE, SIGALRM, SIGCONT, SIGSTOP) error. in MultiProcessTcpServer" << std::endl;
         return false;
     }
     //munipulate some signal
@@ -81,7 +82,7 @@ bool fas::MultiProcessTcpServer::start() {
     sigaddset(&waitset_, SIGUSR1);
     sigaddset(&waitset_, SIGUSR2);
 
-    if (-1 == sigprocmask(SIG_BLOCK, &sigset_, &sigold_)) {
+    if (-1 == sigprocmask(SIG_BLOCK, &maskset_, &maskold_)) {
         std::cout << "block signal error in MultiProcessTcpServer" << std::endl;
         return false;
     }
@@ -92,7 +93,7 @@ bool fas::MultiProcessTcpServer::start() {
         }
         LOGGER_TRACE("Reload info succeed, Multi Server begin to start.");
         
-        pipes_ = new (std::nothrow) pipeFd[ProcessNum];
+        pipes_ = new (std::nothrow) PipeFd[ProcessNum];
         if (!pipes_) {
             LOGGER_ERROR("New pipe fd array error.");
             return false;
@@ -126,9 +127,8 @@ bool fas::MultiProcessTcpServer::start() {
             return false;
         }
 
-        process_ = new (std::nothrow) ProcessTcpServer   
-        for (int idx = 0; i < ProcessNum; i++) {
-            if (-1 == ::pipe(pipes_ + i) {
+        for (int i = 0; i < ProcessNum; i++) {
+            if (-1 == ::pipe(pipes_[i].End)) {
                 LOGGER_ERROR("Pipe error in MultiProcessTcpServer.");
                 delete server_;
                 delete loop_;
@@ -137,7 +137,7 @@ bool fas::MultiProcessTcpServer::start() {
             }
         }
         for (int idx = 0; idx < ProcessNum; ++idx) {
-            ProcessTcpServer *proce = new (nothrow)  ProcessTcpServer(server_, pipes_ + i, loop_);
+            ProcessTcpServer *proce = new (std::nothrow)  ProcessTcpServer(server_, pipes_ + idx, loop_);
             if (!proce) {
                 LOGGER_ERROR("New ProcessTcpServer in MultiProcessTcpServer.");
                 delete server_;
@@ -148,10 +148,10 @@ bool fas::MultiProcessTcpServer::start() {
             process_.push_back(proce);
         }
     
-        for (int idx = 0; idx < process_.size(); ++idx) {
+        for (size_t idx = 0; idx < process_.size(); ++idx) {
             pid_t pid = fork();
             if (pid == 0) {
-                process_[idx].start();
+                process_[idx]->start();
                 LOGGER_TRACE("A child quit.");
                 return true;
             } else if (pid < 0)  {
@@ -187,4 +187,4 @@ fas::MultiProcessTcpServer::~MultiProcessTcpServer() {
         pipes_ = nullptr;
     }
     quit_ = true;
-}
+}}
