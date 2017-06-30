@@ -13,6 +13,7 @@ class ProcessTcpServer : boost::noncopyable {
 public:
     ProcessTcpServer(TcpServer* server, PipeFd *pipe, EventLoop *loop);
     ~ProcessTcpServer();
+    void eventHandle(const fas::Events& event, Timestamp time);
     bool start();
 private:
     TcpServer *server_;

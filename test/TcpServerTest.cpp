@@ -45,7 +45,7 @@ void ConnMessageCallback(fas::TcpServer::TcpConnShreadPtr conn, Buffer *buffer, 
 
 int main()
 {
-    ENV_INIT("./log");
+    ENV_INIT();
     std::cout << "after init" << std::endl;
     //这一步是必须的，EventLoop是程序的核心。
     EventLoop *loop = new EventLoop;

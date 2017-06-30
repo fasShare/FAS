@@ -1,5 +1,6 @@
 #include <new>
 #include <iostream>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <Log.h>
@@ -23,11 +24,11 @@ bool fas::InitGoogleLog(const std::string& log_dir) {
         std::cerr << "fas has no permission of log dir "<< log_dir  << std::endl;
         return false;
     }
-
-    google::SetLogDestination(google::GLOG_FATAL, (log_dir + "/log_fatal_").c_str()); // 设置 google::FATAL 级别的日志存储路径和文件名前缀
-    google::SetLogDestination(google::GLOG_ERROR, (log_dir + "/log_error_").c_str()); //设置 google::ERROR 级别的日志存储路径和文件名前缀
-    google::SetLogDestination(google::GLOG_WARNING, (log_dir + "/log_warning_").c_str()); //设置 google::WARNING 级别的日志存储路径和文件名前缀
-    google::SetLogDestination(google::GLOG_INFO, (log_dir + "/log_info_").c_str()); //设置 google::INFO 级别的日志存储路径和文件名前缀
+    pid_t pid = getpid();
+    google::SetLogDestination(google::GLOG_FATAL, (log_dir + "/pid_" + std::to_string(pid) + "_log_fatal_").c_str()); // 设置 google::FATAL 级别的日志存储路径和文件名前缀
+    google::SetLogDestination(google::GLOG_ERROR, (log_dir + "/pid_" + std::to_string(pid) + "_log_error_").c_str()); //设置 google::ERROR 级别的日志存储路径和文件名前缀
+    google::SetLogDestination(google::GLOG_WARNING, (log_dir + "/pid_" + std::to_string(pid) + "_log_warning_").c_str()); //设置 google::WARNING 级别的日志存储路径和文件名前缀
+    google::SetLogDestination(google::GLOG_INFO, (log_dir + "/pid_" + std::to_string(pid) + "_log_info_").c_str()); //设置 google::INFO 级别的日志存储路径和文件名前缀
     FLAGS_logbufsecs = 0; //缓冲日志输出，默认为30秒，此处改为立即输出
     FLAGS_max_log_size = 100; //最大日志大小为 100MB
     FLAGS_stop_logging_if_full_disk = true; //当磁盘被写满时，停止日志输出

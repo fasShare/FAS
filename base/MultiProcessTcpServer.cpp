@@ -54,7 +54,7 @@ void fas::MultiProcessTcpServer::signalHandler(int signo) {
 }
 
 bool fas::MultiProcessTcpServer::reloadInfo() {
-    if (!ENV_INIT("./log")) {
+    if (!ENV_INIT()) {
         std::cout << "Environment init error!" << std::endl;
         return false;
     } else {
@@ -66,7 +66,7 @@ bool fas::MultiProcessTcpServer::reloadInfo() {
 #define ProcessNum 4
 
 bool fas::MultiProcessTcpServer::start() {
-
+    InitGoogleLog("./faslog");
     //block some signal
     sigaddset(&maskset_, SIGPIPE);
     sigaddset(&maskset_, SIGALRM);
@@ -130,6 +130,7 @@ bool fas::MultiProcessTcpServer::start() {
                 delete[] pipes_;
                 return false;
             }
+            pipes_[idx].closeReadEnd();
         }
         for (int idx = 0; idx < ProcessNum; ++idx) {
             ProcessTcpServer *proce = new (std::nothrow)  ProcessTcpServer(server_, pipes_ + idx, loop_);
@@ -146,7 +147,8 @@ bool fas::MultiProcessTcpServer::start() {
         for (size_t idx = 0; idx < process_.size(); ++idx) {
             pid_t pid = fork();
             if (pid == 0) {
-                //process_[idx].start();
+                pipes_[idx].closeWriteEnd();
+                process_[idx]->start();
                 LOGGER_TRACE("A child quit.");
                 return true;
             } else if (pid < 0)  {

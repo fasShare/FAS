@@ -11,7 +11,7 @@ namespace fas {
 class Environment {
 public:
     static Environment* instance();
-    static bool init(const std::string& log_dir);
+    static bool init();
     bool check_load();
     bool insertReloader(const std::string& info, Reloader *loader);
     Reloader* getReloader(const std::string& info) const;
@@ -29,6 +29,6 @@ private:
 }
 
 fas::Environment* GET_ENV();
-bool ENV_INIT(const std::string& log_dir);
+bool ENV_INIT();
 
 #endif // FAS_ENVIRONMENT_H

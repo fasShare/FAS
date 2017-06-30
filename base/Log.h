@@ -24,6 +24,10 @@ public:
     }
 
     static CommonLog *instance();
+
+    void closeLog() {
+        google::ShutdownGoogleLogging();
+    }
     ~CommonLog() {
         google::ShutdownGoogleLogging();
     }

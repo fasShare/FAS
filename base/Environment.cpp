@@ -13,11 +13,8 @@ fas::Environment* fas::Environment::instance() {
     return env_;
 }
 
-bool fas::Environment::init(const std::string& log_dir) {
+bool fas::Environment::init() {
     if (!Environment::instance()) {
-        return false;
-    }
-    if (fas::InitGoogleLog(log_dir) == false) {
         return false;
     }
     FasInfoLoader *loader = new (std::nothrow) FasInfoLoader("./conf/fas.conf");
@@ -114,6 +111,6 @@ fas::Reloader* fas::Environment::getReloader(const std::string& info) {
 fas::Environment* GET_ENV() {
     return fas::Environment::instance();
 }
-bool ENV_INIT(const std::string& log_dir) {
-    return GET_ENV()->init(log_dir);
+bool ENV_INIT() {
+    return GET_ENV()->init();
 }
