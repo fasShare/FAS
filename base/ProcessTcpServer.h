@@ -16,10 +16,12 @@ public:
     bool start();
 private:
     TcpServer *server_;
-    EventLoop *loop;
-    int threadNum_;
     PipeFd *pipe_;
+    EventLoop *loop_;
+    int threadNum_;
     Handle *handle_;
 };
+
+}
 
 #endif

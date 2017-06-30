@@ -3,7 +3,7 @@
 
 namespace fas {
 
-    struct pipeFd {
+    struct PipeFd {
         int End[2];
         int getWriteEnd() const {
             return End[1];

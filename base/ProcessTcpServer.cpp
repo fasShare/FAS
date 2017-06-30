@@ -9,11 +9,11 @@ fas::ProcessTcpServer::ProcessTcpServer(TcpServer* server, PipeFd *pipe, EventLo
 
 fas::ProcessTcpServer::~ProcessTcpServer() {
     //server_->stop();
-    loop->quit();
+    loop_->quit();
     pipe_->closeWriteEnd();
     pipe_->closeReadEnd();
 }
 
 bool fas::ProcessTcpServer::start() {
-
+    return true;
 }

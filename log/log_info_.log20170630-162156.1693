@@ -1,0 +1,7 @@
+Log file created at: 2017/06/30 16:21:56
+Running on machine: fas-VirtualBox
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+E0630 16:21:56.726003  1693 FasInfo.cpp:37]  Parse info file error!
+I0630 16:21:56.732461  1693 Environment.cpp:61] load ./conf/fas.conf failed.
+I0630 16:21:56.732585  1693 Environment.cpp:71] load  ret = -1
+E0630 16:21:56.732591  1693 Environment.cpp:29] env_->load_files() == false

@@ -12,7 +12,6 @@ public:
     FasInfo();
     int load(const std::string& filename);
     std::string getValue(const std::string& root, const std::string& key) const;
-    std::string getLogConf() const;
     std::string getPollerType() const;
     int getPollerTimeout() const;
     int getPollerNum() const;

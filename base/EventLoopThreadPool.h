@@ -30,6 +30,7 @@ public:
     void assertInOwnerThread();
 
     bool start();
+    bool stop();
 
     EventLoop *getNextEventLoop();
 private:

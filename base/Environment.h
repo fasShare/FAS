@@ -6,15 +6,12 @@
 #include <Reloader.h>
 #include <Log.h>
 
-#define GET_ENV() (fas::Environment::instance())
-#define ENV_INIT() (GET_ENV()->init())
-
 namespace fas {
 
 class Environment {
 public:
     static Environment* instance();
-    static bool init();
+    static bool init(const std::string& log_dir);
     bool check_load();
     bool insertReloader(const std::string& info, Reloader *loader);
     Reloader* getReloader(const std::string& info) const;
@@ -30,5 +27,8 @@ private:
 };
 
 }
+
+fas::Environment* GET_ENV();
+bool ENV_INIT(const std::string& log_dir);
 
 #endif // FAS_ENVIRONMENT_H
