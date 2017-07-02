@@ -6,6 +6,7 @@
 #include <TcpServer.h>
 #include <Handle.h>
 #include <EventLoop.h>
+#include <Buffer.h>
 
 namespace fas {
 
@@ -14,12 +15,21 @@ public:
     ProcessTcpServer(TcpServer* server, PipeFd *pipe, EventLoop *loop);
     ~ProcessTcpServer();
     bool start();
+	void resetLoop(EventLoop *loop);
+	bool initReadEndHandle();
+    void handleRead(const fas::Events& event, Timestamp time);
+    void handleWrite(const fas::Events& event, Timestamp time);
+    void handleError(const fas::Events& event, Timestamp time);
+    void handleClose(const fas::Events& event, Timestamp time);
 private:
     TcpServer *server_;
-    EventLoop *loop;
-    int threadNum_;
     PipeFd *pipe_;
-    Handle *handle_;
+    EventLoop *loop_;
+    int threadNum_;
+    Handle *readEndHandle_;
+	Buffer readBuffer_;
 };
+
+}
 
 #endif

@@ -42,7 +42,6 @@ int fas::FasInfo::load(const std::string& filename) {
         fasInfo_["thread_num"] = root["fas"]["thread_num"].asString();
         fasInfo_["server_ip"] = root["fas"]["server_ip"].asString();
         fasInfo_["server_port"] = root["fas"]["server_port"].asString();
-        fasInfo_["log_conf"] = root["fas"]["log_conf"].asString();
     } else {
         LOGGER_ERROR(" can not find fas json root!");
     }
@@ -56,10 +55,6 @@ int fas::FasInfo::load(const std::string& filename) {
     }
 
     return 0;
-}
-
-std::string fas::FasInfo::getLogConf() const {
-    return getValue("fas", "log_conf");
 }
 
 std::string fas::FasInfo::getServerIp() const {
@@ -82,10 +77,6 @@ int fas::FasInfo::getThreadNum() const {
     return boost::lexical_cast<int>(num);
 }
 
-std::string fas::FasInfo::getPollerType() const {
-    return getValue("poller", "type");
-}
-
 int fas::FasInfo::getPollerTimeout() const {
     std::string time_out = getValue("poller", "time_out");
     if (time_out.empty()) {
@@ -100,6 +91,10 @@ int fas::FasInfo::getPollerNum() const {
         return -1;
     }
     return boost::lexical_cast<int>(event_num);
+}
+
+std::string fas::FasInfo::getPollerType() const {
+    return getValue("poller", "type");
 }
 
 std::string fas::FasInfo::getValue(const std::string& root, const std::string& key) const {
@@ -119,8 +114,9 @@ std::string fas::FasInfo::getValue(const std::string& root, const std::string& k
 fas::FasInfo* GET_FAS_INFO() {
     fas::FasInfoLoader *info = dynamic_cast<fas::FasInfoLoader*>(GET_ENV()->getReloader("fasinfo"));
     if (!info) {
-        fas::LOGGER_ERROR("Get fasinfo Loader error.");
+        LOGGER_ERROR("Get fasinfo Loader error.");
         return nullptr;
     }
     return info->get_content();
 }
+

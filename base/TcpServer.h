@@ -42,6 +42,8 @@ public:
 
     EventLoop* getLoop() const;
 
+	void resetLoop(fas::EventLoop *loop);
+
     TcpConnShreadPtr getConn(connkey_t key) const;
     TcpConnShreadPtr getConn(connkey_t key);
 

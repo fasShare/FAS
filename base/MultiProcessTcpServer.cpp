@@ -3,12 +3,18 @@
 #include <iostream>
 #include <new>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include <Log.h>
-#include <FasInfo.h>
-#include <Environment.h>
 #include <MultiProcessTcpServer.h>
+#include <ProcessTcpServer.h>
+#include <Environment.h>
+#include <FasInfo.h>
 
+#include <boost/bind.hpp>
+
+fas::MultiProcessTcpServer *fas::MultiProcessTcpServer::instance = nullptr;
 fas::MultiProcessTcpServer::MultiProcessTcpServer():
     pipes_(nullptr),
     process_(),
@@ -23,23 +29,39 @@ fas::MultiProcessTcpServer::MultiProcessTcpServer():
     sigemptyset(&waitset_);
 }
 
+fas::MultiProcessTcpServer *fas::MultiProcessTcpServer::Instance() {
+	if (nullptr == instance) {
+		instance = new (std::nothrow) MultiProcessTcpServer;
+	}
+	return instance;
+}
+
 void fas::MultiProcessTcpServer::signalHandler(int signo) {
    if (SIGINT == signo) {
-        //do some things.
+		std::string cmd = "[quit]";
+		for (int i = 0; i < instance->pids_.size(); i++) {
+			write(instance->pipes_[i].getWriteEnd(), cmd.c_str(), cmd.size());
+		}
+		LOGGER_TRACE("Recive a SIGQUIT, will be exit.");
+        instance->quit_ = true;
    } else if (SIGQUIT == signo) {
-        waiting_ = true;
-        quit_ = true;
+		std::string cmd = "[quit]";
+		for (int i = 0; i < instance->pids_.size(); i++) {
+			write(instance->pipes_[i].getWriteEnd(), cmd.c_str(), cmd.size());
+		}
+		LOGGER_TRACE("Recive a SIGQUIT, will be exit.");
    } else if (SIGUSR1 == signo) {
         //do some things.
    } else if (SIGUSR2 == signo) {
         //do some things.
    } else if (SIGCHLD == signo) {
+		LOGGER_TRACE("Maybe a multiPrecess server child exit.");
         int status = 0;
-        if (-1 == waitpid(-1, &status, WNOHANG)) {
+        if (-1 == waitpid(-1, &status, WNOHANG | WCONTINUED)) {
             LOGGER_ERROR("wait child error.");
             return;
         }
-
+	
         if (WIFEXITED(status)) {
             LOGGER_TRACE("Child terminated normally.");
         }
@@ -62,10 +84,20 @@ bool fas::MultiProcessTcpServer::reloadInfo() {
     }
 }
 
-#define ProcessNum 4
+void fas::MultiProcessTcpServer::setConnMessageCallback(fas::TcpServer::TcpConnMessageCallback callback) {
+	messageCb_ = callback;
+}
+void fas::MultiProcessTcpServer::setConnBuildCallback(fas::TcpServer::OnConnectionCallBack callback) {
+	connBuildCb_ = callback;
+}
+void fas::MultiProcessTcpServer::setConnRemoveCallback(fas::TcpServer::OnConnectionRemovedCallBack callback) {
+	connRemoveCb_ = callback;
+}
+
+#define ProcessNum 2
 
 bool fas::MultiProcessTcpServer::start() {
-
+    InitGoogleLog("./faslog");
     //block some signal
     sigaddset(&maskset_, SIGPIPE);
     sigaddset(&maskset_, SIGALRM);
@@ -76,34 +108,19 @@ bool fas::MultiProcessTcpServer::start() {
         return false;
     }
     //munipulate some signal
-    sigaddset(&waitset_, SIGCHLD);
-    sigaddset(&waitset_, SIGINT);
-    sigaddset(&waitset_, SIGQUIT);
-    sigaddset(&waitset_, SIGUSR1);
-    sigaddset(&waitset_, SIGUSR2);
-
-    if (-1 == sigprocmask(SIG_BLOCK, &maskset_, &maskold_)) {
-        std::cout << "block signal error in MultiProcessTcpServer" << std::endl;
-        return false;
-    }
+	signal(SIGCHLD, &MultiProcessTcpServer::signalHandler);
+	signal(SIGQUIT, &MultiProcessTcpServer::signalHandler);
+	signal(SIGUSR1, &MultiProcessTcpServer::signalHandler);
+	signal(SIGUSR2, &MultiProcessTcpServer::signalHandler);
+	signal(SIGINT, &MultiProcessTcpServer::signalHandler);
+	signal(SIGSTOP, &MultiProcessTcpServer::signalHandler);
 
     while (!quit_) {
-        if (reloadInfo()) {
+        if (!reloadInfo()) {
             return false;            
         }
         LOGGER_TRACE("Reload info succeed, Multi Server begin to start.");
-        
-        pipes_ = new (std::nothrow) PipeFd[ProcessNum];
-        if (!pipes_) {
-            LOGGER_ERROR("New pipe fd array error.");
-            return false;
-        }
-        loop_ = new (std::nothrow) EventLoop;
-        if (!loop_) {
-            delete[] pipes_;
-            LOGGER_ERROR("New EventLoop error in MultiProcessTcpServer.");
-            return false;
-        }
+	
         short port = GET_FAS_INFO()->getServerPort();
         if (port < 0) {
             LOGGER_ERROR("get server　Port error!");
@@ -119,57 +136,68 @@ bool fas::MultiProcessTcpServer::start() {
             LOGGER_ERROR("get server　thread_num error!");
             thread_num = 4;
         }   
-        server_ = new (std::nothrow) TcpServer(loop_, NetAddress(AF_INET, port, ip.c_str()), thread_num);
+		//由于epollfd是全局唯一的，最好在子进程里面创建，不然多个子进程可能会共享一个。
+        server_ = new (std::nothrow) TcpServer(nullptr, NetAddress(AF_INET, port, ip.c_str()), thread_num);
         if (!server_) {
-            delete loop_;
-            delete[] pipes_;
             LOGGER_ERROR("New TcpServer error in MultiProcessTcpServer.");
             return false;
         }
 
-        for (int i = 0; i < ProcessNum; i++) {
-            if (-1 == ::pipe(pipes_[i].End)) {
-                LOGGER_ERROR("Pipe error in MultiProcessTcpServer.");
+		pipes_ = new (std::nothrow) PipeFd[ProcessNum];        
+        if (!pipes_) {
+            LOGGER_ERROR("New pipe fd array error.");
+            return false;
+        }
+        for (int idx = 0; idx < ProcessNum; idx++) {
+            if (-1 == ::pipe(pipes_[idx].End)) {
+                LOGGER_ERROR("Pipe error in MultiProcessTcpServer : " << ::strerror(errno));
                 delete server_;
-                delete loop_;
                 delete[] pipes_;
                 return false;
             }
+			LOGGER_TRACE("idx = " << idx << " read = " << pipes_[idx].getReadEnd() << " write = " << pipes_[idx].getWriteEnd());
         }
         for (int idx = 0; idx < ProcessNum; ++idx) {
-            ProcessTcpServer *proce = new (std::nothrow)  ProcessTcpServer(server_, pipes_ + idx, loop_);
+            ProcessTcpServer *proce = new (std::nothrow)  ProcessTcpServer(server_, pipes_ + idx, nullptr);
             if (!proce) {
                 LOGGER_ERROR("New ProcessTcpServer in MultiProcessTcpServer.");
                 delete server_;
-                delete loop_;
                 delete[] pipes_;
                 return false;
             }
             process_.push_back(proce);
         }
     
-        for (size_t idx = 0; idx < process_.size(); ++idx) {
+        for (size_t idx = 0; idx < process_.size(); ++idx) { 
+			//再循环中创建进程，要保证在子进程使用idx的时候，idx的值未变。
             pid_t pid = fork();
             if (pid == 0) {
+				CloseGoogleLog();
+				//每个进程进行日志的重新初始化，将日志打印到含有自己pid的日志文件中。
+				InitGoogleLog("./faslog");
+        		EventLoop *loop = new (std::nothrow) EventLoop;
+        		if (!loop) {
+            		LOGGER_ERROR("New EventLoop error in MultiProcessTcpServer child process.");
+            		return false;
+        		}
+                pipes_[idx].closeWriteEnd();
+				process_[idx]->resetLoop(loop);
+				server_->setMessageCallback(messageCb_);
                 process_[idx]->start();
-                LOGGER_TRACE("A child quit.");
-                return true;
+			    LOGGER_TRACE("a child quit. idx = " << idx);
+				exit(EXIT_SUCCESS);
             } else if (pid < 0)  {
                 LOGGER_ERROR("Fork child error in MultiProcessTcpServer.");
             }
+			//master进程记录所有子进程的pid
             pids_.push_back(pid);
+			//关闭管道的读端,master主要用来通知子进程,后期可能会添加上读，让父子进程交互。	
+			pipes_[idx].closeReadEnd();
         }
 
         waiting_ = true;
         while (waiting_ && (!quit_)) {
-            int signo = -1;
-            if (EINVAL == sigwait(&waitset_, &signo)) {
-                LOGGER_ERROR("Signal set contains an invalid signal number.");
-                //fix me : close all child process.
-                return false;
-            }
-
-           signalHandler(signo);
+			sleep(1);
         }
         waiting_ =  false;
         // fix me : close all child process.
@@ -187,4 +215,4 @@ fas::MultiProcessTcpServer::~MultiProcessTcpServer() {
         pipes_ = nullptr;
     }
     quit_ = true;
-}}
+}

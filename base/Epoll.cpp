@@ -26,7 +26,7 @@ bool fas::Epoll::eventCtl(int op, int sd, EpollEvent* event) {
     assert(epoll_fd_ != -1);
     int ret = ::epoll_ctl(epoll_fd_, op, sd, event);
     if (ret == -1) {
-        LOGGER_SYSERR("epoll_ctl error : " << ::strerror(errno));
+        LOGGER_SYSERR("epoll_ctl error : " << ::strerror(errno) << " fd : " << sd);
         return false;
     } else {
         return true;

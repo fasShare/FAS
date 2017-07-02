@@ -12,15 +12,19 @@ namespace fas {
 
 class MultiProcessTcpServer : boost::noncopyable {
 public:
-    MultiProcessTcpServer();
-    ~MultiProcessTcpServer();
+	static MultiProcessTcpServer *Instance();	
 
-    void signalHandler(int signo);
+    static void signalHandler(int signo);
     
     bool reloadInfo();
 
+	void setConnMessageCallback(TcpServer::TcpConnMessageCallback callback);
+	void setConnBuildCallback(TcpServer::OnConnectionCallBack callback);
+	void setConnRemoveCallback(TcpServer::OnConnectionRemovedCallBack callback);
     bool start();
 private:
+    MultiProcessTcpServer();
+    ~MultiProcessTcpServer();
     PipeFd *pipes_;
     std::vector<ProcessTcpServer *> process_;
     std::vector<pid_t> pids_;
@@ -32,6 +36,12 @@ private:
     sigset_t maskset_;
     sigset_t maskold_;
     sigset_t waitset_;
+
+	TcpServer::TcpConnMessageCallback messageCb_;
+	TcpServer::OnConnectionCallBack connBuildCb_;
+	TcpServer::OnConnectionRemovedCallBack connRemoveCb_;
+
+	static MultiProcessTcpServer *instance;
 };
 
 }

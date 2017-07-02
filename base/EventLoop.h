@@ -138,6 +138,8 @@ public:
      * Polling events in this function.
      */
     bool loop();
+
+	void resetOwnerTid();
 private:
     bool updateHandle(SHandlePtr handle);
     bool updateHandles();

@@ -17,9 +17,6 @@ bool fas::Environment::init() {
     if (!Environment::instance()) {
         return false;
     }
-    if (fas::LoggerInit() == false) {
-        return false;
-    }
     FasInfoLoader *loader = new (std::nothrow) FasInfoLoader("./conf/fas.conf");
     if (!env_->insertReloader("fasinfo", loader)) {
         LOGGER_ERROR("Environment insert FasInfoLoader error.");
@@ -109,4 +106,11 @@ fas::Reloader* fas::Environment::getReloader(const std::string& info) {
         return nullptr;
     }
     return iter->second;
+}
+
+fas::Environment* GET_ENV() {
+    return fas::Environment::instance();
+}
+bool ENV_INIT() {
+    return GET_ENV()->init();
 }
