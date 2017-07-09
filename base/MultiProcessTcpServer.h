@@ -29,7 +29,7 @@ private:
     std::vector<ProcessTcpServer *> process_;
     std::vector<pid_t> pids_;
     int threadNum_;
-    EventLoop *loop_;
+    EventLoop *loop_;  //do not used by serevr_
     TcpServer *server_;
     bool quit_;
     bool waiting_;

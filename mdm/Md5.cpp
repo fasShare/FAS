@@ -274,7 +274,7 @@ int _httoi(const char *value)
   int result = 0;
   if (*s == '0' && *(s + 1) == 'X') s += 2;
   bool firsttime = true;
-  while (*s != '/0')
+  while (s[0] != '\0')
   {
     bool found = false;
     for (int i = 0; i < HexMapL; i++)

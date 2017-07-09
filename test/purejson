@@ -1,0 +1,15 @@
+{
+"id":"20337ffa98c4b666", "bidid":"4dxdfsfxww", "cur":"CNY",
+"seatbid":[
+{
+"seat":"45244333555", "group":0,
+"bid":[
+{
+"id":"CFDDFSEXKl",
+"bundle":"com.cleanmaster.mguard",
+"impid":"1",
+"price":3.2, "nurl":"http://www.test.com/?winprice={AUCTION_PRICE}",
+"adm":{"banner":{"imptrackers":["test1.com"],"link":{"url":"www.aa.com","clicktrackers ":["click.com"]},"img":{"url":"www.image.com","w":1200,"h":628}}}
+} ]
+} ]
+}

@@ -4,10 +4,9 @@
 #include <vector>
 #include <assert.h>
 #include <string.h>
-
+#include <string>
 
 #include <Endian.h>
-
 
 #include <boost/noncopyable.hpp>
 

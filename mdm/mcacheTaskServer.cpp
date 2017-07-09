@@ -29,7 +29,7 @@ void fas::mdm::mcacheTaskServer::OnConnectionRemoved(connkey_t key) {
 		return;
 	}
 
-	int ret = this->reqHandles_.erase(key);
+	ssize_t ret = this->reqHandles_.erase(key);
 	assert(ret == 1);
 }
 
