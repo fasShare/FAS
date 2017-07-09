@@ -1,5 +1,0 @@
-Log file created at: 2017/07/09 17:35:59
-Running on machine: fas
-Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
-E0709 17:35:59.144182 11208 Socket.cpp:83] accept error : Resource temporarily unavailable
-E0709 17:35:59.144496 11208 TcpServer.cpp:85] In Tcpserver accepted return an error!

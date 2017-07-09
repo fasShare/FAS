@@ -1,5 +1,0 @@
-Log file created at: 2017/07/09 19:48:38
-Running on machine: fas
-Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
-E0709 19:48:38.570334 25121 ProcessTcpServer.cpp:88] Reloader success in process 25121
-E0709 19:48:58.570878 25121 ProcessTcpServer.cpp:88] Reloader success in process 25121
