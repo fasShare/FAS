@@ -1,10 +1,8 @@
 #include <iostream>
 
-
 #include <EventLoop.h>
 #include <Timer.h>
 #include <TimerHeap.h>
-
 
 #include <boost/bind.hpp>
 

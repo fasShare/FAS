@@ -16,7 +16,7 @@ class MD5
 {
 private:
     #define uint8  unsigned char
-    #define uint32 unsigned long int
+    #define uint32 uint32_t
 
     struct md5_context
     {

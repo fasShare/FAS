@@ -146,7 +146,7 @@ bool fas::mdm::mcacheTask::handleOtherCmd(TcpConnShreadPtr conn, fas::Buffer *bu
 		head_ = head_ + "\r\n";
 		const char *buf = head_.data();
 
-		int ret = writeSizeBytes2NoBlockSock(sock.getSocket(), buf, head_.size());
+		ssize_t ret = writeSizeBytes2NoBlockSock(sock.getSocket(), buf, head_.size());
 		if (ret == -1 || (ret != static_cast<int>(head_.size()))) {
 			setState(TaskState::BAD);
 			conn->sendString("SERVER_ERROR\r\n");
@@ -214,7 +214,7 @@ bool fas::mdm::mcacheTask::handleIncrDecrCmd(TcpConnShreadPtr conn, fas::Buffer 
 		head_ = head_ + "\r\n";
 		const char *buf = head_.data();
 
-		int ret = writeSizeBytes2NoBlockSock(sock.getSocket(), buf, head_.size());
+		ssize_t ret = writeSizeBytes2NoBlockSock(sock.getSocket(), buf, head_.size());
 		if (ret == -1 || (ret != static_cast<int>(head_.size()))) {
 			setState(TaskState::BAD);
 			conn->sendString("SERVER_ERROR\r\n");
@@ -280,7 +280,7 @@ bool fas::mdm::mcacheTask::handleDeleteCmd(TcpConnShreadPtr conn, fas::Buffer *b
 		head_ = head_ + "\r\n";
 		const char *buf = head_.data();
 
-		int ret = writeSizeBytes2NoBlockSock(sock.getSocket(), buf, head_.size());
+		ssize_t ret = writeSizeBytes2NoBlockSock(sock.getSocket(), buf, head_.size());
 		if (ret == -1 || (ret != static_cast<int>(head_.size()))) {
 			setState(TaskState::BAD);
 			conn->sendString("SERVER_ERROR\r\n");
@@ -400,7 +400,7 @@ bool fas::mdm::mcacheTask::handleRetriveCmd(TcpConnShreadPtr conn, fas::Buffer *
 			std::string reqHead = method_ + " " +gets_socks_v.find((*iter).getFd())->second + "\r\n";
 			const char *buf = reqHead.data();
 
-			int ret = writeSizeBytes2NoBlockSock((*iter).getFd(), buf, reqHead.size());
+			ssize_t ret = writeSizeBytes2NoBlockSock((*iter).getFd(), buf, reqHead.size());
 			if (ret == -1 || (ret != static_cast<int>(reqHead.size()))) {
 				continue;
 			}
@@ -501,7 +501,7 @@ bool fas::mdm::mcacheTask::handleStrogeCmd(TcpConnShreadPtr conn, fas::Buffer *b
 		head_ = head_ + "\r\n";
 		const char *buf = head_.c_str();
 
-		int ret = writeSizeBytes2NoBlockSock(sock.getSocket(), buf, head_.size());
+		ssize_t ret = writeSizeBytes2NoBlockSock(sock.getSocket(), buf, head_.size());
 		if (ret == -1 || (ret != static_cast<int>(head_.size()))) {
 			setState(TaskState::BAD);
 			conn->sendString("SERVER_ERROR\r\n");
@@ -631,12 +631,12 @@ int fas::mdm::mcacheTask::getBytes() const {
 	return this->bytes_;
 }
 
-int writeSizeBytes2NoBlockSock(int sock, const char *buf, int size) {
+ssize_t writeSizeBytes2NoBlockSock(int sock, const char *buf, ssize_t size) {
 	if (size <= 0) {
 		return size;
 	}
 
-	int hasRet = 0, ret = 0;
+	ssize_t hasRet = 0, ret = 0;
 	while (hasRet < size) {
 		ret = write(sock, buf + hasRet, size - hasRet);
 		if (ret < 0) {
@@ -654,13 +654,13 @@ int writeSizeBytes2NoBlockSock(int sock, const char *buf, int size) {
 	return size;
 }
 
-int readUntilStrWithEnd(int sock, std::string& str, std::string end) {
+ssize_t readUntilStrWithEnd(int sock, std::string& str, std::string end) {
 #define BUFSIZE_L 53
 #define READSIZE_L 52
 	char buf[BUFSIZE_L] = {0};
 	while (true) {
 
-		int ret = read(sock, buf, READSIZE_L);
+		ssize_t ret = read(sock, buf, READSIZE_L);
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EWOULDBLOCK) || (errno == EINTR)) {
 				continue;

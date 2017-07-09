@@ -53,7 +53,8 @@ fas::EventLoop::EventLoop() :
     int time_out = GET_FAS_INFO()->getPollerTimeout();
     pollDelayTime_ = time_out > 0 ? time_out : pollDelayTime_;
     wakeUpHandle_->setHandleRead(boost::bind(&EventLoop::handWakeUp, this, _1, _2));
-    addHandle(wakeUpHandle_);
+    addSHandle(wakeUpHandle_);
+	LOGGER_TRACE("wakeup fd = " << wakeUpFd_);
 }
 
 int fas::EventLoop::getTid() const{
@@ -189,6 +190,10 @@ void fas::EventLoop::handWakeUp(Events event, Timestamp time) {
     }
 }
 
+void fas::EventLoop::resetOwnerTid() {
+	tid_ = gettid();
+}
+
 int fas::createEventfd() {
     int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     if (evtfd < 0) {
@@ -246,7 +251,6 @@ void fas::EventLoop::quit() {
 bool fas::EventLoop::loop() {
     assertInOwnerThread();
     Timestamp looptime;
-
     while (!quit_) {
         if (!updates_.empty()) {
             updateHandles();
@@ -267,21 +271,16 @@ bool fas::EventLoop::loop() {
                 LOGGER_DEBUG("handle'state != STATE_LOOP!");
                 continue;
             }
-            //handle revents
             handle->handleEvent(*iter, looptime);
-        } //for
+        } 
 
         assert(!runningFunctors_);
         runFunctors();
-    } //while
+    } 
     return true;
 }
 
-fas::EventLoop::~EventLoop() {  
-    delete wakeUpHandle_;
-    wakeUpHandle_ = nullptr;
-    ::close(wakeUpFd_);
-    delete timerScheduler_;
-    timerScheduler_ = nullptr;
+fas::EventLoop::~EventLoop() { 
+    LOGGER_TRACE("EventLoop will be destroyed in process " << getpid());
 }
 

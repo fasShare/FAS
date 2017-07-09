@@ -27,6 +27,7 @@ fas::TimersScheduler::TimersScheduler(fas::EventLoop *loop) :
         LOGGER_SYSERR("timerfd_create error : " << ::strerror(errno));
     }
 
+	LOGGER_TRACE("Timer fd = " << timerfd_);
     if (handle_->getLoop() != loop_) {
         LOGGER_ERROR("handle_->getLoop() == loop_");
     }

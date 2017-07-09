@@ -75,7 +75,7 @@ private:
 
 }
 
-int writeSizeBytes2NoBlockSock(int sock, const char *buf, int size);
-int readUntilStrWithEnd(int sock, std::string& str, std::string end);
+ssize_t writeSizeBytes2NoBlockSock(int sock, const char *buf, ssize_t size);
+ssize_t readUntilStrWithEnd(int sock, std::string& str, std::string end);
 
 #endif // FAS_MCACHETASK_H

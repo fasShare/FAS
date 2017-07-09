@@ -6,6 +6,8 @@ namespace fas {
 
 class Reloader {
 public:
+    virtual ~Reloader() {
+    }
     virtual int need_reload() const = 0;
     virtual int reload() = 0;
     virtual int load() = 0;

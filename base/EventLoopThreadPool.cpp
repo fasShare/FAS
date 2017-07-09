@@ -58,6 +58,19 @@ bool fas::EventLoopThreadPool::start() {
     return started_;
 }
 
+bool fas::EventLoopThreadPool::stop() {
+    if (started_) {
+        for (size_t idx = 0; idx < loops_.size(); ++idx) {
+            loops_[idx]->quit();
+        }
+        for (auto iter = threads_.begin(); iter < threads_.end(); iter++) {
+            (*iter)->join();
+        }
+    }
+    started_ = false;
+    return true;
+}
+
 fas::EventLoop *fas::EventLoopThreadPool::getNextEventLoop() {
     assertInOwnerThread();
     fas::EventLoop* loop = baseloop_;
@@ -74,6 +87,9 @@ fas::EventLoop *fas::EventLoopThreadPool::getNextEventLoop() {
 
 fas::EventLoopThreadPool::~EventLoopThreadPool() {
     if (started_) {
+        for (size_t idx = 0; idx < loops_.size(); ++idx) {
+            loops_[idx]->quit();
+        }
         for (auto iter = threads_.begin(); iter < threads_.end(); iter++) {
             (*iter)->join();
         }

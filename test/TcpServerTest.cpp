@@ -73,5 +73,6 @@ int main()
 
     ser->start();
     //最终程序会在这个loop函数里面进行各种事件的监听。
-    loop->loop();
+//    loop->loop();
+    delete loop;
 }

@@ -26,12 +26,19 @@ fas::TcpServer::TcpServer(fas::EventLoop* loop, const NetAddress& addr, int thre
     conns_(),
     handleQueue_(nullptr),
     handleMap_(nullptr) {
-    assert(loop_ != NULL);
+    server_.setNoBlocking();
+    server_.setExecClose();
+    server_.bind(addr_);
+    server_.listen(listenBacklog_);
+	LOGGER_TRACE("server listen fd = " << server_.getSocket());
 }
 
 fas::EventLoop* fas::TcpServer::getLoop() const{
-    assert(loop_ != NULL);
     return loop_;
+}
+
+void fas::TcpServer::resetLoop(fas::EventLoop *loop) {
+	loop_ = loop;
 }
 
 fas::TcpServer::TcpConnShreadPtr fas::TcpServer::getConn(fas::TcpServer::connkey_t key) const {
@@ -43,15 +50,15 @@ fas::TcpServer::TcpConnShreadPtr fas::TcpServer::getConn(fas::TcpServer::connkey
 }
 
 bool fas::TcpServer::start() {  
-    server_.setNoBlocking();
-    server_.setExecClose();
+	if (!loop_) {
+		LOGGER_ERROR("TcpServer's loop is nullptr.");
+		return false;
+	}
     handle_ = new (std::nothrow) Handle(loop_, events_);
     if (!handle_) {
         LOGGER_ERROR("new server handle_ error!");
         return false;
     }
-    server_.bind(addr_);
-    server_.listen(listenBacklog_);
 
     handle_->setHandleRead(boost::bind(&TcpServer::defHandleAccept, this, _1, _2));
     loop_->addHandle(handle_);
@@ -144,4 +151,6 @@ void fas::TcpServer::removeConnectionInLoop(fas::TcpServer::connkey_t key) {
 
 fas::TcpServer::~TcpServer() {
     delete handle_;
+    handle_ = nullptr;
+    LOGGER_TRACE("TcpServer will be destroyed in process " << getpid());
 }
