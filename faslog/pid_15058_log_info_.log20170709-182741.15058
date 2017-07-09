@@ -1,0 +1,19 @@
+Log file created at: 2017/07/09 18:27:41
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 18:27:41.444453 15058 TimersScheduler.cpp:30] Timer fd = 5
+I0709 18:27:41.444712 15058 EventLoop.cpp:57] wakeup fd = 3
+I0709 18:27:41.444999 15060 EventLoopThread.cpp:57] Thread tid :15060
+I0709 18:27:41.445111 15060 TimersScheduler.cpp:30] Timer fd = 11
+I0709 18:27:41.445212 15060 EventLoop.cpp:57] wakeup fd = 8
+E0709 18:28:01.444967 15058 ProcessTcpServer.cpp:85] Reloader ... in process 15058
+E0709 18:28:21.445283 15058 ProcessTcpServer.cpp:85] Reloader ... in process 15058
+E0709 18:28:41.445521 15058 ProcessTcpServer.cpp:85] Reloader ... in process 15058
+E0709 18:29:01.445783 15058 ProcessTcpServer.cpp:85] Reloader ... in process 15058
+E0709 18:29:21.445904 15058 ProcessTcpServer.cpp:85] Reloader ... in process 15058
+E0709 18:29:41.446033 15058 ProcessTcpServer.cpp:85] Reloader ... in process 15058
+E0709 18:30:01.446171 15058 ProcessTcpServer.cpp:85] Reloader ... in process 15058
+E0709 18:30:21.446292 15058 ProcessTcpServer.cpp:85] Reloader ... in process 15058
+I0709 18:30:28.258460 15058 MultiProcessTcpServer.cpp:45] Recive a SIGQUIT, will be exit.
+I0709 18:30:28.258581 15058 ProcessTcpServer.cpp:114] Receive quit cmd, process server will be exit.
+I0709 18:30:28.258615 15058 MultiProcessTcpServer.cpp:189] a child quit. idx = 1

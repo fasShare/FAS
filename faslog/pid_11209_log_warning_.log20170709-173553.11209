@@ -1,0 +1,6 @@
+Log file created at: 2017/07/09 17:35:53
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+E0709 17:35:53.854123 11209 Socket.cpp:83] accept error : Resource temporarily unavailable
+E0709 17:35:53.854373 11209 TcpServer.cpp:85] In Tcpserver accepted return an error!
+E0709 18:10:13.248208 11209 Epoll.cpp:54] epoll_wait error : Interrupted system call

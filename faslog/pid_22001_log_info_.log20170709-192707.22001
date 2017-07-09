@@ -1,0 +1,12 @@
+Log file created at: 2017/07/09 19:27:07
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 19:27:07.034952 22001 TimersScheduler.cpp:30] Timer fd = 5
+I0709 19:27:07.035122 22001 EventLoop.cpp:57] wakeup fd = 3
+I0709 19:27:07.035380 22002 EventLoopThread.cpp:57] Thread tid :22002
+I0709 19:27:07.035461 22002 TimersScheduler.cpp:30] Timer fd = 11
+I0709 19:27:07.035529 22002 EventLoop.cpp:57] wakeup fd = 8
+I0709 19:27:08.999611 22001 MultiProcessTcpServer.cpp:45] Recive a SIGQUIT, will be exit.
+E0709 19:27:08.999699 22001 Epoll.cpp:54] epoll_wait error : Interrupted system call
+I0709 19:27:08.999995 22001 ProcessTcpServer.cpp:119] Receive quit cmd, process server will be exit.
+I0709 19:27:09.000030 22001 MultiProcessTcpServer.cpp:189] a child quit. idx = 1

@@ -1,0 +1,16 @@
+Log file created at: 2017/07/09 17:21:44
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 17:21:44.800305 10031 Environment.cpp:56] load ./conf/fas.conf success.
+I0709 17:21:44.814718 10031 MultiProcessTcpServer.cpp:82] Environment init success!
+I0709 17:21:44.814756 10031 MultiProcessTcpServer.cpp:122] Reload info succeed, Multi Server begin to start.
+I0709 17:21:44.814898 10031 TcpServer.cpp:33] server listen fd = 4
+I0709 17:21:44.814939 10031 MultiProcessTcpServer.cpp:157] idx = 0 read = 5 write = 6
+I0709 17:21:44.814980 10031 MultiProcessTcpServer.cpp:157] idx = 1 read = 7 write = 8
+I0709 17:21:45.074903 10031 MultiProcessTcpServer.cpp:58] Maybe a multiPrecess server child exit.
+I0709 17:21:45.075023 10031 MultiProcessTcpServer.cpp:69] The child process was terminated by a signal:6
+I0709 17:21:45.075045 10031 MultiProcessTcpServer.cpp:71] The child terminated produced a core dump
+I0709 17:21:45.082352 10031 MultiProcessTcpServer.cpp:58] Maybe a multiPrecess server child exit.
+I0709 17:21:45.082439 10031 MultiProcessTcpServer.cpp:69] The child process was terminated by a signal:6
+I0709 17:21:45.082464 10031 MultiProcessTcpServer.cpp:71] The child terminated produced a core dump
+I0709 17:22:18.241919 10031 MultiProcessTcpServer.cpp:45] Recive a SIGQUIT, will be exit.

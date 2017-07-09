@@ -1,0 +1,19 @@
+Log file created at: 2017/07/09 19:58:31
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 19:58:31.901844 25906 Environment.cpp:62] load ./conf/fas.conf success.
+I0709 19:58:31.902321 25906 MultiProcessTcpServer.cpp:83] Environment init success!
+I0709 19:58:31.902380 25906 MultiProcessTcpServer.cpp:123] Reload info succeed, Multi Server begin to start.
+I0709 19:58:31.902565 25906 TcpServer.cpp:33] server listen fd = 4
+I0709 19:58:31.902609 25906 MultiProcessTcpServer.cpp:158] idx = 0 read = 5 write = 6
+I0709 19:58:31.902657 25906 MultiProcessTcpServer.cpp:158] idx = 1 read = 7 write = 8
+W0709 19:58:31.903077 25907 MultiProcessTcpServer.cpp:181] TcpServer conn build callback wasn't set.
+W0709 19:58:31.903548 25907 MultiProcessTcpServer.cpp:186] TcpServer conn removed callback wasn't set.
+W0709 19:58:31.904259 25908 MultiProcessTcpServer.cpp:181] TcpServer conn build callback wasn't set.
+W0709 19:58:31.904651 25908 MultiProcessTcpServer.cpp:186] TcpServer conn removed callback wasn't set.
+I0709 19:58:33.007385 25906 MultiProcessTcpServer.cpp:46] Recive a SIGQUIT, will be exit.
+I0709 19:58:33.007519 25906 MultiProcessTcpServer.cpp:212] MultiProcessTcpServer will be destroyed.
+I0709 19:58:33.007542 25906 ProcessTcpServer.cpp:20] ProcessTcpServer wil be destroyed in process 25906
+I0709 19:58:33.007565 25906 ProcessTcpServer.cpp:20] ProcessTcpServer wil be destroyed in process 25906
+I0709 19:58:33.007582 25906 TcpServer.cpp:155] TcpServer will be destroyed in process 25906
+I0709 19:58:33.007604 25906 Socket.cpp:102] tid : 25906 socket close!

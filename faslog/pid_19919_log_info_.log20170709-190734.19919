@@ -1,0 +1,11 @@
+Log file created at: 2017/07/09 19:07:34
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 19:07:34.564929 19919 TimersScheduler.cpp:30] Timer fd = 5
+I0709 19:07:34.565141 19919 EventLoop.cpp:57] wakeup fd = 3
+I0709 19:07:34.565505 19921 EventLoopThread.cpp:57] Thread tid :19921
+I0709 19:07:34.565598 19921 TimersScheduler.cpp:30] Timer fd = 11
+I0709 19:07:34.565667 19921 EventLoop.cpp:57] wakeup fd = 8
+I0709 19:07:37.039415 19919 MultiProcessTcpServer.cpp:45] Recive a SIGQUIT, will be exit.
+I0709 19:07:37.039516 19919 ProcessTcpServer.cpp:119] Receive quit cmd, process server will be exit.
+I0709 19:07:37.039558 19919 MultiProcessTcpServer.cpp:189] a child quit. idx = 1

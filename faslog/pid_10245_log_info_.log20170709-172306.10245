@@ -1,0 +1,35 @@
+Log file created at: 2017/07/09 17:23:06
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 17:23:06.181288 10245 TimersScheduler.cpp:30] Timer fd = 5
+I0709 17:23:06.181468 10245 EventLoop.cpp:57] wakeup fd = 3
+I0709 17:23:06.181648 10247 EventLoopThread.cpp:57] Thread tid :10247
+I0709 17:23:06.181733 10247 TimersScheduler.cpp:30] Timer fd = 11
+I0709 17:23:06.181799 10247 EventLoop.cpp:57] wakeup fd = 8
+I0709 17:23:06.181852 10245 ProcessTcpServer.cpp:72] Before add handle sd = 7
+I0709 17:23:06.181890 10245 ProcessTcpServer.cpp:74] After add handle sd = 7
+I0709 17:24:48.487856 10245 TcpConnection.cpp:39] tid : 10245 TID : 10247
+I0709 17:24:52.043444 10247 TcpConnection.cpp:187] TcpConnection::handleClose
+I0709 17:24:52.043567 10245 TcpServer.cpp:133] On connecction remove callback is invaild!
+I0709 17:24:52.043604 10247 Handle.cpp:142] tid: 10247 handle Destroyed!
+I0709 17:24:52.043669 10247 TcpConnection.cpp:56] TcpConnection::closeAndClearTcpConnection
+I0709 17:24:52.043697 10247 TcpConnection.cpp:231] tid: 10247 TcpConnection destroy!
+I0709 17:24:52.043717 10247 Socket.cpp:102] tid : 10247 socket close!
+I0709 17:24:53.248972 10245 TcpConnection.cpp:39] tid : 10245 TID : 10247
+I0709 17:24:55.277504 10247 TcpConnection.cpp:187] TcpConnection::handleClose
+I0709 17:24:55.277714 10247 Handle.cpp:142] tid: 10247 handle Destroyed!
+I0709 17:24:55.277796 10245 TcpServer.cpp:133] On connecction remove callback is invaild!
+I0709 17:24:55.277940 10247 TcpConnection.cpp:56] TcpConnection::closeAndClearTcpConnection
+I0709 17:24:55.277992 10247 TcpConnection.cpp:231] tid: 10247 TcpConnection destroy!
+I0709 17:24:55.278034 10247 Socket.cpp:102] tid : 10247 socket close!
+I0709 17:24:58.125931 10245 TcpConnection.cpp:39] tid : 10245 TID : 10247
+I0709 17:24:58.707743 10247 TcpConnection.cpp:187] TcpConnection::handleClose
+I0709 17:24:58.707959 10247 Handle.cpp:142] tid: 10247 handle Destroyed!
+I0709 17:24:58.708099 10245 TcpServer.cpp:133] On connecction remove callback is invaild!
+I0709 17:24:58.708220 10247 TcpConnection.cpp:56] TcpConnection::closeAndClearTcpConnection
+I0709 17:24:58.708292 10247 TcpConnection.cpp:231] tid: 10247 TcpConnection destroy!
+I0709 17:24:58.708317 10247 Socket.cpp:102] tid : 10247 socket close!
+I0709 17:25:05.649754 10245 MultiProcessTcpServer.cpp:45] Recive a SIGQUIT, will be exit.
+E0709 17:25:05.649855 10245 Epoll.cpp:54] epoll_wait error : Interrupted system call
+I0709 17:25:05.650226 10245 ProcessTcpServer.cpp:105] Receive quit cmd, process server will be exit.
+I0709 17:25:05.650261 10245 MultiProcessTcpServer.cpp:174] a child quit. idx = 1

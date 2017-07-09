@@ -5,6 +5,12 @@
 #include <Log.h>
 
 fas::Environment* fas::Environment::env_ = nullptr;
+fas::Environment::destroy_env fas::Environment::ds_env;
+fas::Environment::~Environment() {
+    for (auto iter = reloaders_.begin(); iter != reloaders_.end(); ++iter) {
+        delete iter->second;
+    }
+}
 
 fas::Environment* fas::Environment::instance() {
     if (env_ == nullptr) {
@@ -113,4 +119,7 @@ fas::Environment* GET_ENV() {
 }
 bool ENV_INIT() {
     return GET_ENV()->init();
+}
+void ENV_DESTROY() {
+    delete GET_ENV(); 
 }

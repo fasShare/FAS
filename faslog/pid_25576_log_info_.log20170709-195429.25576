@@ -1,0 +1,20 @@
+Log file created at: 2017/07/09 19:54:29
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 19:54:29.466996 25576 TimersScheduler.cpp:30] Timer fd = 9
+I0709 19:54:29.467183 25576 EventLoop.cpp:57] wakeup fd = 3
+I0709 19:54:29.467417 25578 EventLoopThread.cpp:57] Thread tid :25578
+I0709 19:54:29.467505 25578 TimersScheduler.cpp:30] Timer fd = 12
+I0709 19:54:29.467550 25578 EventLoop.cpp:57] wakeup fd = 6
+I0709 19:54:31.746803 25576 MultiProcessTcpServer.cpp:46] Recive a SIGQUIT, will be exit.
+E0709 19:54:31.746915 25576 Epoll.cpp:54] epoll_wait error : Interrupted system call
+I0709 19:54:31.747330 25576 ProcessTcpServer.cpp:117] Receive quit cmd, process server will be exit.
+I0709 19:54:31.747378 25576 EventLoop.cpp:284] EventLoop will be destroyed in process 25576
+I0709 19:54:31.747426 25576 Timer.cpp:42] Destroy one Timer!
+I0709 19:54:31.747483 25576 Handle.cpp:142] tid: 25576 handle Destroyed!
+I0709 19:54:31.747530 25576 Handle.cpp:142] tid: 25576 handle Destroyed!
+I0709 19:54:31.747571 25576 Handle.cpp:142] tid: 25576 handle Destroyed!
+I0709 19:54:31.747615 25576 Handle.cpp:142] tid: 25576 handle Destroyed!
+I0709 19:54:31.747653 25576 MultiProcessTcpServer.cpp:190] a child quit. idx = 0
+I0709 19:54:31.747740 25576 MultiProcessTcpServer.cpp:212] MultiProcessTcpServer will be destroyed.
+I0709 19:54:31.747776 25576 ProcessTcpServer.cpp:20] ProcessTcpServer wil be destroyed in process 25576

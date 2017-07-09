@@ -15,8 +15,9 @@
 #include <boost/bind.hpp>
 
 fas::MultiProcessTcpServer *fas::MultiProcessTcpServer::instance = nullptr;
+fas::MultiProcessTcpServer::destroy_multiprocess fas::MultiProcessTcpServer::ds_mulp;
 fas::MultiProcessTcpServer::MultiProcessTcpServer():
-    pipes_(nullptr),
+    pipes_(),
     process_(),
     pids_(),
     threadNum_(0),
@@ -40,14 +41,14 @@ void fas::MultiProcessTcpServer::signalHandler(int signo) {
     if (SIGINT == signo) {
         std::string cmd = "[quit]";
         for (size_t i = 0; i < instance->pids_.size(); i++) {
-            write(instance->pipes_[i].getWriteEnd(), cmd.c_str(), cmd.size());
+            write(instance->pipes_[i]->getWriteEnd(), cmd.c_str(), cmd.size());
         }
         LOGGER_TRACE("Recive a SIGQUIT, will be exit.");
         instance->quit_ = true;
     } else if (SIGQUIT == signo) {
         std::string cmd = "[quit]";
         for (size_t i = 0; i < instance->pids_.size(); i++) {
-            write(instance->pipes_[i].getWriteEnd(), cmd.c_str(), cmd.size());
+            write(instance->pipes_[i]->getWriteEnd(), cmd.c_str(), cmd.size());
         }
         LOGGER_TRACE("Recive a SIGQUIT, will be exit.");
     } else if (SIGUSR1 == signo) {
@@ -137,32 +138,29 @@ bool fas::MultiProcessTcpServer::start() {
             thread_num = 4;
         }   
         //由于epollfd是全局唯一的，最好在子进程里面创建，不然多个子进程可能会共享一个。
-        server_ = new (std::nothrow) TcpServer(nullptr, NetAddress(AF_INET, port, ip.c_str()), thread_num);
+        server_ = boost::shared_ptr<TcpServer>(new TcpServer(nullptr, NetAddress(AF_INET, port, ip.c_str()), thread_num));
         if (!server_) {
             LOGGER_ERROR("New TcpServer error in MultiProcessTcpServer.");
             return false;
         }
 
-        pipes_ = new (std::nothrow) PipeFd[ProcessNum];        
-        if (!pipes_) {
-            LOGGER_ERROR("New pipe fd array error.");
-            return false;
-        }
         for (int idx = 0; idx < ProcessNum; idx++) {
-            if (-1 == ::pipe(pipes_[idx].End)) {
-                LOGGER_ERROR("Pipe error in MultiProcessTcpServer : " << ::strerror(errno));
-                delete server_;
-                delete[] pipes_;
+            auto pipe = boost::shared_ptr<PipeFd>(new PipeFd());        
+            if (!pipe) {
+                LOGGER_ERROR("New pipe fd array error.");
                 return false;
             }
-            LOGGER_TRACE("idx = " << idx << " read = " << pipes_[idx].getReadEnd() << " write = " << pipes_[idx].getWriteEnd());
+            if (-1 == ::pipe(pipe->End)) {
+                LOGGER_ERROR("Pipe error in MultiProcessTcpServer : " << ::strerror(errno));
+                return false;
+            }
+            pipes_.push_back(pipe);
+            LOGGER_TRACE("idx = " << idx << " read = " << pipes_[idx]->getReadEnd() << " write = " << pipes_[idx]->getWriteEnd());
         }
         for (int idx = 0; idx < ProcessNum; ++idx) {
-            ProcessTcpServer *proce = new (std::nothrow)  ProcessTcpServer(server_, pipes_ + idx, nullptr);
+            auto proce = boost::shared_ptr<ProcessTcpServer>(new (std::nothrow)  ProcessTcpServer(server_, pipes_[idx]));
             if (!proce) {
                 LOGGER_ERROR("New ProcessTcpServer in MultiProcessTcpServer.");
-                delete server_;
-                delete[] pipes_;
                 return false;
             }
             process_.push_back(proce);
@@ -172,18 +170,23 @@ bool fas::MultiProcessTcpServer::start() {
             //再循环中创建进程，要保证在子进程使用idx的时候，idx的值未变。
             pid_t pid = fork();
             if (pid == 0) {
-                CloseGoogleLog();
-                //每个进程进行日志的重新初始化，将日志打印到含有自己pid的日志文件中。
-                InitGoogleLog("./faslog");
-                EventLoop *loop = new (std::nothrow) EventLoop;
-                if (!loop) {
-                    LOGGER_ERROR("New EventLoop error in MultiProcessTcpServer child process.");
-                    return false;
+                if (this->messageCb_) {
+                    process_[idx]->setConnMessageCallback(this->messageCb_);
+                } else {
+                    LOGGER_WARN("TcpServer message callback wasn't set.");
                 }
-                pipes_[idx].closeWriteEnd();
-                process_[idx]->resetLoop(loop);
-                server_->setMessageCallback(messageCb_);
-                process_[idx]->start();
+                if (this->connBuildCb_) {
+                    process_[idx]->setConnBuildCallback(this->connBuildCb_);
+                } else {
+                    LOGGER_WARN("TcpServer conn build callback wasn't set.");
+                }
+                if (this->connRemoveCb_) {
+                    process_[idx]->setConnRemoveCallback(this->connRemoveCb_);
+                } else {
+                    LOGGER_WARN("TcpServer conn removed callback wasn't set.");
+                }
+                process_[idx]->initProc("./faslog");
+                process_[idx]->startLoop();
                 LOGGER_TRACE("a child quit. idx = " << idx);
                 exit(EXIT_SUCCESS);
             } else if (pid < 0)  {
@@ -192,7 +195,7 @@ bool fas::MultiProcessTcpServer::start() {
             //master进程记录所有子进程的pid
             pids_.push_back(pid);
             //关闭管道的读端,master主要用来通知子进程,后期可能会添加上读，让父子进程交互。	
-            pipes_[idx].closeReadEnd();
+            pipes_[idx]->closeReadEnd();
         }
 
         waiting_ = true;
@@ -200,19 +203,15 @@ bool fas::MultiProcessTcpServer::start() {
             sleep(1);
         }
         waiting_ =  false;
-        // fix me : close all child process.
     }
 
-    delete[] pipes_;
-    pipes_ = nullptr;
-    //some clear
     return true;
 }
 
 fas::MultiProcessTcpServer::~MultiProcessTcpServer() {
-    if (!pipes_) {
-        delete[] pipes_;
-        pipes_ = nullptr;
-    }
+    LOGGER_TRACE("MultiProcessTcpServer will be destroyed.");
     quit_ = true;
+    if (loop_) {
+        delete loop_;
+    }
 }

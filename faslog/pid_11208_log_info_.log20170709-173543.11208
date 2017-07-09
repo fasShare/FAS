@@ -1,0 +1,22 @@
+Log file created at: 2017/07/09 17:35:43
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 17:35:43.577275 11208 TimersScheduler.cpp:30] Timer fd = 9
+I0709 17:35:43.577522 11208 EventLoop.cpp:57] wakeup fd = 3
+I0709 17:35:43.577817 11210 EventLoopThread.cpp:57] Thread tid :11210
+I0709 17:35:43.577930 11210 TimersScheduler.cpp:30] Timer fd = 12
+I0709 17:35:43.578009 11210 EventLoop.cpp:57] wakeup fd = 6
+I0709 17:35:43.578079 11208 ProcessTcpServer.cpp:72] Before add handle sd = 5
+I0709 17:35:43.578135 11208 ProcessTcpServer.cpp:74] After add handle sd = 5
+I0709 17:35:53.854140 11208 TcpConnection.cpp:39] tid : 11208 TID : 11210
+I0709 17:35:57.579355 11210 TcpConnection.cpp:187] TcpConnection::handleClose
+I0709 17:35:57.579493 11210 Handle.cpp:142] tid: 11210 handle Destroyed!
+I0709 17:35:57.579540 11208 TcpServer.cpp:133] On connecction remove callback is invaild!
+I0709 17:35:57.579591 11210 TcpConnection.cpp:56] TcpConnection::closeAndClearTcpConnection
+I0709 17:35:57.579617 11210 TcpConnection.cpp:231] tid: 11210 TcpConnection destroy!
+I0709 17:35:57.579638 11210 Socket.cpp:102] tid : 11210 socket close!
+E0709 17:35:59.144182 11208 Socket.cpp:83] accept error : Resource temporarily unavailable
+E0709 17:35:59.144496 11208 TcpServer.cpp:85] In Tcpserver accepted return an error!
+I0709 18:10:13.248697 11208 MultiProcessTcpServer.cpp:45] Recive a SIGQUIT, will be exit.
+I0709 18:10:13.248778 11208 ProcessTcpServer.cpp:105] Receive quit cmd, process server will be exit.
+I0709 18:10:13.248816 11208 MultiProcessTcpServer.cpp:189] a child quit. idx = 0

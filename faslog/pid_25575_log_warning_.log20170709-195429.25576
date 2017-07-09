@@ -1,0 +1,5 @@
+Log file created at: 2017/07/09 19:54:29
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+W0709 19:54:29.466445 25576 MultiProcessTcpServer.cpp:181] TcpServer conn build callback wasn't set.
+W0709 19:54:29.466861 25576 MultiProcessTcpServer.cpp:186] TcpServer conn removed callback wasn't set.

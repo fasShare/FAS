@@ -1,0 +1,4 @@
+Log file created at: 2017/07/09 19:54:31
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+E0709 19:54:31.747333 25577 Epoll.cpp:54] epoll_wait error : Interrupted system call

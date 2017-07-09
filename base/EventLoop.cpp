@@ -53,7 +53,7 @@ fas::EventLoop::EventLoop() :
     int time_out = GET_FAS_INFO()->getPollerTimeout();
     pollDelayTime_ = time_out > 0 ? time_out : pollDelayTime_;
     wakeUpHandle_->setHandleRead(boost::bind(&EventLoop::handWakeUp, this, _1, _2));
-    addHandle(wakeUpHandle_);
+    addSHandle(wakeUpHandle_);
 	LOGGER_TRACE("wakeup fd = " << wakeUpFd_);
 }
 
@@ -280,11 +280,7 @@ bool fas::EventLoop::loop() {
     return true;
 }
 
-fas::EventLoop::~EventLoop() {  
-    delete wakeUpHandle_;
-    wakeUpHandle_ = nullptr;
-    ::close(wakeUpFd_);
-    delete timerScheduler_;
-    timerScheduler_ = nullptr;
+fas::EventLoop::~EventLoop() { 
+    LOGGER_TRACE("EventLoop will be destroyed in process " << getpid());
 }
 

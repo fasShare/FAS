@@ -1,0 +1,14 @@
+Log file created at: 2017/07/09 18:27:41
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 18:27:41.442450 15056 Environment.cpp:56] load ./conf/fas.conf success.
+I0709 18:27:41.442785 15056 MultiProcessTcpServer.cpp:82] Environment init success!
+I0709 18:27:41.442811 15056 MultiProcessTcpServer.cpp:122] Reload info succeed, Multi Server begin to start.
+I0709 18:27:41.442917 15056 TcpServer.cpp:33] server listen fd = 4
+I0709 18:27:41.442975 15056 MultiProcessTcpServer.cpp:157] idx = 0 read = 5 write = 6
+I0709 18:27:41.443024 15056 MultiProcessTcpServer.cpp:157] idx = 1 read = 7 write = 8
+W0709 18:27:41.443606 15057 MultiProcessTcpServer.cpp:180] TcpServer conn build callback wasn't set.
+W0709 18:27:41.444057 15057 MultiProcessTcpServer.cpp:185] TcpServer conn removed callback wasn't set.
+W0709 18:27:41.443752 15058 MultiProcessTcpServer.cpp:180] TcpServer conn build callback wasn't set.
+W0709 18:27:41.444229 15058 MultiProcessTcpServer.cpp:185] TcpServer conn removed callback wasn't set.
+I0709 18:30:28.258478 15056 MultiProcessTcpServer.cpp:45] Recive a SIGQUIT, will be exit.

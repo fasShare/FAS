@@ -1,0 +1,21 @@
+Log file created at: 2017/07/09 19:48:18
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 19:48:18.569808 25121 TimersScheduler.cpp:30] Timer fd = 9
+I0709 19:48:18.570004 25121 EventLoop.cpp:57] wakeup fd = 3
+I0709 19:48:18.570387 25123 EventLoopThread.cpp:57] Thread tid :25123
+I0709 19:48:18.570473 25123 TimersScheduler.cpp:30] Timer fd = 12
+I0709 19:48:18.570540 25123 EventLoop.cpp:57] wakeup fd = 6
+E0709 19:48:38.570334 25121 ProcessTcpServer.cpp:88] Reloader success in process 25121
+E0709 19:48:58.570878 25121 ProcessTcpServer.cpp:88] Reloader success in process 25121
+I0709 19:49:06.921454 25121 MultiProcessTcpServer.cpp:46] Recive a SIGQUIT, will be exit.
+I0709 19:49:06.921607 25121 ProcessTcpServer.cpp:120] Receive quit cmd, process server will be exit.
+I0709 19:49:06.921640 25121 MultiProcessTcpServer.cpp:190] a child quit. idx = 0
+I0709 19:49:06.921715 25121 MultiProcessTcpServer.cpp:212] MultiProcessTcpServer will be destroyed.
+I0709 19:49:06.921777 25121 ProcessTcpServer.cpp:20] ProcessTcpServer wil be destroyed in process 25121
+I0709 19:49:06.921802 25121 EventLoop.cpp:284] EventLoop will be destroyed in process 25121
+I0709 19:49:06.921829 25121 Timer.cpp:42] Destroy one Timer!
+I0709 19:49:06.921876 25121 Handle.cpp:142] tid: 25121 handle Destroyed!
+I0709 19:49:06.921910 25121 Handle.cpp:142] tid: 25121 handle Destroyed!
+I0709 19:49:06.921933 25121 Handle.cpp:142] tid: 25121 handle Destroyed!
+I0709 19:49:06.921964 25121 Handle.cpp:142] tid: 25121 handle Destroyed!

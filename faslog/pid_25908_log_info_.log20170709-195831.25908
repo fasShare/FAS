@@ -1,0 +1,16 @@
+Log file created at: 2017/07/09 19:58:31
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 19:58:31.904758 25908 TimersScheduler.cpp:30] Timer fd = 5
+I0709 19:58:31.904916 25908 EventLoop.cpp:57] wakeup fd = 3
+I0709 19:58:31.905092 25910 EventLoopThread.cpp:57] Thread tid :25910
+I0709 19:58:31.905158 25910 TimersScheduler.cpp:30] Timer fd = 11
+I0709 19:58:31.905218 25910 EventLoop.cpp:57] wakeup fd = 8
+I0709 19:58:33.008147 25908 MultiProcessTcpServer.cpp:46] Recive a SIGQUIT, will be exit.
+I0709 19:58:33.008215 25908 ProcessTcpServer.cpp:117] Receive quit cmd, process server will be exit.
+I0709 19:58:33.008245 25908 EventLoop.cpp:284] EventLoop will be destroyed in process 25908
+I0709 19:58:33.008317 25908 Timer.cpp:42] Destroy one Timer!
+I0709 19:58:33.008378 25908 Handle.cpp:142] tid: 25908 handle Destroyed!
+I0709 19:58:33.008419 25908 Handle.cpp:142] tid: 25908 handle Destroyed!
+I0709 19:58:33.008467 25908 Handle.cpp:142] tid: 25908 handle Destroyed!
+I0709 19:58:33.008503 25908 Handle.cpp:142] tid: 25908 handle Destroyed!

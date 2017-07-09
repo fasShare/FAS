@@ -12,6 +12,7 @@
 #include <Condition.h>
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 
@@ -159,12 +160,12 @@ private:
     pid_t tid_;                     /*!< The pid of the Thread which own this EventLoop. */
 
     int wakeUpFd_;          /*!< eventfd */
-    Handle *wakeUpHandle_;  /*!< The handle of wakeUpFd_. */
+    boost::shared_ptr<Handle> wakeUpHandle_;  /*!< The handle of wakeUpFd_. */
 
     std::vector<Functor> functors_;
     bool runningFunctors_;              /*!< Judge functor in functors_ was executing. */
 
-    TimersScheduler *timerScheduler_;   /*!< Timer's Scheduler */
+    boost::scoped_ptr<TimersScheduler> timerScheduler_;   /*!< Timer's Scheduler */
 
     bool quit_;
 };

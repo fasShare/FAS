@@ -1,0 +1,14 @@
+Log file created at: 2017/07/09 18:46:23
+Running on machine: fas
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0709 18:46:23.443375 17281 TimersScheduler.cpp:30] Timer fd = 9
+I0709 18:46:23.443585 17281 EventLoop.cpp:57] wakeup fd = 3
+I0709 18:46:23.443897 17283 EventLoopThread.cpp:57] Thread tid :17283
+I0709 18:46:23.443996 17283 TimersScheduler.cpp:30] Timer fd = 12
+I0709 18:46:23.444078 17283 EventLoop.cpp:57] wakeup fd = 6
+E0709 18:46:43.443819 17281 ProcessTcpServer.cpp:87] Reloader success in process 17281
+E0709 18:47:03.444244 17281 ProcessTcpServer.cpp:87] Reloader success in process 17281
+E0709 18:47:23.444380 17281 ProcessTcpServer.cpp:87] Reloader success in process 17281
+I0709 18:47:38.843694 17281 MultiProcessTcpServer.cpp:45] Recive a SIGQUIT, will be exit.
+I0709 18:47:38.843829 17281 ProcessTcpServer.cpp:119] Receive quit cmd, process server will be exit.
+I0709 18:47:38.843860 17281 MultiProcessTcpServer.cpp:189] a child quit. idx = 0

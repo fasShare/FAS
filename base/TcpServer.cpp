@@ -34,7 +34,6 @@ fas::TcpServer::TcpServer(fas::EventLoop* loop, const NetAddress& addr, int thre
 }
 
 fas::EventLoop* fas::TcpServer::getLoop() const{
-    assert(loop_ != NULL);
     return loop_;
 }
 
@@ -153,4 +152,5 @@ void fas::TcpServer::removeConnectionInLoop(fas::TcpServer::connkey_t key) {
 fas::TcpServer::~TcpServer() {
     delete handle_;
     handle_ = nullptr;
+    LOGGER_TRACE("TcpServer will be destroyed in process " << getpid());
 }
