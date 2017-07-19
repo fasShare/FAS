@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include <MultiProcessTcpServer.h>
+#include <TcpServer.h>
+#include <MultiProcessServer.h>
 
 using namespace fas;
 
@@ -15,7 +16,7 @@ void ConnMessageCallback(fas::TcpServer::TcpConnShreadPtr conn, Buffer *buffer, 
 }
 
 int main () {
-	MultiProcessTcpServer* server = MultiProcessTcpServer::Instance();
+	MultiProcessServer<TcpServer>* server = MultiProcessServer<TcpServer>::Instance();
 	server->setConnMessageCallback(ConnMessageCallback);
 	server->start();
 }
