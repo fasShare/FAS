@@ -77,6 +77,14 @@ int fas::FasInfo::getThreadNum() const {
     return boost::lexical_cast<int>(num);
 }
 
+int fas::FasInfo::getProcessNum() const {
+    std::string num = getValue("fas", "process_num");
+    if (num.empty()) {
+        return -1;
+    }
+    return boost::lexical_cast<int>(num);
+}
+
 int fas::FasInfo::getPollerTimeout() const {
     std::string time_out = getValue("poller", "time_out");
     if (time_out.empty()) {

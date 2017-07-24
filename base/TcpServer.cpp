@@ -37,7 +37,7 @@ fas::EventLoop* fas::TcpServer::getLoop() const{
     return loop_;
 }
 
-void fas::TcpServer::resetLoop(fas::EventLoop *loop) {
+void fas::TcpServer::setLoop(fas::EventLoop *loop) {
 	loop_ = loop;
 }
 

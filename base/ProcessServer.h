@@ -93,7 +93,7 @@ bool fas::ProcessServer<SERVER>::initProc(const std::string& logpf) {
         if (nullptr != server_->getLoop()) {
             LOGGER_WARN("TcpServer's loop should be set in ProcessServer, EventLoop is reset in ProcessServer. usage:TcpServer(nullptr, address, threadNum)");
         }
-        server_->resetLoop(loop_);
+        server_->setLoop(loop_);
     } else {
         LOGGER_ERROR("ProcessServer's TcpServer is nullptr.");
         return false;
