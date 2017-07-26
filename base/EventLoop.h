@@ -44,7 +44,7 @@ public:
     EventLoop();
     ~EventLoop();
 
-    int getTid() const;
+    long getTid() const;
     /*!
      * \brief getCount
      * \return int
@@ -157,7 +157,7 @@ private:
     std::map<int, SHandlePtr> updates_;      /*!< Handles will be addef to handles_. */
     Mutex mutex_;
     Condition cond_;
-    pid_t tid_;                     /*!< The pid of the Thread which own this EventLoop. */
+    long tid_;                     /*!< The pid of the Thread which own this EventLoop. */
 
     int wakeUpFd_;          /*!< eventfd */
     boost::shared_ptr<Handle> wakeUpHandle_;  /*!< The handle of wakeUpFd_. */

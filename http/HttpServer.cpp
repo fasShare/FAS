@@ -14,7 +14,6 @@ fas::http::HttpServer::HttpServer(fas::EventLoop *loop,
   tcpSer_(new fas::TcpServer(loop_, addr, 0)) {
 
   tcpSer_->setOnConnectionCallBack(boost::bind(&HttpServer::OnNewConnection, this, _1));
-  tcpSer_->setOnConnRemovedCallBack(boost::bind(&HttpServer::OnConnectionRemoved, this, _1));
 }
 
 void fas::http::HttpServer::OnNewConnection(fas::TcpServer::TcpConnShreadPtr conn) {
@@ -25,19 +24,6 @@ void fas::http::HttpServer::OnNewConnection(fas::TcpServer::TcpConnShreadPtr con
 
   conn->setOnMessageCallBack(boost::bind(&HttpReqHandle::OnMessageCallback, reqHandle, _1, _2, _3));
   conn->SetHasMoreDataCallback(boost::bind(&HttpReqHandle::sendMassData, reqHandle, _1));
-  this->reqHandles_[fas::TcpServer::connkey_t(conn->getConnfd(), conn.get())] = reqHandle;
-}
-
-void fas::http::HttpServer::OnConnectionRemoved(fas::TcpServer::connkey_t key) {
-  LOGGER_TRACE("fas::http::HttpServer::OnConnectionRemoved");
-  loop_->assertInOwnerThread();
-  if (this->reqHandles_.find(key) == this->reqHandles_.end()) {
-    return;
-  }
-
-  ssize_t ret = this->reqHandles_.erase(key);
-  assert(ret == 1);
-  LOGGER_TRACE("out of fas::http::HttpServer::OnConnectionRemoved");
 }
 
 bool fas::http::HttpServer::start() {

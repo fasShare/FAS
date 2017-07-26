@@ -104,9 +104,6 @@ bool fas::ProcessServer<SERVER>::initProc(const std::string& logpf) {
     if (this->connBuildCb_) {
         server_->setOnConnectionCallBack(this->connBuildCb_);
     }
-    if (this->connRemoveCb_) {
-        server_->setOnConnRemovedCallBack(connRemoveCb_);
-    }
 
 	if ((pipe_) && !initReadEndHandle()) {
 		LOGGER_ERROR("Init readEnd handle error. readEnd = " << pipe_->getReadEnd());	

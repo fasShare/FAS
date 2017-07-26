@@ -114,6 +114,10 @@ fas::Reloader* fas::Environment::getReloader(const std::string& info) {
     return iter->second;
 }
 
+fas::TcpConnBucket *fas::Environment::getTcpConnBucket() {
+    return &tcpconns_;
+}
+
 fas::Environment* GET_ENV() {
     return fas::Environment::instance();
 }

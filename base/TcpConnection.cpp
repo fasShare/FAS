@@ -51,14 +51,6 @@ void fas::TcpConnection::setPeerAddr(const fas::NetAddress& addr) {
     peerAddr_ = addr;
 }
 
-void fas::TcpConnection::closeAndClearTcpConnection() {
-    //Add this function to QueueInLoop can ensure handle_ destroy before TcpConnection
-    LOGGER_TRACE("TcpConnection::closeAndClearTcpConnection");
-    loop_->assertInOwnerThread();
-    assert(closeing_);
-    // FIXME : Other clear.
-}
-
 void fas::TcpConnection::setOnMessageCallBack(const TcpConnMessageCallback& cb) {
     messageCb_ = cb;
 }
@@ -170,53 +162,39 @@ reWrite:
     }
 }
 
-void fas::TcpConnection::handleError(const fas::Events& revents,
-        fas::Timestamp time) {
+void fas::TcpConnection::handleError(const fas::Events& revents, fas::Timestamp time) {
     LOGGER_TRACE("handleError");
     boost::ignore_unused(revents, time);
     loop_->assertInOwnerThread();
 }
 
-/*!
- * \brief fas::TcpConnection::handleClose
- * \param revents
- * \param time
- * close this TcpConnection immediately.
- */
 void fas::TcpConnection::handleClose(const fas::Events& revents, fas::Timestamp time) {
     LOGGER_TRACE("TcpConnection::handleClose");
-    boost::ignore_unused(revents, time);
+    // don't send the remainder data
+	sendAllDataOut_ = true;
+    shutdown();
+    LOGGER_TRACE("TcpConnection::handleClose out");
+}
+
+void fas::TcpConnection::shutdown() {
     if (closeing_) {
         return;
     }
-    loop_->delHandle(handle_);
-    handle_ = nullptr;
-    if(closeCb_) {
-        closeing_ = true;
-        closeCb_();
-    }
-}
-/*!
- * \brief fas::TcpConnection::shutdown
- * close this TcpConnection after buffer empty.
- */
-void fas::TcpConnection::shutdown() {
-    loop_->queueInLoop(boost::bind(shutdownFromThis, shared_from_this()));
-}
-
-void fas::shutdownFromThis(TcpConnection::TcpConnShreadPtr conn) {
-    if (conn->closeing_) {
-        return;
-    }
-    if (conn->sendAllDataOut_) {
-        conn->getLoop()->delHandle(conn->handle_);
-        if(conn->closeCb_) {
-            conn->closeing_ = true;
-            conn->closeCb_();
+    if (sendAllDataOut_) {
+        loop_->delHandle(handle_);
+        if(closeCb_) {
+            closeing_ = true;
+            closeCb_();
         }
     } else {
-        conn->shouldBeClosed_ = true;
+        shouldBeClosed_ = true;
     }
+}
+
+void fas::TcpConnection::clearInLoop() {
+    LOGGER_TRACE("TcpConnection::closeAndClearTcpConnection");
+    loop_->assertInOwnerThread();
+    assert(closeing_);
 }
 
 fas::TcpConnection::~TcpConnection() {

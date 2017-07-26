@@ -10,7 +10,8 @@
 #include <Log.h>
 #include <EventLoop.h>
 #include <TcpServer.h>
-
+#include <TcpConnBucket.h>
+#include <Environment.h>
 
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
@@ -22,10 +23,7 @@ fas::TcpServer::TcpServer(fas::EventLoop* loop, const NetAddress& addr, int thre
     events_(server_.getSocket(), kReadEvent),
     handle_(NULL),
     addr_(addr),
-    listenBacklog_(50),
-    conns_(),
-    handleQueue_(nullptr),
-    handleMap_(nullptr) {
+    listenBacklog_(50) {
     server_.setNoBlocking();
     server_.setExecClose();
     server_.bind(addr_);
@@ -39,14 +37,6 @@ fas::EventLoop* fas::TcpServer::getLoop() const{
 
 void fas::TcpServer::setLoop(fas::EventLoop *loop) {
 	loop_ = loop;
-}
-
-fas::TcpServer::TcpConnShreadPtr fas::TcpServer::getConn(fas::TcpServer::connkey_t key) const {
-    return conns_.find(key)->second;
-}
-
-fas::TcpServer::TcpConnShreadPtr fas::TcpServer::getConn(fas::TcpServer::connkey_t key) {
-    return conns_.find(key)->second;
 }
 
 bool fas::TcpServer::start() {  
@@ -91,9 +81,12 @@ void fas::TcpServer::defHandleAccept(const fas::Events& event, fas::Timestamp ti
                     fas::Events(sd, kReadEvent),
                     peerAddr,
                     acceptTime));
-        conns_[fas::TcpServer::connkey_t(sd, sconn.get())] = sconn;
-        sconn->setOnCloseCallBack(boost::bind(&TcpServer::removeConnection, this,
-                    fas::TcpServer::connkey_t(sd, sconn.get())));
+        fas::TcpConnBucket *bucket = GET_ENV()->getTcpConnBucket();
+        connkey_t key = fas::TcpServer::connkey_t(sd, sconn.get());
+        long looptid = workloop->getTid();
+        bucket->addTcpConnection(looptid, key, sconn);
+        sconn->setOnCloseCallBack(boost::bind(&TcpConnBucket::removeTcpConnection, bucket, looptid, key));
+    
         if (this->onConnectionCb_) {
             this->onConnectionCb_(sconn);
         }
@@ -112,42 +105,9 @@ void fas::TcpServer::setOnConnectionCallBack(OnConnectionCallBack onConnectionCb
     this->onConnectionCb_ = onConnectionCb;
 }
 
-void fas::TcpServer::setOnConnRemovedCallBack(OnConnectionRemovedCallBack onConnRemovedCb) {
-    LOGGER_TRACE("TcpServer::setOnConnRemovedCallBack");
-    this->onConnRemovedCb_ = onConnRemovedCb;
-}
-
 void fas::TcpServer::setMessageCallback(const TcpConnMessageCallback& cb) {
     messageCb_  = cb;
 }
-
-void fas::TcpServer::removeConnection(fas::TcpServer::connkey_t key) {
-    loop_->runInLoop(boost::bind(&TcpServer::removeConnectionInLoop, this, key));
-}
-
-void fas::TcpServer::removeConnectionInLoop(fas::TcpServer::connkey_t key) {
-    loop_->assertInOwnerThread();
-    if (this->onConnRemovedCb_) {
-        this->onConnRemovedCb_(key);
-    } else {
-        LOGGER_DEBUG("On connecction remove callback is invaild!");
-    }
-    auto iter = conns_.find(key);
-    if (iter == conns_.end()) {
-        return;
-    }
-    fas::TcpServer::TcpConnShreadPtr conn = conns_.find(key)->second;
-    if (!conn) {
-        LOGGER_ERROR("can't find conn in conns!");
-    }
-    size_t n = conns_.erase(key);
-    if (n != 1) {
-        LOGGER_ERROR("connectin erase ret != 1.");
-    }
-    fas::EventLoop* ioLoop = conn->getLoop();
-    ioLoop->queueInLoop(boost::bind(&TcpConnection::closeAndClearTcpConnection, conn));
-}
-
 
 fas::TcpServer::~TcpServer() {
     delete handle_;

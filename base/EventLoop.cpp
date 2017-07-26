@@ -57,7 +57,7 @@ fas::EventLoop::EventLoop() :
 	LOGGER_TRACE("wakeup fd = " << wakeUpFd_);
 }
 
-int fas::EventLoop::getTid() const{
+long fas::EventLoop::getTid() const{
     return tid_;
 }
 
@@ -154,7 +154,7 @@ bool fas::EventLoop::updateHandles() {
             handles_[cur->first] = handle;
         }else if (handle->getState() == Handle::state::STATE_DEL) {
             poll_->EventsDel(event);
-            int n = handles_.erase(handle->fd());
+            size_t n = handles_.erase(handle->fd());
             assert(n == 1);
         } else {
             assert(false);
@@ -235,6 +235,10 @@ void fas::EventLoop::runFunctors() {
 
     for (size_t i = 0; i < functors.size(); ++i) {
         functors[i]();
+        //After the exec of functors, maybe some handle should be destroy    ed before run Functions. 
+        if (!updates_.empty()) {
+            updateHandles();
+        }
     }
     runningFunctors_ = false;
 }
@@ -272,7 +276,11 @@ bool fas::EventLoop::loop() {
                 continue;
             }
             handle->handleEvent(*iter, looptime);
-        } 
+            //After the exec of handleEvent, maybe some handle should be destroyed before run Functions. 
+            if (!updates_.empty()) {
+                updateHandles();
+            }
+        }
 
         assert(!runningFunctors_);
         runFunctors();
