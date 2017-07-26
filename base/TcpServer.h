@@ -14,6 +14,7 @@
 #include <TcpConnection.h>
 #include <Mutex.h>
 #include <MutexLocker.h>
+#include <SigIgnore.h>
 
 namespace fas {
 
@@ -32,57 +33,24 @@ public:
     using TcpConnShreadPtr = TcpConnection::TcpConnShreadPtr;
     using TcpConnectionPtr = TcpConnection::TcpConnectionPtr;
     using TcpConnMessageCallback = TcpConnection::TcpConnMessageCallback;
-    typedef std::pair<int, TcpConnectionPtr> connkey_t;
+    using connkey_t = std::pair<int, TcpConnectionPtr>;
 
-    typedef boost::function<void (TcpConnShreadPtr)> OnConnectionCallBack;
-    typedef boost::function<void (connkey_t)> OnConnectionRemovedCallBack;
+    using OnConnectionCallBack = boost::function<void (TcpConnShreadPtr)>;
+    using OnConnectionRemovedCallBack = boost::function<void (connkey_t)>;
 
     TcpServer(EventLoop *loop, const NetAddress& addr, int threadNum = 4);
     ~TcpServer();
 
     EventLoop* getLoop() const;
 
-	void resetLoop(fas::EventLoop *loop);
-
-    TcpConnShreadPtr getConn(connkey_t key) const;
-    TcpConnShreadPtr getConn(connkey_t key);
-
-    void EnterQueue(boost::shared_ptr<Handle>& handle);
-
-    bool pushHandleToQueue(boost::shared_ptr<Handle>& handle);
-    bool getHandleFromQueue(boost::shared_ptr<Handle>& handle);
-    bool removeHandleFromQueue(boost::shared_ptr<Handle>& handle);
+	void setLoop(fas::EventLoop *loop);
 
     bool start();
-    /*!
-     * \brief handleReadEvent
-     * \param event
-     * \param time
-     * This function is accept socket's callback.
-     * when a new client connect to this TcpServer, it'll be called.
-     * We create new TcpConnection in it.
-     */
     void defHandleAccept(const Events& event, Timestamp time);
     void setOnConnectionCallBack(OnConnectionCallBack onConnectionCb);
-    void setOnConnRemovedCallBack(OnConnectionRemovedCallBack onConnRemovedCb);
-    /*!
-     * \brief setMessageCallback
-     * \param cb
-     * This function set the message's callback of TcpConnection was created in
-     * function TcpServer::handleReadEvent.
-     * The MessageCallback will be called when TcpConnection's connected socket can be read, there are
-     * a message come.
-     */
     void setMessageCallback(const TcpConnMessageCallback& cb);
-    /*!
-     * \brief removeConnection
-     * \param conn
-     * \see removeConnectionInLoop
-     * When TcpConnection's will be closed this function will be called.
-     */
-    void removeConnection(connkey_t conn);
-    void removeConnectionInLoop(connkey_t conn);
 private:
+    SigIgnore signor_;
     Socket server_;
     EventLoop *loop_;
     int threadNum_;
@@ -91,14 +59,8 @@ private:
     NetAddress addr_;
     const uint listenBacklog_;
     EventLoopThreadPool *loopThreadPool_;
-    std::map<connkey_t, boost::shared_ptr<TcpConnection> > conns_;
     OnConnectionCallBack onConnectionCb_;
-    OnConnectionRemovedCallBack onConnRemovedCb_;
     TcpConnMessageCallback messageCb_;
-
-    ThreadPool *threadPool_;
-    std::queue<boost::shared_ptr<Handle>> *handleQueue_;
-    std::map<int, boost::shared_ptr<Handle>> *handleMap_;
 };
 
 }

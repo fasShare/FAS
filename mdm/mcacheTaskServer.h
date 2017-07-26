@@ -22,13 +22,11 @@ public:
     ~mcacheTaskServer();
 
     void OnNewConnection(TcpConnShreadPtr conn);
-    void OnConnectionRemoved(connkey_t conn);
 
     bool start();
 private:
     fas::EventLoop *loop_;
     fas::TcpServer tcpSer_;
-    std::map<connkey_t, std::shared_ptr<mcacheTaskHandle>> reqHandles_;
     hashSPtr hash_;
 };
 

@@ -32,7 +32,6 @@ public:
     bool listen(int backlog);
     bool connect(const NetAddress& addr);
     int accept(NetAddress& addr, bool noblockingexec);
-    void close();
 private:
     int socket_;
     u_int8_t state_;

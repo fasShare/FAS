@@ -16,6 +16,7 @@ public:
     int getPollerTimeout() const;
     int getPollerNum() const;
     int getThreadNum() const;
+    int getProcessNum() const;
     short getServerPort() const;
     std::string getServerIp() const;
 public:

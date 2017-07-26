@@ -37,6 +37,12 @@ Program('bin/TcpServer', 'test/TcpServerTest.cpp',
         LIBS = ['fasutils', 'fas', 'glog', 'jsoncpp', 'pthread'],
         CCFLAGS = ['-Wall', '-static', '-std=c++11']
         )
+Program('bin/Client', 'test/Client.cpp',
+        LIBPATH = ['lib'],
+        CPPPATH = ['.', 'utils', 'base'],
+        LIBS = ['fasutils', 'fas', 'glog', 'jsoncpp', 'pthread'],
+        CCFLAGS = ['-Wall', '-static', '-std=c++11']
+        )
 Program('bin/MultiProcessServer', 'test/MultiProcessServer.cpp',
         LIBPATH = ['lib'],
         CPPPATH = ['.', 'utils', 'base'],

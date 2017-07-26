@@ -3,6 +3,8 @@
 #include <map>
 #include <string>
 
+
+#include <TcpConnBucket.h>
 #include <Reloader.h>
 #include <Log.h>
 
@@ -14,6 +16,7 @@ public:
     ~Environment();
     static bool init();
     bool check_load();
+    TcpConnBucket *getTcpConnBucket();
     bool insertReloader(const std::string& info, Reloader *loader);
     Reloader* getReloader(const std::string& info) const;
     Reloader* getReloader(const std::string& info);
@@ -33,6 +36,7 @@ private:
     Environment(const Environment&);
     Environment& operator=(const Environment&);
 
+    TcpConnBucket tcpconns_;
     std::map<std::string, Reloader*> reloaders_;
     static destroy_env ds_env;
 };

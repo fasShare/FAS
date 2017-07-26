@@ -21,13 +21,11 @@ public:
   HttpServer(EventLoop *loop, const NetAddress& addr);
 
   void OnNewConnection(HttpReqHandle::TcpConnShreadPtr conn);
-  void OnConnectionRemoved(TcpServer::connkey_t key);
 
   bool start();
 private:
   EventLoop *loop_;
   TcpServer *tcpSer_;
-  std::map<TcpServer::connkey_t, std::shared_ptr<HttpReqHandle>> reqHandles_;
 };
 
 }

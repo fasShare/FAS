@@ -247,11 +247,6 @@ bool fas::MultiProcessServer<SERVER>::start() {
                 } else {
                     LOGGER_WARN("Server conn build callback wasn't set.");
                 }
-                if (this->connRemoveCb_) {
-                    process_[idx]->setConnRemoveCallback(this->connRemoveCb_);
-                } else {
-                    LOGGER_WARN("Server conn removed callback wasn't set.");
-                }
                 process_[idx]->initProc("./faslog");
                 process_[idx]->startLoop();
                 LOGGER_TRACE("a child quit. idx = " << idx);
