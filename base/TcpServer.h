@@ -14,6 +14,7 @@
 #include <TcpConnection.h>
 #include <Mutex.h>
 #include <MutexLocker.h>
+#include <SigIgnore.h>
 
 namespace fas {
 
@@ -49,6 +50,7 @@ public:
     void setOnConnectionCallBack(OnConnectionCallBack onConnectionCb);
     void setMessageCallback(const TcpConnMessageCallback& cb);
 private:
+    SigIgnore signor_;
     Socket server_;
     EventLoop *loop_;
     int threadNum_;

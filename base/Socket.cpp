@@ -92,15 +92,10 @@ int fas::Socket::accept(fas::NetAddress& addr, bool noblockingexec) {
     return ret;
 }
 
-void fas::Socket::close() {
+fas::Socket::~Socket() {
+    LOGGER_TRACE("tid : " << gettid() <<  " socket close!");
     ::close(socket_);
     state_ = Socket::STATE::CLOSED;
-}
-
-fas::Socket::~Socket() {
-    //for debug
-    LOGGER_TRACE("tid : " << gettid() <<  " socket close!");
-    //Don't close socket_.
 }
 
 bool fas::SetNoBlockingOrExec(int sd) {

@@ -22,11 +22,10 @@ void work() {
         write(client.getSocket(), buf, bytes);
         sleep(rand()%3);
         write(client.getSocket(), buf, bytes);
-        client.close();
     }
 }
 
-#define THREAD_NUM 20
+#define THREAD_NUM 10
 
 int main() {
     std::vector<Thread*> threads;

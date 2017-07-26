@@ -17,6 +17,7 @@
 #include <boost/core/ignore_unused.hpp>
 
 fas::TcpServer::TcpServer(fas::EventLoop* loop, const NetAddress& addr, int threadNum) :
+    signor_(),
     server_(AF_INET, SOCK_STREAM, 0),
     loop_(loop),
     threadNum_(threadNum <= 0 ? 1: threadNum),
