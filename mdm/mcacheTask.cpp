@@ -388,7 +388,7 @@ bool fas::mdm::mcacheTask::handleRetriveCmd(TcpConnShreadPtr conn, fas::Buffer *
 
 				getsockopt((*iter).getFd(), SOL_SOCKET, SO_ERROR, \
 						reinterpret_cast<char *>(&error), &len);
-				if (error != 0) {
+				if (error != 0) { //有一个连接不成功就会导致命令的失败
 					setState(TaskState::BAD);
 					conn->sendString("SERVER_ERROR\r\n");
 					return false;
@@ -418,9 +418,7 @@ bool fas::mdm::mcacheTask::handleRetriveCmd(TcpConnShreadPtr conn, fas::Buffer *
 
 			++countGetSucceed; //又有一个成功。
 		} // for
-
 		conn->sendString("END\r\n");
-
 	}
 
 	renew();
