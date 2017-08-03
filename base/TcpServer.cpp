@@ -11,6 +11,7 @@
 #include <EventLoop.h>
 #include <TcpServer.h>
 #include <TcpConnBucket.h>
+#include <EventLoopBucket.h>
 #include <Environment.h>
 
 #include <boost/bind.hpp>
@@ -54,12 +55,11 @@ bool fas::TcpServer::start() {
     handle_->setHandleRead(boost::bind(&TcpServer::defHandleAccept, this, _1, _2));
     loop_->addHandle(handle_);
 
-    loopThreadPool_ = new (std::nothrow) EventLoopThreadPool(loop_, threadNum_,\
-            "EventLoopThreadPool");
-    if (!loopThreadPool_) {
+    threadPool_ = new (std::nothrow) ThreadPool(threadNum_, TcpServer::LoopThreadFunc, "ThreadPool");
+    if (!threadPool_) {
         return false;
     }
-    return  loopThreadPool_->start();
+    return  threadPool_->start();
 }
 
 void fas::TcpServer::defHandleAccept(const fas::Events& event, fas::Timestamp time) {
@@ -76,7 +76,11 @@ void fas::TcpServer::defHandleAccept(const fas::Events& event, fas::Timestamp ti
             LOGGER_SYSERR("In Tcpserver accepted return an error!");
             return;
         }
-        workloop = loopThreadPool_->getNextEventLoop();
+        workloop = EventLoopBucket::Instance()->getNextLoop();
+        if (nullptr == workloop) {
+            LOGGER_SYSERR("In Tcpserver accepted return an error!");
+            return;
+        }
 
         fas::TcpServer::TcpConnShreadPtr sconn(new fas::TcpConnection(workloop,
                     fas::Events(sd, kReadEvent),
@@ -85,6 +89,7 @@ void fas::TcpServer::defHandleAccept(const fas::Events& event, fas::Timestamp ti
         fas::TcpConnBucket *bucket = GET_ENV()->getTcpConnBucket();
         connkey_t key = fas::TcpServer::connkey_t(sd, sconn.get());
         long looptid = workloop->getTid();
+        LOGGER_TRACE("loop tid " << looptid);
         bucket->addTcpConnection(looptid, key, sconn);
         sconn->setOnCloseCallBack(boost::bind(&TcpConnBucket::removeTcpConnection, bucket, looptid, key));
     
@@ -108,6 +113,19 @@ void fas::TcpServer::setOnConnectionCallBack(OnConnectionCallBack onConnectionCb
 
 void fas::TcpServer::setMessageCallback(const TcpConnMessageCallback& cb) {
     messageCb_  = cb;
+}
+
+void fas::TcpServer::LoopThreadFunc() {
+    EventLoop *loop = new (std::nothrow) EventLoop();
+    if (nullptr == loop) {
+        return;
+    }
+
+    if (!EventLoopBucket::Instance()->addEventLoop(gettid(), loop)) {
+        return;
+    }
+
+    loop->loop();
 }
 
 fas::TcpServer::~TcpServer() {

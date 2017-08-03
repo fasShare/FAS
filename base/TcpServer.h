@@ -9,7 +9,6 @@
 #include <Socket.h>
 #include <Events.h>
 #include <NetAddress.h>
-#include <EventLoopThreadPool.h>
 #include <ThreadPool.h>
 #include <TcpConnection.h>
 #include <Mutex.h>
@@ -20,14 +19,7 @@ namespace fas {
 
 class EventLoop;
 class Handle;
-/*!
- * \brief The TcpServer class
- * The TcpServer class main job is manage TcpConnection and Handle.
- * TcpServer create TcpConnection in it's listenning socket's handread callback,
- * then established the relationship between TcpConnection and Handle,
- * The callbacks of TcpConnection's Handle was seted by TcpSerevr, then TcpServer
- * add TcpConnection's Handle to Io Thread's loop(workloop) and wake up this Io thread from polling.
- */
+
 class TcpServer {
 public:
     using TcpConnShreadPtr = TcpConnection::TcpConnShreadPtr;
@@ -49,6 +41,8 @@ public:
     void defHandleAccept(const Events& event, Timestamp time);
     void setOnConnectionCallBack(OnConnectionCallBack onConnectionCb);
     void setMessageCallback(const TcpConnMessageCallback& cb);
+
+    static void LoopThreadFunc();
 private:
     SigIgnore signor_;
     Socket server_;
@@ -58,7 +52,7 @@ private:
     Handle *handle_;
     NetAddress addr_;
     const uint listenBacklog_;
-    EventLoopThreadPool *loopThreadPool_;
+    ThreadPool *threadPool_;
     OnConnectionCallBack onConnectionCb_;
     TcpConnMessageCallback messageCb_;
 };

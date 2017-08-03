@@ -253,6 +253,7 @@ void fas::EventLoop::quit() {
 }
 
 bool fas::EventLoop::loop() {
+    LOGGER_TRACE("A EventLoop started.");
     assertInOwnerThread();
     Timestamp looptime;
     while (!quit_) {
