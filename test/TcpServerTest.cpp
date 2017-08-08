@@ -11,8 +11,6 @@
 #include <Log.h>
 #include <TcpServer.h>
 #include <TcpConnection.h>
-#include <Environment.h>
-#include <FasInfo.h>
 
 
 #include <boost/bind.hpp>
@@ -44,28 +42,12 @@ void ConnMessageCallback(fas::TcpServer::TcpConnShreadPtr conn, Buffer *buffer, 
 
 int main()
 {
-    ENV_INIT();
     std::cout << "after init" << std::endl;
     //这一步是必须的，EventLoop是程序的核心。
     EventLoop *loop = new EventLoop;
     //把loop传给TcpServer，也就是说，TcpServer里面的定时器事件，套接字监听，消息读写等事件，
     //都会在下面的loop循环中被polling监听。
-    short port = GET_FAS_INFO()->getServerPort();
-    if (port < 0) {
-      LOGGER_ERROR("get server　Port error!");
-      port = 6686;
-    }
-    std::string ip = GET_FAS_INFO()->getServerIp();
-    if (ip.empty()) {
-      LOGGER_ERROR("get server　ip error!");
-      ip = "127.0.0.1";
-    }
-    int thread_num = GET_FAS_INFO()->getThreadNum();
-    if (thread_num < 0) {
-      LOGGER_ERROR("get server　thread_num error!");
-      thread_num = 4;
-    }
-    TcpServer *ser = new TcpServer(loop, NetAddress(AF_INET, port, ip.c_str()), thread_num);
+    TcpServer *ser = new TcpServer(loop, NetAddress(AF_INET, 6686, "192.168.1.3"), 4);
     //当有客户段发来消息时，调用的函数，本函数写你处理消息的逻辑，消息被服务器框架存储在buffer里面。
     //这个buffer，是可以根据内容自动扩充空间的。
     ser->setMessageCallback(boost::bind(ConnMessageCallback, _1, _2, _3));

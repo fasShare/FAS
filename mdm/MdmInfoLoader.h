@@ -1,13 +1,12 @@
 #ifndef FAS_FASINFOLOADER_H
 #define FAS_FASINFOLOADER_H
 #include <MdmInfo.h>
-#include <Reloader.h>
 
 namespace fas {
 
 namespace mdm {
 
-class MdmInfoLoader : public Reloader {
+class MdmInfoLoader {
 private:
     time_t _tm;
     unsigned int _using_no;

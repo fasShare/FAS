@@ -12,7 +12,6 @@
 #include <TcpServer.h>
 #include <TcpConnBucket.h>
 #include <EventLoopBucket.h>
-#include <Environment.h>
 
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
@@ -86,7 +85,7 @@ void fas::TcpServer::defHandleAccept(const fas::Events& event, fas::Timestamp ti
                     fas::Events(sd, kReadEvent),
                     peerAddr,
                     acceptTime));
-        fas::TcpConnBucket *bucket = GET_ENV()->getTcpConnBucket();
+        fas::TcpConnBucket *bucket = TcpConnBucket::Instance();
         connkey_t key = fas::TcpServer::connkey_t(sd, sconn.get());
         long looptid = workloop->getTid();
         LOGGER_TRACE("loop tid " << looptid);

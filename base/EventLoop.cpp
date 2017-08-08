@@ -17,8 +17,6 @@
 #include <Events.h>
 #include <MutexLocker.h>
 #include <TimersScheduler.h>
-#include <Environment.h>
-#include <FasInfo.h>
 
 
 #include <boost/bind.hpp>
@@ -26,7 +24,7 @@
 
 std::atomic<int> fas::EventLoop::count_(0);
 
-fas::EventLoop::EventLoop() :
+fas::EventLoop::EventLoop(Poller::type polltype) :
     poll_(nullptr),
     pollDelayTime_(200),
     revents_(),
@@ -41,7 +39,7 @@ fas::EventLoop::EventLoop() :
     runningFunctors_(false),
     timerScheduler_(new TimersScheduler(this)),
     quit_(false) {
-    if (GET_FAS_INFO()->getPollerType() == "poll") {
+    if (Poller::type::POLL == polltype) {
         poll_ = new (std::nothrow) Poll();
     } else {
         poll_ = new (std::nothrow) Epoll();
@@ -50,8 +48,6 @@ fas::EventLoop::EventLoop() :
         LOGGER_SYSERR("New Poller error!");
     }
     count_++;
-    int time_out = GET_FAS_INFO()->getPollerTimeout();
-    pollDelayTime_ = time_out > 0 ? time_out : pollDelayTime_;
     wakeUpHandle_->setHandleRead(boost::bind(&EventLoop::handWakeUp, this, _1, _2));
     addSHandle(wakeUpHandle_);
 	LOGGER_TRACE("wakeup fd = " << wakeUpFd_);
@@ -61,7 +57,7 @@ long fas::EventLoop::getTid() const{
     return tid_;
 }
 
-int fas::EventLoop::getCount() const {
+int fas::EventLoop::getEventLoopNum() const {
     return count_;
 }
 
