@@ -7,6 +7,19 @@
 
 #include <boost/bind.hpp>
 
+fas::TcpConnBucket *fas::TcpConnBucket::instance_ = nullptr;
+
+fas::TcpConnBucket::TcpConnBucket() :
+    mutex_() {
+}
+
+fas::TcpConnBucket *fas::TcpConnBucket::Instance() {
+    if (nullptr == instance_) {
+        instance_ = new (std::nothrow) TcpConnBucket();
+    }
+    return instance_;
+}
+
 bool fas::TcpConnBucket::addTcpConnection(long tid, connkey_t key, boost::shared_ptr<TcpConnection>& conn) {
     MutexLocker locker(mutex_);
     if (conns_.end() == conns_.find(tid)) {

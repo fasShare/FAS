@@ -2,7 +2,6 @@
 #include <fstream>
 
 #include <MdmInfoLoader.h>
-#include <Environment.h>
 #include <MdmInfo.h>
 #include <Log.h>
 
@@ -97,10 +96,3 @@ int fas::mdm::MdmInfo::getHashVNodeNum() const {
     return boost::lexical_cast<int>(num);
 }
 
-fas::mdm::MdmInfo* GET_MDM_INFO() {
-    fas::mdm::MdmInfoLoader *info = dynamic_cast<fas::mdm::MdmInfoLoader*>(GET_ENV()->getReloader("mdminfo"));
-    if (!info) {
-        return nullptr;
-    }
-    return info->get_content();
-}

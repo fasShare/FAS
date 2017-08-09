@@ -18,6 +18,10 @@ namespace fas {
  */
 class Poller : boost::noncopyable {
 public:
+    enum type {
+        EPOLL,
+        POLL,
+    };
     Poller();
     virtual bool EventsAdd(Events* events) = 0;
     virtual bool EventsMod(Events* events) = 0;
