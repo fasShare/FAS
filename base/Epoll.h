@@ -14,10 +14,6 @@ namespace fas {
 class Poller;
 class Events;
 
-/*!
- * \brief The Epoll class
- * Encapsulation of epoll_ctl, epoll_create, epoll_wait
- */
 class Epoll : public Poller {
 public:
     typedef struct epoll_event  EpollEvent;

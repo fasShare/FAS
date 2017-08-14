@@ -6,7 +6,8 @@
 #include <memory>
 #include <atomic>
 
-
+#include <PollerFactory.h>
+#include <EpollFactory.h>
 #include <Mutex.h>
 #include <Timestamp.h>
 #include <Condition.h>
@@ -31,7 +32,8 @@ public:
     typedef Handle* HandlePtr;
     typedef boost::function<void ()> Functor;
 
-    EventLoop(Poller::type polltype = Poller::type::EPOLL);
+    EventLoop(PollerFactory *pollerFactory);
+    EventLoop();
     ~EventLoop();
 
     long getTid() const;
@@ -62,36 +64,37 @@ public:
 private:
     bool updateHandle(SHandlePtr handle);
     bool updateHandles();
+    bool updateHandlesUnlock();
     void runFunctors();
 
     void handWakeUp(Events event, fas::Timestamp time);
 
     static const int kInitMaxHandle_ = 10;
     static std::atomic<int> count_;
+
     Poller *poll_;
     int pollDelayTime_;
+    PollerFactory *pollerFactory_;
+
     std::vector<Events> revents_;
     std::map<int, SHandlePtr> handles_;
     std::map<int, SHandlePtr> updates_;
+    
     Mutex mutex_;
     Condition cond_;
     long tid_;
 
     int wakeUpFd_;
-    boost::shared_ptr<Handle> wakeUpHandle_;  /*!< The handle of wakeUpFd_. */
+    boost::shared_ptr<Handle> wakeUpHandle_;
 
     std::vector<Functor> functors_;
-    bool runningFunctors_;              /*!< Judge functor in functors_ was executing. */
+    bool runningFunctors_;
 
-    boost::scoped_ptr<TimersScheduler> timerScheduler_;   /*!< Timer's Scheduler */
+    TimersScheduler* timerScheduler_;
 
     bool quit_;
 };
-/*!
- * \brief createEventfd
- * \return eventfd(int)
- * Create a eventfd NONBLOCK and CLOEXEC.
- */
+
 int createEventfd();
 
 }
