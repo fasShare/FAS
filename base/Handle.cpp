@@ -10,18 +10,27 @@
 
 #include <boost/bind.hpp>
 
-fas::Handle::Handle(EventLoop* loop, Events events) :
-    loop_(loop),
-    events_(new Events(events)),
-    state_(STATE_NEW) {
-    checkRead_ = boost::bind(&Handle::defaultCheckRead, this, _1);
-    checkWrite_ = boost::bind(&Handle::defaultCheckWrite, this, _1);
-    checkErr_ = boost::bind(&Handle::defaultCheckError, this, _1);
-    checkClose_ =  boost::bind(&Handle::defaultCheckClose, this, _1);
+fas::Handle::Handle(EventLoop* loop, Events events) {
+    reinit(loop, events);
 }
 
-fas::EventLoop* fas::Handle::getLoop() {
-    assert(loop_ != NULL);
+bool fas::Handle::reset() {
+    loop_ = nullptr;
+    state_ = STATE_NEW;
+    return events_->reset();
+}
+
+bool fas::Handle::reinit(EventLoop* loop, const Events& events) {
+    if (nullptr == loop) {
+        return false;
+    }
+    loop_ = loop;
+    *events_ = events;
+    state_ = STATE_NEW;
+    return true;
+}
+
+fas::EventLoop* fas::Handle::getLoop() const{
     return loop_;
 }
 
@@ -74,21 +83,22 @@ uint8_t fas::Handle::getState() {
 }
 
 void fas::Handle::handleEvent(const Events& events, Timestamp time) {
-    if (checkClose_(events)) {
+    if (events.containsAtLeastOneEvents(POLLHUP) 
+        && !events.containsAtLeastOneEvents(POLLIN)) {
         if (handle_close_event_) handle_close_event_(events, time);
     }
 
-    if (checkErr_(events)) {
+    if (events.containsAtLeastOneEvents(POLLERR | POLLNVAL)) {
         if (handle_error_event_)
             handle_error_event_(events, time);
     }
 
-    if (checkRead_(events)) {
+    if (events.containsAtLeastOneEvents(POLLIN | POLLPRI | POLLRDHUP)) {
         if (handle_read_event_)
             handle_read_event_(events, time);
     }
 
-    if (checkWrite_(events)) {
+    if (events.containsAtLeastOneEvents(POLLOUT)) {
         if (handle_write_event_)
             handle_write_event_(events, time);
     }
@@ -98,43 +108,8 @@ void fas::Handle::handleEvent(const Events& events, Timestamp time) {
     }
 }
 
-void fas::Handle::setCheckRead(const EventCheckFunc& checkRead) {
-    checkRead_ = checkRead;
-}
-
-void fas::Handle::setCheckWrite(const EventCheckFunc& checkWrite) {
-    checkWrite_ = checkWrite;
-}
-
-void fas::Handle::setCheckError(const EventCheckFunc& checkErr) {
-    checkErr_ = checkErr;
-}
-
-void fas::Handle::setCheckClose(const EventCheckFunc& checkClose) {
-    checkClose_ = checkClose;
-}
-
-bool fas::Handle::defaultCheckRead(const Events& event) {
-    return event.containsAtLeastOneEvents(POLLIN | POLLPRI | POLLRDHUP);
-}
-
-bool fas::Handle::defaultCheckWrite(const Events& event) {
-    return event.containsAtLeastOneEvents(POLLOUT);
-}
-
-bool fas::Handle::defaultCheckError(const Events& event) {
-    return event.containsAtLeastOneEvents(POLLERR | POLLNVAL);
-}
-
-bool fas::Handle::defaultCheckClose(const Events& event) {
-    return (event.containsAtLeastOneEvents(POLLHUP)) && \
-        !(event.containsAtLeastOneEvents(POLLIN));
-}
-
-
 fas::Handle::~Handle() {
     state_ = STATE_DEL;
-    //::close(events_->getFd());
     if (events_ != nullptr) {
         delete events_;
         events_ = nullptr;

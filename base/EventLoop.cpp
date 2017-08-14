@@ -46,13 +46,12 @@ fas::EventLoop::EventLoop(PollerFactory *pollerFactory) :
     quit_(false) {
     LOGGER_TRACE("Before EventLoop.");
     poll_ = pollerFactory_->getPoller();
-    poll_ = new (std::nothrow) Epoll();
     if (!poll_) {
         LOGGER_SYSERR("New Poller error!");
     }
     count_++;
     wakeUpHandle_->setHandleRead(boost::bind(&EventLoop::handWakeUp, this, _1, _2));
-    addSHandle(wakeUpHandle_);
+    addHandle(wakeUpHandle_);
     timerScheduler_ = new (std::nothrow) TimersScheduler(this);
     if (timerScheduler_ == nullptr) {
         LOGGER_SYSERR("New TimersScheduler error.");
@@ -78,31 +77,14 @@ bool fas::EventLoop::updateHandle(SHandlePtr handle) {
     return true;
 }
 
-bool fas::EventLoop::addHandle(HandlePtr handle) {
-    assert(handle->getState() == Handle::state::STATE_NEW);
-    MutexLocker lock(mutex_);(void)lock;
-    handle->setState(Handle::state::STATE_ADD);
-    return updateHandle(boost::shared_ptr<Handle>(handle));
-}
-
-bool fas::EventLoop::addSHandle(SHandlePtr handle) {
+bool fas::EventLoop::addHandle(SHandlePtr handle) {
     assert(handle->getState() == Handle::state::STATE_NEW);
     MutexLocker lock(mutex_);(void)lock;
     handle->setState(Handle::state::STATE_ADD);
     return updateHandle(handle);
 }
 
-bool fas::EventLoop::modHandle(HandlePtr handle) {
-    MutexLocker lock(mutex_);(void)lock;
-    if (handles_.find(handle->fd()) == handles_.end()) {
-        return false;
-    }
-    SHandlePtr mod = handles_.find(handle->fd())->second;
-    mod->setState(Handle::state::STATE_MOD);
-    return updateHandle(mod);
-}
-
-bool fas::EventLoop::modSHandle(SHandlePtr handle) {
+bool fas::EventLoop::modHandle(SHandlePtr handle) {
     MutexLocker lock(mutex_);(void)lock;
     if (handles_.find(handle->fd()) == handles_.end()) {
         LOGGER_ERROR("handles_.find(handle->fd()) == handles_.end()");
@@ -113,17 +95,7 @@ bool fas::EventLoop::modSHandle(SHandlePtr handle) {
     return updateHandle(mod);
 }
 
-bool fas::EventLoop::delHandle(HandlePtr handle) {
-    MutexLocker lock(mutex_);(void)lock;
-    if (handles_.find(handle->fd()) == handles_.end()) {
-        return false;
-    }
-    SHandlePtr del = handles_.find(handle->fd())->second;
-    del->setState(Handle::state::STATE_DEL);
-    return updateHandle(del);
-}
-
-bool fas::EventLoop::delSHandle(SHandlePtr handle) {
+bool fas::EventLoop::delHandle(SHandlePtr handle) {
     MutexLocker lock(mutex_);(void)lock;
     if (handles_.find(handle->fd()) == handles_.end()) {
         LOGGER_ERROR("handles_.find(handle->fd()) == handles_.end()");

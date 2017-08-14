@@ -49,7 +49,7 @@ private:
     EventLoop *loop_;
     int threadNum_;
     Events events_;
-    Handle *handle_;
+    boost::shared_ptr<Handle> handle_;
     NetAddress addr_;
     const uint listenBacklog_;
     ThreadPool *threadPool_;

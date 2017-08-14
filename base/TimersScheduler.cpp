@@ -5,8 +5,6 @@
 
 #include <TimersScheduler.h>
 #include <EventLoop.h>
-#include <Handle.h>
-#include <Events.h>
 #include <Timer.h>
 #include <Timestamp.h>
 #include <Log.h>
@@ -48,12 +46,7 @@ struct itimerspec fas::TimersScheduler::calculateTimerfdNewValue(fas::Timestamp 
     if (microseconds < 100) {
         microseconds = 100;
     }
-    /*!
-     * The it_interval field returns the interval of the timer.
-     * If both fields of this structure are zero,
-     * then the timer is set to expire just once,
-     * at the time specified by curr_value.it_value.
-     */
+
     struct itimerspec newvalue;
     newvalue.it_interval.tv_sec = 0;
     newvalue.it_interval.tv_nsec = 0;

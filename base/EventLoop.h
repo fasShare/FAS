@@ -29,7 +29,6 @@ class Timer;
 class EventLoop : boost::noncopyable {
 public:
     typedef boost::shared_ptr<Handle> SHandlePtr;
-    typedef Handle* HandlePtr;
     typedef boost::function<void ()> Functor;
 
     EventLoop(PollerFactory *pollerFactory);
@@ -41,12 +40,9 @@ public:
 
     int getEventLoopNum() const;
     
-    bool addHandle(HandlePtr handle);
-    bool addSHandle(SHandlePtr handle);
-    bool modHandle(HandlePtr handle);
-    bool modSHandle(SHandlePtr handle);
-    bool delHandle(HandlePtr handle);
-    bool delSHandle(SHandlePtr handle);
+    bool addHandle(SHandlePtr handle);
+    bool modHandle(SHandlePtr handle);
+    bool delHandle(SHandlePtr handle);
     
     void addTimer(Timer *timer);
     void delTimer(Timer *timer);
@@ -60,7 +56,6 @@ public:
     void quit();
     void wakeUp();
     bool loop();
-
 private:
     bool updateHandle(SHandlePtr handle);
     bool updateHandles();

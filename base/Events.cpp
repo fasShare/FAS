@@ -20,6 +20,12 @@ fas::Events::Events(const struct pollfd& events) :
     Events(events.fd, events.revents) {
 }
 
+bool fas::Events::reset() {
+    fd_ = -1;
+    events_ = kNoneEvent;
+    return true;
+}
+
 int fas::Events::getFd() const{
     return fd_;
 }

@@ -45,7 +45,7 @@ bool fas::TcpServer::start() {
 		LOGGER_ERROR("TcpServer's loop is nullptr.");
 		return false;
 	}
-    handle_ = new (std::nothrow) Handle(loop_, events_);
+    handle_ = boost::shared_ptr<Handle>(new (std::nothrow) Handle(loop_, events_));
     if (!handle_) {
         LOGGER_ERROR("new server handle_ error!");
         return false;
@@ -128,7 +128,5 @@ void fas::TcpServer::LoopThreadFunc() {
 }
 
 fas::TcpServer::~TcpServer() {
-    delete handle_;
-    handle_ = nullptr;
     LOGGER_TRACE("TcpServer will be destroyed in process " << getpid());
 }

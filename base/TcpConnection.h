@@ -15,11 +15,7 @@ namespace fas {
 class Handle;
 class EventLoop;
 class buffer;
-/*!
- * \brief The TcpConnection class
- * The TcpConnection class was created by TcpServer.
- * It's connfd_ connected to the client.
- */
+
 class TcpConnection : public boost::enable_shared_from_this<TcpConnection> {
 public:
     typedef boost::shared_ptr<TcpConnection> TcpConnShreadPtr;
@@ -32,6 +28,9 @@ public:
             const NetAddress& peerAddr_,
             Timestamp now = Timestamp::now());
     ~TcpConnection();
+
+    bool reinit(EventLoop* loop, const Events& event, const NetAddress& peerAddr, Timestamp now);
+    bool reset();
 
     EventLoop* getLoop();
     
@@ -63,7 +62,7 @@ public:
 private:
     EventLoop *loop_;
     Events event_;        /*!< events of connfd_ */
-    Handle *handle_;
+    boost::shared_ptr<Handle> handle_;
     Buffer *readBuffer_;
     Buffer *writeBuffer_;
     Socket connfd_;      /*!< connected socket. */

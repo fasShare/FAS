@@ -14,29 +14,65 @@
 #include <boost/bind.hpp>
 #include <boost/core/ignore_unused.hpp>
 
-fas::TcpConnection::TcpConnection(EventLoop *loop, const Events& event, const NetAddress& peerAddr, Timestamp now) :
-    loop_(loop),
-    event_(event),
-    handle_(NULL),
-    readBuffer_(new Buffer(1024)),
-    writeBuffer_(new Buffer(1024)),
-    connfd_(event.getFd()),
-    peerAddr_(peerAddr),
-    shouldBeClosed_(false),
-    closeing_(false),
-    acceptTime_(now),
-    sendAllDataOut_(true) {
-    assert(loop_ != NULL);
-    handle_ = new Handle(loop_, event_);
+fas::TcpConnection::TcpConnection(EventLoop *loop, const Events& event, const NetAddress& peerAddr, Timestamp now) {
+    reinit(loop, event, peerAddr, now);
+}
+
+bool fas::TcpConnection::reset() {
+    loop_ = nullptr;
+    event_.reset();
+    if (nullptr == readBuffer_) {
+        readBuffer_->retrieveAll();
+    }
+    if (nullptr == writeBuffer_) {
+        writeBuffer_->retrieveAll();
+    }
+    connfd_ = -1;
+    //peerAddr.reset();
+    shouldBeClosed_ = false;
+    closeing_ = false;
+    //acceptTime_.reset();
+    sendAllDataOut_ = true;
+    handle_.reset();
+    return true;
+}
+
+bool fas::TcpConnection::reinit(EventLoop *loop, const Events& event, const NetAddress& peerAddr, Timestamp now) {
+    if (nullptr == loop) {
+        return false;
+    }
+    loop_ = loop;
+    event_ = event_;
+    if (nullptr == readBuffer_) {
+        readBuffer_ = new (std::nothrow) Buffer(1024);
+    } else {
+        readBuffer_->retrieveAll();
+    }
+    if (nullptr == writeBuffer_) {
+        writeBuffer_ = new (std::nothrow) Buffer(1024);
+    } else {
+        writeBuffer_->retrieveAll();
+    }
+    connfd_ = event.getFd();
+    peerAddr_ = peerAddr;
+    shouldBeClosed_ = false;
+    closeing_ = false;
+    acceptTime_ = now;
+    sendAllDataOut_ = true;
+    if (nullptr == handle_) {
+        handle_ = boost::shared_ptr<Handle>(new (std::nothrow) Handle(loop_, event_));
+    } else {
+        handle_->reinit(loop_, event_);
+    }
 
     handle_->setHandleRead(boost::bind(&TcpConnection::handleRead, this, _1, _2));
     handle_->setHandleWrite(boost::bind(&TcpConnection::handleWrite, this, _1, _2));
     handle_->setHandleError(boost::bind(&TcpConnection::handleError, this, _1, _2));
     handle_->setHandleClose(boost::bind(&TcpConnection::handleClose, this, _1, _2));
-
+    
     loop_->addHandle(handle_);
-
     LOGGER_DEBUG("tid : " << gettid() <<  " TID : " << loop_->getTid());
+    return true;
 }
 
 fas::EventLoop* fas::TcpConnection::getLoop() {

@@ -18,6 +18,11 @@ fas::Socket::Socket(int sd) :
     state_(Socket::STATE::OPENED) {
 }
 
+const int fas::Socket::operator=(int sd) {
+    socket_ = sd;
+    return sd;
+}
+
 int fas::Socket::getSocket() const {
     return socket_;
 }

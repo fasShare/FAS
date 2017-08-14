@@ -20,8 +20,10 @@ public:
     };
 
     Socket(int domain, int type, int protocol);
-    Socket(int sd);
+    Socket(int sd = -1);
     ~Socket();
+
+    const int operator=(int sd);
 
     int getSocket() const;
 

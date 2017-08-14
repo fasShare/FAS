@@ -2,21 +2,15 @@
 #define FAS_EXECUTOR_H
 #include <iostream>
 
+#include <EventLoop.h>
 
 #include <boost/function.hpp>
 
 namespace fas {
 
-class EventLoop;
 class Events;
 class Timestamp;
 
-/*!
- * \brief The Handle class
- * Events's callback and Events was established relationship by handle.
- * If the events occur. the callback of events will be called.
- * The callbacks was seted by the user of Handle and Events.
- */
 class Handle {
 public:
     typedef boost::function<bool (const Events& event)> EventCheckFunc;
@@ -32,7 +26,10 @@ public:
     Handle(EventLoop* loop, Events event);
     virtual ~Handle();
 
-    EventLoop* getLoop();
+    bool reset();
+    bool reinit(EventLoop* loop, const Events& events);
+
+    EventLoop* getLoop() const;
 
     int fd() const;
     Events* getEvent() const;
@@ -46,16 +43,6 @@ public:
     void setState(uint8_t state);
     uint8_t getState();
 
-    void setCheckRead(const EventCheckFunc& checkRead);
-    void setCheckWrite(const EventCheckFunc& checkWrite);
-    void setCheckError(const EventCheckFunc& checkErr);
-    void setCheckClose(const EventCheckFunc& checkClose);
-
-    bool defaultCheckRead(const Events& event);
-    bool defaultCheckWrite(const Events& event);
-    bool defaultCheckError(const Events& event);
-    bool defaultCheckClose(const Events& event);
-
     void setHandleRead(const EventHandleFunc& handle_read);
     void setHandleWrite(const EventHandleFunc& handle_write);
     void setHandleError(const EventHandleFunc& handle_error);
@@ -63,14 +50,9 @@ public:
 
     void handleEvent(const Events&, Timestamp);
 private:
-    EventLoop *loop_;
+    EventLoop* loop_;
     Events *events_;
     unsigned char state_;
-
-    EventCheckFunc checkRead_;
-    EventCheckFunc checkWrite_;
-    EventCheckFunc checkClose_;
-    EventCheckFunc checkErr_;
 
     boost::function<void (Events, Timestamp)> handle_read_event_;
     boost::function<void (Events, Timestamp)> handle_write_event_;
