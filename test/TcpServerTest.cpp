@@ -42,9 +42,10 @@ void ConnMessageCallback(fas::TcpServer::TcpConnShreadPtr conn, Buffer *buffer, 
 
 int main()
 {
-    std::cout << "after init" << std::endl;
+    std::cout << "before loop" << std::endl;
     //这一步是必须的，EventLoop是程序的核心。
-    EventLoop *loop = new EventLoop;
+    EventLoop *loop = new EventLoop();
+    std::cout << "after loop" << std::endl;
     //把loop传给TcpServer，也就是说，TcpServer里面的定时器事件，套接字监听，消息读写等事件，
     //都会在下面的loop循环中被polling监听。
     TcpServer *ser = new TcpServer(loop, NetAddress(AF_INET, 6686, "192.168.1.3"), 4);

@@ -24,9 +24,14 @@
 
 std::atomic<int> fas::EventLoop::count_(0);
 
-fas::EventLoop::EventLoop(Poller::type polltype) :
+fas::EventLoop::EventLoop() :
+    EventLoop(new (std::nothrow) EpollFactory) {
+}
+
+fas::EventLoop::EventLoop(PollerFactory *pollerFactory) :
     poll_(nullptr),
     pollDelayTime_(200),
+    pollerFactory_(pollerFactory),
     revents_(),
     handles_(),
     updates_(),
@@ -37,19 +42,21 @@ fas::EventLoop::EventLoop(Poller::type polltype) :
     wakeUpHandle_(new Handle(this, Events(wakeUpFd_, kReadEvent))),
     functors_(),
     runningFunctors_(false),
-    timerScheduler_(new TimersScheduler(this)),
+    timerScheduler_(nullptr),
     quit_(false) {
-    if (Poller::type::POLL == polltype) {
-        poll_ = new (std::nothrow) Poll();
-    } else {
-        poll_ = new (std::nothrow) Epoll();
-    }
+    LOGGER_TRACE("Before EventLoop.");
+    poll_ = pollerFactory_->getPoller();
+    poll_ = new (std::nothrow) Epoll();
     if (!poll_) {
         LOGGER_SYSERR("New Poller error!");
     }
     count_++;
     wakeUpHandle_->setHandleRead(boost::bind(&EventLoop::handWakeUp, this, _1, _2));
     addSHandle(wakeUpHandle_);
+    timerScheduler_ = new (std::nothrow) TimersScheduler(this);
+    if (timerScheduler_ == nullptr) {
+        LOGGER_SYSERR("New TimersScheduler error.");
+    }
 	LOGGER_TRACE("wakeup fd = " << wakeUpFd_);
 }
 
@@ -65,6 +72,9 @@ bool fas::EventLoop::updateHandle(SHandlePtr handle) {
     assert(handle->getLoop() == this);
     //It'll insert() fail when the key is same.
     updates_[handle->fd()] = handle;
+    if (isInLoopOwnerThread()) {
+        return updateHandlesUnlock();
+    }
     return true;
 }
 
@@ -134,8 +144,7 @@ void fas::EventLoop::delTimer(Timer *timer) {
     timerScheduler_->delTimer(timer);
 }
 
-bool fas::EventLoop::updateHandles() {
-    MutexLocker lock(mutex_);(void)lock;
+bool fas::EventLoop::updateHandlesUnlock() {
     for(auto cur = updates_.begin(); cur != updates_.end(); cur++) {
         SHandlePtr handle = cur->second;
         Events* event = handle->getEvent();
@@ -158,6 +167,11 @@ bool fas::EventLoop::updateHandles() {
     }
     updates_.clear();
     return true;
+}
+
+bool fas::EventLoop::updateHandles() {
+    MutexLocker lock(mutex_);(void)lock;
+    return updateHandlesUnlock();
 }
 
 bool fas::EventLoop::isInLoopOwnerThread() {
@@ -287,5 +301,8 @@ bool fas::EventLoop::loop() {
 
 fas::EventLoop::~EventLoop() { 
     LOGGER_TRACE("EventLoop will be destroyed in process " << getpid());
+    if (timerScheduler_) {
+        delete timerScheduler_;
+    }
 }
 
