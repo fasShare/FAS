@@ -42,7 +42,7 @@ bool fas::TcpConnection::reinit(EventLoop *loop, const Events& event, const NetA
         return false;
     }
     loop_ = loop;
-    event_ = event_;
+    event_ = event;
     if (nullptr == readBuffer_) {
         readBuffer_ = new (std::nothrow) Buffer(1024);
     } else {
@@ -53,7 +53,7 @@ bool fas::TcpConnection::reinit(EventLoop *loop, const Events& event, const NetA
     } else {
         writeBuffer_->retrieveAll();
     }
-    connfd_ = event.getFd();
+    connfd_ = event_.getFd();
     peerAddr_ = peerAddr;
     shouldBeClosed_ = false;
     closeing_ = false;
@@ -239,8 +239,6 @@ fas::TcpConnection::~TcpConnection() {
         loop_->delHandle(handle_);
     }
     delete readBuffer_;
-    readBuffer_ = nullptr;
     delete writeBuffer_;
-    writeBuffer_ = nullptr;
     LOGGER_TRACE("tid: " << gettid() << " TcpConnection destroy!");
 }

@@ -15,12 +15,12 @@ fas::Socket::Socket(int domain, int type, int protocol) :
 
 fas::Socket::Socket(int sd) :
     socket_(sd),
-    state_(Socket::STATE::OPENED) {
+    state_(Socket::STATE::CLOSED) {
 }
 
 const int fas::Socket::operator=(int sd) {
     socket_ = sd;
-    return sd;
+    return socket_;
 }
 
 int fas::Socket::getSocket() const {
