@@ -24,8 +24,12 @@ bool fas::Handle::reinit(EventLoop* loop, const Events& events) {
     if (nullptr == loop) {
         return false;
     }
+    if (nullptr == events_) {
+        events_ = new Events(events);
+    } else {
+        *events_ = events;
+    }
     loop_ = loop;
-    *events_ = events;
     state_ = STATE_NEW;
     return true;
 }
