@@ -117,7 +117,7 @@ void fas::EventLoop::delTimer(Timer *timer) {
 }
 
 bool fas::EventLoop::updateHandlesUnlock() {
-    for(auto cur = updates_.begin(); cur != updates_.end(); cur++) {
+    for(auto cur = updates_.begin(); cur != updates_.end(); ++cur) {
         SHandlePtr handle = cur->second;
         Events* event = handle->getEvent();
 
@@ -160,7 +160,6 @@ void fas::EventLoop::wakeUp() {
     if (n != sizeof one) {
         LOGGER_ERROR("EventLoop::wakeup() writes " << n << " bytes instead of 8");
     }
-
 }
 
 void fas::EventLoop::handWakeUp(Events event, Timestamp time) {
@@ -242,12 +241,9 @@ bool fas::EventLoop::loop() {
         if (!updates_.empty()) {
             updateHandles();
         }
-
         revents_.clear();
-
         looptime = poll_->Loop(revents_, pollDelayTime_);
-        for(std::vector<Events>::iterator iter = revents_.begin();
-                iter != revents_.end(); iter++) {
+        for(std::vector<Events>::iterator iter = revents_.begin(); iter != revents_.end(); ++iter) {
             //handle will decreament reference after for end!
             std::map<int, SHandlePtr>::iterator finditer = handles_.find((*iter).getFd());
             if (finditer == handles_.end()) {

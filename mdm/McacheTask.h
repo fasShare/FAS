@@ -3,18 +3,18 @@
 #include <Buffer.h>
 #include <Socket.h>
 #include <TcpConnection.h>
-#include <memProtocol.h>
+#include <MemProtocol.h>
 #include <ConsistencyHash.h>
 
 namespace fas {
 
 namespace mdm {
 
-class mcacheTask
+class McacheTask
 {
 public:
-    using hashSPtr = ConsistencyHash::hashSPtr;
-    using serNodeSptr = ConsistencyHash::serNodeSptr;
+    using HashSPtr = ConsistencyHash::HashSPtr;
+    using SerNodeSptr = ConsistencyHash::SerNodeSptr;
     using TcpConnShreadPtr = fas::TcpConnection::TcpConnShreadPtr;
     enum TaskState {
         BAD,     //TcpConnection will be closed!
@@ -24,7 +24,7 @@ public:
         WAIT_ENOUGH_DATA,
         GET_ALL_DATA,
     };
-    mcacheTask(hashSPtr hash);
+    McacheTask(HashSPtr hash);
 
     void renew();
 
@@ -66,10 +66,10 @@ private:
 
     int hasReadBytes_;
 
-    hashSPtr hash_;
-    serNodeSptr server_;
+    HashSPtr hash_;
+    SerNodeSptr server_;
 
-    memProtocol protocol_;
+    MemProtocol protocol_;
 };
 }
 

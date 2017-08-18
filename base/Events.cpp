@@ -46,11 +46,11 @@ void fas::Events::deleteEvent(uint32_t event) {
     events_ &= ~event;
 }
 
-bool fas::Events::containsEvents(uint32_t events) const {
+bool fas::Events::contains(uint32_t events) const {
     return ((events_ & events) == events);
 }
 
-bool fas::Events::containsAtLeastOneEvents(uint32_t events) const {
+bool fas::Events::intersect(uint32_t events) const {
     return ((events_ & events) != 0);
 }
 
@@ -71,9 +71,19 @@ struct pollfd fas::Events::pollEvents() {
 }
 
 std::ostream& fas::operator<<(std::ostream& os, Events& events) {
-    os << "fd = " << events.getFd();
+    std::string state = "";
+    if ((events.events_ & kReadEvent) == kReadEvent) {
+        state = "kReadEvent";
+    }
+    if ((events.events_ & kWriteEvent) == kWriteEvent) {
+        if (!state.empty()) {
+            state += "|";
+        }
+        state = "kWriteEvent";
+    }
+    if (state.empty()) {
+        state = "kNoneEvent";
+    }
+    os << "fd:" << events.getFd() << ", event:" << state;
     return os;
-}
-
-fas::Events::~Events() {
 }

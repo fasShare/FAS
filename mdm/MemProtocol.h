@@ -8,9 +8,9 @@ namespace fas {
 
 namespace mdm {
 
-class memProtocol {
+class MemProtocol {
 public:
-    memProtocol();
+    MemProtocol();
     bool inCmdSet(const std::string& cmd) const;
     bool isStorageCommand(const std::string& cmd) const;
     bool isRetrievalCommand(const std::string& cmd) const;

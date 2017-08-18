@@ -1,7 +1,7 @@
 #ifndef FAS_MCACHETASKSERVER_H
 #define FAS_MCACHETASKSERVER_H
 #include <TcpServer.h>
-#include <mcacheTaskHandle.h>
+#include <McacheTaskHandle.h>
 #include <EventLoop.h>
 #include <NetAddress.h>
 #include <TcpServer.h>
@@ -10,16 +10,16 @@ namespace fas {
 
 namespace mdm {
 
-class mcacheTaskServer
+class McacheTaskServer
 {
 public:
-    using hashSPtr = ConsistencyHash::hashSPtr;
-    using serNodeSptr = ConsistencyHash::serNodeSptr;
+    using HashSPtr = ConsistencyHash::HashSPtr;
+    using SerNodeSptr = ConsistencyHash::SerNodeSptr;
     using TcpConnShreadPtr = fas::TcpConnection::TcpConnShreadPtr;
     using connkey_t = fas::TcpServer::connkey_t;
-    mcacheTaskServer(hashSPtr hash, fas::EventLoop* loop, \
+    McacheTaskServer(HashSPtr hash, fas::EventLoop* loop, \
             const fas::NetAddress& addr, int threadNum);
-    ~mcacheTaskServer();
+    ~McacheTaskServer();
 
     void OnNewConnection(TcpConnShreadPtr conn);
 
@@ -27,7 +27,7 @@ public:
 private:
     fas::EventLoop *loop_;
     fas::TcpServer tcpSer_;
-    hashSPtr hash_;
+    HashSPtr hash_;
 };
 
 }

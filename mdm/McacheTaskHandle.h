@@ -7,26 +7,26 @@
 #include <Handle.h>
 #include <Buffer.h>
 #include <TcpConnection.h>
-#include <mcacheTask.h>
+#include <McacheTask.h>
 
 namespace fas {
 
 namespace mdm {
 
-class mcacheTaskHandle
+class McacheTaskHandle
 {
 public:
-    using hashSPtr = ConsistencyHash::hashSPtr;
-    using serNodeSptr = ConsistencyHash::serNodeSptr;
+    using HashSPtr = ConsistencyHash::HashSPtr;
+    using SerNodeSptr = ConsistencyHash::SerNodeSptr;
     using TcpConnShreadPtr = fas::TcpConnection::TcpConnShreadPtr;
-    mcacheTaskHandle(hashSPtr hash);
-    ~mcacheTaskHandle();
+    McacheTaskHandle(HashSPtr hash);
+    ~McacheTaskHandle();
     void OnMessageCallback(TcpConnShreadPtr conn, boost::shared_ptr<fas::Buffer> buffer, fas::Timestamp time);
 
     void sendDataToMemcached();
 private:
-    mcacheTask mTask_;
-    hashSPtr hash_;
+    McacheTask mTask_;
+    HashSPtr hash_;
 };
 
 }

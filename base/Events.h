@@ -24,7 +24,6 @@ public:
     Events(const Events& events);
     Events(const struct epoll_event& events);
     Events(const struct pollfd& events);
-    ~Events();
 
     bool reset();
 
@@ -34,11 +33,13 @@ public:
     void addEvent(uint32_t event);
     void deleteEvent(uint32_t event);
 
-    bool containsEvents(uint32_t events) const;
-    bool containsAtLeastOneEvents(uint32_t events) const;
+    bool contains(uint32_t events) const;
+    bool intersect(uint32_t events) const;
     struct epoll_event epollEvents();
 
     struct pollfd pollEvents();
+
+    friend std::ostream& operator<<(std::ostream& os, Events& events);
 private:
     int fd_;
     uint32_t events_;

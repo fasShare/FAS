@@ -1,5 +1,7 @@
-#include "ConsistencyHash.h"
 #include <iostream>
+#include <boost/make_shared.hpp>
+
+#include <ConsistencyHash.h>
 
 fas::mdm::ConsistencyHash::ConsistencyHash(int virtualNodeNum) :
     virtualNodeNum_(virtualNodeNum),
@@ -16,7 +18,7 @@ bool fas::mdm::ConsistencyHash::addHashNodesFromString(std::string nodeName) {
         return false;
     }
 
-    std::shared_ptr<HashNode> node = std::make_shared<HashNode>(&md5_, nodeName, virtualNodeNum_);
+    boost::shared_ptr<HashNode> node = boost::make_shared<HashNode>(&md5_, nodeName, virtualNodeNum_);
     nodes_[nodeName] = node;
 
     std::vector<HashNode::KeyType> nodeKeys = node->getNodeKeys();
@@ -61,8 +63,8 @@ fas::mdm::ConsistencyHash::getMappingNodeFromKey(HashNode::KeyType key) {
     return std::pair<ConsistencyHash::MappingNodeIter, bool>(iter, true);
 }
 
-std::shared_ptr<fas::mdm::HashNode> fas::mdm::ConsistencyHash::getMappingNodeFromKeyString(std::string key) {
-  std::shared_ptr<HashNode> retNode = nullptr;
+boost::shared_ptr<fas::mdm::HashNode> fas::mdm::ConsistencyHash::getMappingNodeFromKeyString(std::string key) {
+  boost::shared_ptr<HashNode> retNode = nullptr;
   md5_.GenerateMD5(key.c_str(), key.size());
   std::pair<ConsistencyHash::MappingNodeIter, bool> mapNodeRet;
 

@@ -83,27 +83,26 @@ uint8_t fas::Handle::getState() {
 }
 
 void fas::Handle::handleEvent(const Events& events, Timestamp time) {
-    if (events.containsAtLeastOneEvents(POLLHUP) 
-        && !events.containsAtLeastOneEvents(POLLIN)) {
+    if (events.intersect(POLLHUP) && !events.intersect(POLLIN)) {
         if (handle_close_event_) handle_close_event_(events, time);
     }
 
-    if (events.containsAtLeastOneEvents(POLLERR | POLLNVAL)) {
+    if (events.intersect(POLLERR | POLLNVAL)) {
         if (handle_error_event_)
             handle_error_event_(events, time);
     }
 
-    if (events.containsAtLeastOneEvents(POLLIN | POLLPRI | POLLRDHUP)) {
+    if (events.intersect(POLLIN | POLLPRI | POLLRDHUP)) {
         if (handle_read_event_)
             handle_read_event_(events, time);
     }
 
-    if (events.containsAtLeastOneEvents(POLLOUT)) {
+    if (events.intersect(POLLOUT)) {
         if (handle_write_event_)
             handle_write_event_(events, time);
     }
 
-    if (events.containsAtLeastOneEvents(POLLNVAL)) {
+    if (events.intersect(POLLNVAL)) {
         LOGGER_DEBUG("events contains POLLNVAL!");
     }
 }

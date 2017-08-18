@@ -1,4 +1,4 @@
-#include "mcacheTask.h"
+#include <McacheTask.h>
 #include <Log.h>
 #include <utils/utilstring.h>
 #include <NetAddress.h>
@@ -12,7 +12,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-fas::mdm::mcacheTask::mcacheTask(hashSPtr hash) :
+fas::mdm::McacheTask::McacheTask(HashSPtr hash) :
 	taskState_(TaskState::BEGIN_NEW_TASK),
 	head_(""),
 	headerItems_(),
@@ -27,7 +27,7 @@ fas::mdm::mcacheTask::mcacheTask(hashSPtr hash) :
 	protocol_() {
 }
 
-void fas::mdm::mcacheTask::renew() {
+void fas::mdm::McacheTask::renew() {
 	taskState_ = TaskState::BEGIN_NEW_TASK;
 	head_ = "";
 	headerItems_.clear();
@@ -46,8 +46,8 @@ void fas::mdm::mcacheTask::renew() {
 	server_ = nullptr;
 }
 
-bool fas::mdm::mcacheTask::taskCommunition(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
-	LOGGER_TRACE("mcacheTask::taskCommunition");
+bool fas::mdm::McacheTask::taskCommunition(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
+	LOGGER_TRACE("McacheTask::taskCommunition");
 
 	const char* end = NULL;
 
@@ -111,7 +111,7 @@ bool fas::mdm::mcacheTask::taskCommunition(TcpConnShreadPtr conn, boost::shared_
 	return true;
 }
 
-bool fas::mdm::mcacheTask::handleOtherCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
+bool fas::mdm::McacheTask::handleOtherCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 	if (getState() == TaskState::BEGIN_HANDLE_CMD) {
 		method_ = headerItems_[0];
 		key_ = "default key";
@@ -174,7 +174,7 @@ bool fas::mdm::mcacheTask::handleOtherCmd(TcpConnShreadPtr conn, boost::shared_p
 	return true;
 }
 
-bool fas::mdm::mcacheTask::handleIncrDecrCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
+bool fas::mdm::McacheTask::handleIncrDecrCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 	//  incr <key> <value> [noreply]"r"n
 	//  decr <key> <value> [noreply]"r"n
 	//  <key>是客户端要修改数据项的关键字
@@ -242,7 +242,7 @@ bool fas::mdm::mcacheTask::handleIncrDecrCmd(TcpConnShreadPtr conn, boost::share
 	return true;
 }
 
-bool fas::mdm::mcacheTask::handleDeleteCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
+bool fas::mdm::McacheTask::handleDeleteCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 	//  delete <key> [noreply]\r\n
 	//  <key>是客户端希望服务器删除数据项的关键字
 	if (getState() == TaskState::BEGIN_HANDLE_CMD) {
@@ -308,7 +308,7 @@ bool fas::mdm::mcacheTask::handleDeleteCmd(TcpConnShreadPtr conn, boost::shared_
 	return true;
 }
 
-bool fas::mdm::mcacheTask::handleRetriveCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
+bool fas::mdm::McacheTask::handleRetriveCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 	if (getState() == TaskState::BEGIN_HANDLE_CMD) {
 		//get/gets 至少是两个命令，get <key>\r\n,只有一个get视为错误.
 		if (headerItems_.size() <= 1) {
@@ -330,7 +330,7 @@ bool fas::mdm::mcacheTask::handleRetriveCmd(TcpConnShreadPtr conn, boost::shared
 		}
 
 		int countGetSucceed = 0;
-		std::vector<serNodeSptr> gets_servers_v;
+		std::vector<SerNodeSptr> gets_servers_v;
 		std::map<int, std::string> gets_socks_v;
 		fas::Poll poller;
 		std::vector<fas::Events> rEvent;
@@ -381,13 +381,11 @@ bool fas::mdm::mcacheTask::handleRetriveCmd(TcpConnShreadPtr conn, boost::shared
 		LOGGER_TRACE("after pollloop");
 
 		for (auto iter = rEvent.begin(); iter != rEvent.end(); ++iter) {
-			if ((*iter).containsEvents(fas::kReadEvent) &&\
-					(*iter).containsEvents(fas::kWriteEvent)) {
+			if ((*iter).contains(fas::kReadEvent) && (*iter).contains(fas::kWriteEvent)) {
 				int error = 0;
 				socklen_t len = 0;
 
-				getsockopt((*iter).getFd(), SOL_SOCKET, SO_ERROR, \
-						reinterpret_cast<char *>(&error), &len);
+				getsockopt((*iter).getFd(), SOL_SOCKET, SO_ERROR, reinterpret_cast<char *>(&error), &len);
 				if (error != 0) { //有一个连接不成功就会导致命令的失败
 					setState(TaskState::BAD);
 					conn->sendString("SERVER_ERROR\r\n");
@@ -425,7 +423,7 @@ bool fas::mdm::mcacheTask::handleRetriveCmd(TcpConnShreadPtr conn, boost::shared
 	return true;
 }
 
-bool fas::mdm::mcacheTask::handleStrogeCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
+bool fas::mdm::McacheTask::handleStrogeCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 
 	if (getState() == TaskState::BEGIN_HANDLE_CMD) {
 		//cas 命令最多７个参数
@@ -539,7 +537,7 @@ bool fas::mdm::mcacheTask::handleStrogeCmd(TcpConnShreadPtr conn, boost::shared_
 	return true;
 }
 
-bool fas::mdm::mcacheTask::getSocketFromKey(const string& key, fas::Socket& sock) {
+bool fas::mdm::McacheTask::getSocketFromKey(const string& key, fas::Socket& sock) {
 	server_ = hash_->getMappingNodeFromKeyString(key_);
 	if (!server_) {
 		return false;
@@ -574,8 +572,8 @@ bool fas::mdm::mcacheTask::getSocketFromKey(const string& key, fas::Socket& sock
 	int error = 0;
 	socklen_t len = sizeof(error);
 
-	if (rEvent[0].containsAtLeastOneEvents(fas::kWriteEvent|fas::kReadEvent)) {
-		if (getsockopt(sock.getSocket(), SOL_SOCKET, SO_ERROR, \
+	if (rEvent[0].intersect(fas::kWriteEvent|fas::kReadEvent)) {
+		if (getsockopt(sock.getSocket(), SOL_SOCKET, SO_ERROR,
 					reinterpret_cast<char *>(&error), &len) == 0 ){
 			if (error != 0) {
 				return false;
@@ -592,40 +590,40 @@ bool fas::mdm::mcacheTask::getSocketFromKey(const string& key, fas::Socket& sock
 	return true;
 }
 
-fas::mdm::mcacheTask::TaskState fas::mdm::mcacheTask::getState() const {
+fas::mdm::McacheTask::TaskState fas::mdm::McacheTask::getState() const {
 	return this->taskState_;
 }
 
-void fas::mdm::mcacheTask::setState(TaskState state) {
+void fas::mdm::McacheTask::setState(TaskState state) {
 	this->taskState_ = state;
 }
 
-int fas::mdm::mcacheTask::getHasReadBytes() const {
+int fas::mdm::McacheTask::getHasReadBytes() const {
 	return hasReadBytes_;
 }
-void fas::mdm::mcacheTask::add2HasReadBytes(int bytes) {
+void fas::mdm::McacheTask::add2HasReadBytes(int bytes) {
 	if (bytes <= 0) {
 		return;
 	}
 	hasReadBytes_ += bytes;
 }
 
-std::string fas::mdm::mcacheTask::getMethod() const {
+std::string fas::mdm::McacheTask::getMethod() const {
 	return this->method_;
 }
 
-std::string fas::mdm::mcacheTask::getKey() const {
+std::string fas::mdm::McacheTask::getKey() const {
 	return this->key_;
 }
 
-std::string fas::mdm::mcacheTask::getFlag() const {
+std::string fas::mdm::McacheTask::getFlag() const {
 	return this->flag_;
 }
 
-std::string fas::mdm::mcacheTask::getExptime() const {
+std::string fas::mdm::McacheTask::getExptime() const {
 	return this->exptime_;
 }
-int fas::mdm::mcacheTask::getBytes() const {
+int fas::mdm::McacheTask::getBytes() const {
 	return this->bytes_;
 }
 

@@ -9,7 +9,7 @@ using namespace std;
 void work() {
     while (1) {
         Socket client(AF_INET, SOCK_STREAM, 0);
-        NetAddress addr(AF_INET, 6686, "192.168.56.1");
+        NetAddress addr(AF_INET, 6686, "127.0.0.1");
         if (!client.connect(addr)) {
             return;
         }
