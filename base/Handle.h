@@ -32,7 +32,7 @@ public:
     EventLoop* getLoop() const;
 
     int fd() const;
-    Events* getEvent() const;
+    Events* getEvent();
     void updateEvent(Events& event);
 
     void enableWrite();
@@ -51,7 +51,7 @@ public:
     void handleEvent(const Events&, Timestamp);
 private:
     EventLoop* loop_;
-    Events *events_;
+    Events events_;
     unsigned char state_;
 
     boost::function<void (Events, Timestamp)> handle_read_event_;

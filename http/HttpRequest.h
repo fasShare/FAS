@@ -5,6 +5,9 @@
 
 #include <Timestamp.h>
 
+
+#include <boost/shared_ptr.hpp>
+
 namespace fas {
 
 class Buffer;
@@ -25,9 +28,9 @@ public:
   HttpRequest();
   ~HttpRequest();
 
-  bool analyseHttpRequestHeader(Buffer *buffer);
+  bool analyseHttpRequestHeader(boost::shared_ptr<Buffer> buffer);
 
-  bool analyseHttpRequestBody(Buffer *buffer);
+  bool analyseHttpRequestBody(boost::shared_ptr<Buffer> buffer);
 
   void setReqestState(ReqState state);
   ReqState getReqestState() const;
@@ -47,10 +50,7 @@ private:
   std::map<std::string, std::string> headers_;
 };
 
-
-}
-
-}
+}}
 
 #endif // FAS_HTTPREQUEST_H
 

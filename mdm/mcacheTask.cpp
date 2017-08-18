@@ -46,7 +46,7 @@ void fas::mdm::mcacheTask::renew() {
 	server_ = nullptr;
 }
 
-bool fas::mdm::mcacheTask::taskCommunition(TcpConnShreadPtr conn, fas::Buffer *buffer) {
+bool fas::mdm::mcacheTask::taskCommunition(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 	LOGGER_TRACE("mcacheTask::taskCommunition");
 
 	const char* end = NULL;
@@ -111,7 +111,7 @@ bool fas::mdm::mcacheTask::taskCommunition(TcpConnShreadPtr conn, fas::Buffer *b
 	return true;
 }
 
-bool fas::mdm::mcacheTask::handleOtherCmd(TcpConnShreadPtr conn, fas::Buffer *buffer) {
+bool fas::mdm::mcacheTask::handleOtherCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 	if (getState() == TaskState::BEGIN_HANDLE_CMD) {
 		method_ = headerItems_[0];
 		key_ = "default key";
@@ -174,7 +174,7 @@ bool fas::mdm::mcacheTask::handleOtherCmd(TcpConnShreadPtr conn, fas::Buffer *bu
 	return true;
 }
 
-bool fas::mdm::mcacheTask::handleIncrDecrCmd(TcpConnShreadPtr conn, fas::Buffer *buffer) {
+bool fas::mdm::mcacheTask::handleIncrDecrCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 	//  incr <key> <value> [noreply]"r"n
 	//  decr <key> <value> [noreply]"r"n
 	//  <key>是客户端要修改数据项的关键字
@@ -242,7 +242,7 @@ bool fas::mdm::mcacheTask::handleIncrDecrCmd(TcpConnShreadPtr conn, fas::Buffer 
 	return true;
 }
 
-bool fas::mdm::mcacheTask::handleDeleteCmd(TcpConnShreadPtr conn, fas::Buffer *buffer) {
+bool fas::mdm::mcacheTask::handleDeleteCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 	//  delete <key> [noreply]\r\n
 	//  <key>是客户端希望服务器删除数据项的关键字
 	if (getState() == TaskState::BEGIN_HANDLE_CMD) {
@@ -308,7 +308,7 @@ bool fas::mdm::mcacheTask::handleDeleteCmd(TcpConnShreadPtr conn, fas::Buffer *b
 	return true;
 }
 
-bool fas::mdm::mcacheTask::handleRetriveCmd(TcpConnShreadPtr conn, fas::Buffer *buffer) {
+bool fas::mdm::mcacheTask::handleRetriveCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 	if (getState() == TaskState::BEGIN_HANDLE_CMD) {
 		//get/gets 至少是两个命令，get <key>\r\n,只有一个get视为错误.
 		if (headerItems_.size() <= 1) {
@@ -425,7 +425,7 @@ bool fas::mdm::mcacheTask::handleRetriveCmd(TcpConnShreadPtr conn, fas::Buffer *
 	return true;
 }
 
-bool fas::mdm::mcacheTask::handleStrogeCmd(TcpConnShreadPtr conn, fas::Buffer *buffer) {
+bool fas::mdm::mcacheTask::handleStrogeCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer) {
 
 	if (getState() == TaskState::BEGIN_HANDLE_CMD) {
 		//cas 命令最多７个参数

@@ -18,7 +18,7 @@ using TcpConnShreadPtr = fas::TcpConnection::TcpConnShreadPtr;
   HttpReqHandle();
   ~HttpReqHandle();
 
-  void OnMessageCallback(TcpConnShreadPtr conn, Buffer* buffer, Timestamp time);
+  void OnMessageCallback(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer, Timestamp time);
   bool handleMethod(TcpConnShreadPtr conn, const HttpRequest& req);
 
   bool HandleGet(TcpConnShreadPtr conn, const HttpRequest& req);

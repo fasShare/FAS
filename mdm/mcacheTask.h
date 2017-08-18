@@ -34,11 +34,11 @@ public:
     int getHasReadBytes() const;
     void add2HasReadBytes(int bytes);
 
-    bool handleStrogeCmd(TcpConnShreadPtr conn, fas::Buffer *buffer);
-    bool handleRetriveCmd(TcpConnShreadPtr conn, fas::Buffer *buffer);
-    bool handleDeleteCmd(TcpConnShreadPtr conn, fas::Buffer *buffer);
-    bool handleIncrDecrCmd(TcpConnShreadPtr conn, fas::Buffer *buffer);
-    bool handleOtherCmd(TcpConnShreadPtr conn, fas::Buffer *buffer);
+    bool handleStrogeCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer);
+    bool handleRetriveCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer);
+    bool handleDeleteCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer);
+    bool handleIncrDecrCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer);
+    bool handleOtherCmd(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer);
 
     bool getSocketFromKey(const string& key, fas::Socket& sock);
     std::string getMethod() const;
@@ -47,7 +47,7 @@ public:
     std::string getExptime() const;
     int getBytes() const;
 
-    bool taskCommunition(TcpConnShreadPtr conn, fas::Buffer *buffer);
+    bool taskCommunition(TcpConnShreadPtr conn, boost::shared_ptr<Buffer> buffer);
 private:
     TaskState taskState_; //链接应该被关闭
 

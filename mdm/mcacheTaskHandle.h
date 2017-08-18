@@ -21,7 +21,7 @@ public:
     using TcpConnShreadPtr = fas::TcpConnection::TcpConnShreadPtr;
     mcacheTaskHandle(hashSPtr hash);
     ~mcacheTaskHandle();
-    void OnMessageCallback(TcpConnShreadPtr conn, fas::Buffer* buffer, fas::Timestamp time);
+    void OnMessageCallback(TcpConnShreadPtr conn, boost::shared_ptr<fas::Buffer> buffer, fas::Timestamp time);
 
     void sendDataToMemcached();
 private:

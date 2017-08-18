@@ -20,7 +20,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection> {
 public:
     typedef boost::shared_ptr<TcpConnection> TcpConnShreadPtr;
     typedef TcpConnection* TcpConnectionPtr;
-    typedef boost::function<void (TcpConnShreadPtr, Buffer*, Timestamp)> TcpConnMessageCallback;
+    typedef boost::function<void (TcpConnShreadPtr, boost::shared_ptr<Buffer>, Timestamp)> TcpConnMessageCallback;
     typedef boost::function<void (TcpConnShreadPtr)> HasMoreDataCallback;
     typedef boost::function<void ()> CloseCallback;
     TcpConnection(EventLoop *loop,
@@ -63,8 +63,8 @@ private:
     EventLoop *loop_;
     Events event_;        /*!< events of connfd_ */
     boost::shared_ptr<Handle> handle_;
-    Buffer *readBuffer_;
-    Buffer *writeBuffer_;
+    boost::shared_ptr<Buffer> readBuffer_;
+    boost::shared_ptr<Buffer> writeBuffer_;
     Socket connfd_;      /*!< connected socket. */
     NetAddress peerAddr_;
     bool shouldBeClosed_;

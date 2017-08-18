@@ -11,7 +11,7 @@ fas::mdm::mcacheTaskHandle::mcacheTaskHandle(hashSPtr hash) :
 
 }
 
-void fas::mdm::mcacheTaskHandle::OnMessageCallback(TcpConnShreadPtr conn, fas::Buffer* buffer, fas::Timestamp time) {
+void fas::mdm::mcacheTaskHandle::OnMessageCallback(TcpConnShreadPtr conn, boost::shared_ptr<fas::Buffer> buffer, fas::Timestamp time) {
 	boost::ignore_unused(conn, time);
 	std::string str(buffer->peek(), 0, buffer->readableBytes());
 	LOGGER_TRACE(str << " bytes:" << buffer->readableBytes());

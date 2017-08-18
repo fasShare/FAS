@@ -10,7 +10,7 @@ fas::http::HttpRequest::HttpRequest() :
   requestState_(ReqState::INCOMPLETE) {
 }
 
-bool fas::http::HttpRequest::analyseHttpRequestHeader(Buffer *buffer) {
+bool fas::http::HttpRequest::analyseHttpRequestHeader(boost::shared_ptr<Buffer> buffer) {
   const char* pos = buffer->findChars("\r\n\r\n", 4);
   if (pos == NULL) {
     // The HttpRequest header is not completed.
@@ -53,7 +53,7 @@ bool fas::http::HttpRequest::analyseHttpRequestHeader(Buffer *buffer) {
   return true;
 }
 
-bool fas::http::HttpRequest::analyseHttpRequestBody(Buffer *buffer) {
+bool fas::http::HttpRequest::analyseHttpRequestBody(boost::shared_ptr<Buffer> buffer) {
   boost::ignore_unused(buffer);
   return true;
 }
